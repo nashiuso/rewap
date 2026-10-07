@@ -1,0 +1,45 @@
+.page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 48px 20px 80px;
+  font-family:
+    "Montserrat",
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    sans-serif;
+  background: var(--rw-bg);
+  color: var(--rw-text);
+  min-height: 100vh;
+}
+
+.page__head h1 {
+  font-size: 24px;
+  font-weight: 600;
+  margin: 0 0 6px;
+}
+
+.page__head p {
+  margin: 0 0 28px;
+  color: var(--rw-text-dim);
+}
+
+.panel {
+  padding: 16px;
+  background: var(--rw-surface);
+  border: 1px solid var(--rw-line);
+  border-radius: 10px;
+}
+
+.panel h2 {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0 0 6px;
+}
+
+.panel p {
+  margin: 0;
+  font-family: "Roboto Mono", ui-monospace, monospace;
+  font-size: 13px;
+  color: var(--rw-text-dim);
+}

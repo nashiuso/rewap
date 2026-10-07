@@ -1,0 +1,20 @@
+/*
+ * Sparkline rules shared by the widgets stylesheet and the chart stylesheet.
+ *
+ * `StatsWidget` draws a sparkline through the chart module's path builder, so it
+ * needs the SVG to fill its container even when the chart stylesheet is not
+ * loaded. Kept in one file so the bundled `widgets.css` and the source agree.
+ */
+
+.rw-chart__svg {
+  display: block;
+  width: 100%;
+}
+
+.rw-chart__sparkline {
+  fill: none;
+  stroke: var(--rw-accent, #5fd0d8);
+  stroke-width: 1.25;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}

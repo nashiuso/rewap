@@ -1,0 +1,108 @@
+/**
+ * nashiuso design tokens.
+ *
+ * Dark-first, monochrome, one restrained cool accent. Tokens are declared with
+ * `:where()` so they carry zero specificity: override any of them on any
+ * ancestor, in any order, with plain CSS.
+ *
+ * Nothing here is downloaded — the font stacks below prefer locally installed
+ * families and degrade to system fonts.
+ */
+
+:where([data-rewap-layout], .rw-widget, .rw-chart, .rw-scope) {
+  /* Surfaces */
+  --rw-bg: #0a0c10;
+  --rw-surface: #101318;
+  --rw-surface-raised: #151a22;
+  --rw-surface-sunken: #0c0f14;
+
+  /* Lines */
+  --rw-line: #1d2430;
+  --rw-line-strong: #2b3545;
+  --rw-line-accent: rgba(95, 208, 216, 0.32);
+
+  /* Text */
+  --rw-text: #e7ecf3;
+  --rw-text-dim: #98a4b7;
+  --rw-text-faint: #5f6d84;
+  --rw-text-inverse: #0a0c10;
+
+  /* Accent: a single cool tone, used sparingly */
+  --rw-accent: #5fd0d8;
+  --rw-accent-muted: rgba(95, 208, 216, 0.14);
+  --rw-accent-line: rgba(95, 208, 216, 0.42);
+
+  /* Status */
+  --rw-positive: #6fd6a4;
+  --rw-caution: #e0c37a;
+  --rw-negative: #e08a8a;
+
+  /* Typography — Montserrat for UI, Roboto Mono for technical values */
+  --rw-font-ui: "Montserrat", "Montserrat Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --rw-font-mono: "Roboto Mono", "Roboto Mono Variable", ui-monospace, "SFMono-Regular", "Menlo", monospace;
+  --rw-text-xs: 0.6875rem;
+  --rw-text-sm: 0.75rem;
+  --rw-text-md: 0.8125rem;
+  --rw-text-lg: 1rem;
+  --rw-text-xl: 1.375rem;
+  --rw-tracking-wide: 0.08em;
+  --rw-weight-regular: 400;
+  --rw-weight-medium: 500;
+  --rw-weight-semibold: 600;
+  --rw-leading-tight: 1.25;
+
+  /* Geometry */
+  --rw-radius-sm: 3px;
+  --rw-radius: 6px;
+  --rw-radius-lg: 10px;
+  --rw-gap: 12px;
+  --rw-padding: 14px;
+  --rw-min-column: 240px;
+  --rw-columns: auto;
+
+  /* Depth: three quiet steps, never more */
+  --rw-shadow-1: 0 1px 2px rgba(4, 6, 10, 0.5);
+  --rw-shadow-2: 0 6px 18px rgba(4, 6, 10, 0.55);
+  --rw-shadow-3: 0 18px 44px rgba(4, 6, 10, 0.62);
+
+  /* Motion */
+  --rw-duration-fast: 120ms;
+  --rw-duration: 200ms;
+  --rw-duration-slow: 320ms;
+  --rw-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --rw-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* Functional defaults consumed by the runtime */
+  --rw-placeholder-radius: var(--rw-radius);
+}
+
+/* Optional light theme: opt in with data-rw-theme="light" on any ancestor. */
+:where([data-rw-theme="light"], .rw-theme-light) {
+  --rw-bg: #f6f7f9;
+  --rw-surface: #ffffff;
+  --rw-surface-raised: #ffffff;
+  --rw-surface-sunken: #eef0f4;
+  --rw-line: #e2e6ec;
+  --rw-line-strong: #cbd2dc;
+  --rw-line-accent: rgba(28, 128, 138, 0.32);
+  --rw-text: #12161c;
+  --rw-text-dim: #55617a;
+  --rw-text-faint: #8b95a8;
+  --rw-text-inverse: #ffffff;
+  --rw-accent: #1c808a;
+  --rw-accent-muted: rgba(28, 128, 138, 0.1);
+  --rw-accent-line: rgba(28, 128, 138, 0.4);
+  --rw-positive: #2f8f61;
+  --rw-caution: #a9801f;
+  --rw-negative: #b3564f;
+  --rw-shadow-1: 0 1px 2px rgba(16, 22, 32, 0.06);
+  --rw-shadow-2: 0 6px 18px rgba(16, 22, 32, 0.1);
+  --rw-shadow-3: 0 18px 44px rgba(16, 22, 32, 0.14);
+}
+
+@media (prefers-contrast: more) {
+  :where([data-rewap-layout], .rw-widget, .rw-chart, .rw-scope) {
+    --rw-line: var(--rw-line-strong);
+    --rw-text-dim: var(--rw-text);
+  }
+}

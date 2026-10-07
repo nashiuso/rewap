@@ -1,0 +1,162 @@
+/**
+ * Core layout styles.
+ *
+ * These rules are conveniences, not requirements: the engine measures whatever
+ * layout you give it (grid, flexbox, columns, inline-block). Import this file for
+ * the default look, or write your own and use the `data-*` attributes as styling
+ * hooks.
+ */
+
+.rw-layout {
+  display: grid;
+  grid-template-columns: repeat(var(--rw-columns, auto-fit), minmax(var(--rw-min-column, 240px), 1fr));
+  gap: var(--rw-gap, 12px);
+  align-content: start;
+  color: var(--rw-text, #e7ecf3);
+  font-family: var(--rw-font-ui, system-ui, sans-serif);
+  font-size: var(--rw-text-md, 0.8125rem);
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Reorder is a list by nature: one column unless the author says otherwise. */
+.rw-layout[data-mode="reorder"] {
+  grid-template-columns: 1fr;
+}
+
+/* An explicit `columns` prop switches to that many equal columns. */
+.rw-layout[data-rw-columns] {
+  grid-template-columns: repeat(var(--rw-columns), minmax(0, 1fr));
+}
+
+.rw-item {
+  position: relative;
+  display: block;
+  min-width: 0;
+  border-radius: var(--rw-radius, 6px);
+  outline-offset: 3px;
+}
+
+.rw-item[data-rewap-static] {
+  cursor: default;
+}
+
+.rw-item:not([data-rewap-static]):not([data-rewap-disabled]) {
+  cursor: grab;
+}
+
+.rw-item:focus-visible {
+  outline: 1px solid var(--rw-accent, #5fd0d8);
+}
+
+.rw-item[data-rewap-active] {
+  z-index: 2;
+  cursor: grabbing;
+}
+
+.rw-item[data-rewap-disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* While a drag is in flight, items stop competing for hover states. */
+.rw-layout[data-rewap-dragging] .rw-item:not([data-rewap-active]) {
+  pointer-events: none;
+}
+
+.rw-layout[data-rewap-dragging] {
+  cursor: grabbing;
+}
+
+.rw-handle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--rw-radius-sm, 3px);
+  background: transparent;
+  color: var(--rw-text-faint, #5f6d84);
+  cursor: grab;
+  transition: color var(--rw-duration-fast, 120ms) var(--rw-ease, ease);
+}
+
+.rw-handle:hover {
+  color: var(--rw-text-dim, #98a4b7);
+  background: var(--rw-accent-muted, rgba(95, 208, 216, 0.14));
+}
+
+.rw-handle:focus-visible {
+  outline: 1px solid var(--rw-accent, #5fd0d8);
+  outline-offset: 2px;
+}
+
+/* Destination placeholder. Rendered out of flow and animated imperatively. */
+.rw-placeholder {
+  border-radius: var(--rw-placeholder-radius, 6px);
+  will-change: transform;
+}
+
+.rw-placeholder[data-style="outline"] {
+  border: 1px dashed var(--rw-line-strong, #2b3545);
+  background: transparent;
+}
+
+.rw-placeholder[data-style="ghost"],
+.rw-placeholder[data-style="auto"] {
+  border: 1px solid var(--rw-line-accent, rgba(95, 208, 216, 0.32));
+  background: var(--rw-accent-muted, rgba(95, 208, 216, 0.14));
+}
+
+.rw-placeholder[data-style="outline"]::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: repeating-linear-gradient(-45deg, transparent 0 6px, rgba(255, 255, 255, 0.02) 6px 12px);
+}
+
+.rw-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.rw-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Effects ---------------------------------------------------------------- */
+
+.rw-item[data-effects~="drag-highlight"] {
+  transition: box-shadow var(--rw-duration, 200ms) var(--rw-ease, ease);
+}
+
+.rw-item[data-rewap-active] {
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rw-item,
+  .rw-handle,
+  .rw-placeholder {
+    transition-duration: 1ms !important;
+  }
+}

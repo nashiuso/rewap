@@ -1,0 +1,81 @@
+---
+import { Dashboard } from "../components/Dashboard";
+import "@nashiuso/rewap/styles.css";
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>__NAME__</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 48px 20px;
+        font-family:
+          "Montserrat",
+          system-ui,
+          -apple-system,
+          "Segoe UI",
+          sans-serif;
+        background: var(--rw-bg);
+        color: var(--rw-text);
+      }
+      h1 {
+        font-size: 24px;
+        font-weight: 600;
+        margin: 0 0 6px;
+      }
+      p {
+        color: var(--rw-text-dim);
+      }
+      main {
+        max-width: 900px;
+        margin: 0 auto;
+      }
+      .panel {
+        padding: 16px;
+        background: var(--rw-surface);
+        border: 1px solid var(--rw-line);
+        border-radius: 10px;
+      }
+      .panel h2 {
+        font-size: 14px;
+        font-weight: 600;
+        margin: 0 0 6px;
+      }
+      .panel p {
+        margin: 0;
+        font-family: "Roboto Mono", ui-monospace, monospace;
+        font-size: 13px;
+      }
+      section {
+        margin-top: 40px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>__NAME__</h1>
+      <p>Both dashboards below are the same component. The difference is the directive.</p>
+
+      <!--
+      hydrates when it scrolls into view: the right default for a dashboard
+      that is not the reason someone opened the page.
+      -->
+      <section>
+        <p><code>client:visible</code></p>
+        <Dashboard client:visible />
+      </section>
+
+      <!--
+      hydrates immediately. Use it when the layout is above the fold and the  
+      page feels broken until it is interactive.
+      -->
+      <section>
+        <p><code>client:load</code></p>
+        <Dashboard client:load />
+      </section>
+    </main>
+  </body>
+</html>

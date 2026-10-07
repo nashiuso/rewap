@@ -1,0 +1,92 @@
+/**
+ * Chart styles. Optional: only needed when `@nashiuso/rewap/charts` is used.
+ */
+
+.rw-chart {
+  position: relative;
+  display: block;
+  width: 100%;
+  color: var(--rw-text, #e7ecf3);
+  font-family: var(--rw-font-ui, system-ui, sans-serif);
+}
+
+.rw-chart__svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.rw-chart__grid {
+  stroke: var(--rw-line, #1d2430);
+  stroke-width: 1;
+  shape-rendering: crispEdges;
+}
+
+.rw-chart__axis {
+  stroke: var(--rw-line-strong, #2b3545);
+  stroke-width: 1;
+  shape-rendering: crispEdges;
+}
+
+.rw-chart__tick-label {
+  fill: var(--rw-text-faint, #5f6d84);
+  font-family: var(--rw-font-mono, monospace);
+  font-size: var(--rw-text-xs, 0.6875rem);
+  letter-spacing: 0.02em;
+}
+
+.rw-chart__line {
+  fill: none;
+  stroke: var(--rw-accent, #5fd0d8);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.rw-chart__area {
+  fill: var(--rw-accent-muted, rgba(95, 208, 216, 0.14));
+  stroke: none;
+}
+
+.rw-chart__bar {
+  fill: var(--rw-accent-muted, rgba(95, 208, 216, 0.14));
+  stroke: var(--rw-accent, #5fd0d8);
+  stroke-width: 1;
+}
+
+.rw-chart__bar--highlight {
+  fill: var(--rw-accent, #5fd0d8);
+}
+
+.rw-chart__point {
+  fill: var(--rw-bg, #0a0c10);
+  stroke: var(--rw-accent, #5fd0d8);
+  stroke-width: 1.25;
+}
+
+.rw-chart__sparkline {
+  fill: none;
+  stroke: var(--rw-accent, #5fd0d8);
+  stroke-width: 1.25;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.rw-chart__marker {
+  stroke: var(--rw-text, #e7ecf3);
+  stroke-width: 1;
+  stroke-dasharray: 2 3;
+}
+
+.rw-chart__label {
+  fill: var(--rw-text-dim, #98a4b7);
+  font-size: var(--rw-text-xs, 0.6875rem);
+}
+
+.rw-chart__empty {
+  fill: var(--rw-text-faint, #5f6d84);
+  font-family: var(--rw-font-mono, monospace);
+  font-size: var(--rw-text-xs, 0.6875rem);
+}
