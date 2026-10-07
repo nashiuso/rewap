@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" role="img" aria-label="rewap">
+<title>rewap</title>
+<rect width="128" height="128" rx="26" fill="#08090b"/>
+<rect x="22" y="22" width="36" height="36" rx="7" fill="none" stroke="#2b3038" stroke-width="2" />
+<rect x="70" y="22" width="36" height="36" rx="7" fill="none" stroke="#2b3038" stroke-width="2" />
+<rect x="22" y="70" width="36" height="36" rx="7" fill="none" stroke="#2b3038" stroke-width="2" />
+<rect x="64" y="62" width="40" height="40" rx="8" fill="#5fd0d8" opacity="0.9"/>
+<rect x="74" y="72" width="20" height="20" rx="4" fill="#08090b" opacity="0.65"/>
+</svg>

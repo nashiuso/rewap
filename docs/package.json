@@ -1,0 +1,15 @@
+{
+  "name": "@nashiuso/rewap-docs",
+  "version": "1.1.1",
+  "private": true,
+  "type": "module",
+  "description": "Documentation site for @nashiuso/rewap. Built locally from source, no remote scripts.",
+  "scripts": {
+    "build": "node build.mjs",
+    "dev": "node serve.mjs"
+  },
+  "devDependencies": {
+    "@fontsource/montserrat": "^5.1.0",
+    "@fontsource/roboto-mono": "^5.1.0"
+  }
+}
