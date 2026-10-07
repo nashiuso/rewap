@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "jsx": "react-jsx",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noEmit": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "verbatimModuleSyntax": true,
+    "types": [],
+    "baseUrl": "../..",
+    "paths": {
+      "@nashiuso/rewap": ["src/index.ts"],
+      "@nashiuso/rewap/react": ["src/react/index.ts"],
+      "@nashiuso/rewap/core": ["src/core/index.ts"],
+      "@nashiuso/rewap/math": ["src/math/index.ts"],
+      "@nashiuso/rewap/motion": ["src/motion/index.ts"],
+      "@nashiuso/rewap/accessibility": ["src/accessibility/index.ts"],
+      "@nashiuso/rewap/utilities": ["src/utilities/index.ts"],
+      "@nashiuso/rewap/providers": ["src/providers/index.ts"],
+      "@nashiuso/rewap/charts": ["src/charts/index.ts"],
+      "@nashiuso/rewap/widgets": ["src/widgets/index.ts"]
+    },
+    "typeRoots": []
+  },
+  "include": ["./**/*.ts", "./**/*.tsx", "../../src/**/*.d.ts"]
+}
