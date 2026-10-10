@@ -19,7 +19,13 @@ import {
   normalizeSeries,
   seriesToPoints,
 } from "../src/charts/scales";
-import { areaPath, barRects, clampPoints, linePath, smoothLinePath } from "../src/charts/paths";
+import {
+  areaPath,
+  barRects,
+  clampPoints,
+  linePath,
+  smoothLinePath,
+} from "../src/charts/paths";
 
 const NativeResizeObserver = globalThis.ResizeObserver;
 
@@ -35,7 +41,8 @@ class SizingObserver implements ResizeObserver {
 
 beforeEach(() => {
   SizingObserver.callbacks = [];
-  globalThis.ResizeObserver = SizingObserver as unknown as typeof ResizeObserver;
+  globalThis.ResizeObserver =
+    SizingObserver as unknown as typeof ResizeObserver;
 });
 
 afterEach(() => {
@@ -91,7 +98,10 @@ describe("scales", () => {
 
   it("normalises the three accepted data shapes", () => {
     expect(normalizeSeries([1, 2, 3])[0]?.points).toHaveLength(3);
-    expect(normalizeSeries([{ x: 1, y: 2 }])[0]?.points[0]).toEqual({ x: 1, y: 2 });
+    expect(normalizeSeries([{ x: 1, y: 2 }])[0]?.points[0]).toEqual({
+      x: 1,
+      y: 2,
+    });
     expect(
       normalizeSeries([
         { id: "a", data: [1, 2] },
@@ -186,7 +196,9 @@ describe("paths", () => {
 
 describe("<Chart>", () => {
   it("renders the requested chart type", () => {
-    const { container, rerender } = render(<Chart type="line" data={[1, 4, 2, 6]} />);
+    const { container, rerender } = render(
+      <Chart type="line" data={[1, 4, 2, 6]} />,
+    );
     expect(container.querySelectorAll(".rw-chart__line")).toHaveLength(1);
 
     rerender(<Chart type="bar" data={[1, 4, 2, 6]} />);
@@ -211,33 +223,49 @@ describe("<Chart>", () => {
   });
 
   it("exposes the data to assistive technology", () => {
-    const { container } = render(<Chart type="line" data={[3, 5, 8]} ariaLabel="Weekly signups" />);
+    const { container } = render(
+      <Chart type="line" data={[3, 5, 8]} ariaLabel="Weekly signups" />,
+    );
 
     const figure = chartOf(container);
     expect(figure.getAttribute("role")).toBe("img");
     expect(figure.getAttribute("aria-label")).toBe("Weekly signups");
-    expect(figure.querySelector("svg")?.getAttribute("aria-hidden")).toBe("true");
+    expect(figure.querySelector("svg")?.getAttribute("aria-hidden")).toBe(
+      "true",
+    );
 
     const table = figure.querySelector("table");
     expect(table?.querySelector("caption")?.textContent).toBe("Weekly signups");
     expect(table?.querySelectorAll("tbody tr")).toHaveLength(3);
-    expect(table?.querySelector("tbody tr td:last-child")?.textContent).toBe("3");
+    expect(table?.querySelector("tbody tr td:last-child")?.textContent).toBe(
+      "3",
+    );
   });
 
   it("describes itself when no label is given", () => {
     const { container } = render(<Chart type="area" data={[1, 2, 3]} />);
-    expect(chartOf(container).getAttribute("aria-label")).toBe("area chart with 3 points");
+    expect(chartOf(container).getAttribute("aria-label")).toBe(
+      "area chart with 3 points",
+    );
   });
 
   it("can drop the hidden table", () => {
-    const { container } = render(<Chart type="line" data={[1, 2]} accessibleTable={false} />);
+    const { container } = render(
+      <Chart type="line" data={[1, 2]} accessibleTable={false} />,
+    );
     expect(container.querySelector("table")).toBeNull();
   });
 
   it("says so when there is nothing to draw", () => {
-    const { container } = render(<Chart type="line" data={[]} ariaLabel="Empty" />);
-    expect(container.querySelector(".rw-chart__empty")?.textContent).toBe("No data");
-    expect(chartOf(container).getAttribute("aria-label")).toBe("Empty (no data)");
+    const { container } = render(
+      <Chart type="line" data={[]} ariaLabel="Empty" />,
+    );
+    expect(container.querySelector(".rw-chart__empty")?.textContent).toBe(
+      "No data",
+    );
+    expect(chartOf(container).getAttribute("aria-label")).toBe(
+      "Empty (no data)",
+    );
     expect(container.querySelector("table")).toBeNull();
   });
 
@@ -278,7 +306,9 @@ describe("<Chart>", () => {
     const { container } = render(<Chart type="line" data={[1, 2, 3]} />);
     const svg = () => container.querySelector("svg") as SVGSVGElement;
 
-    await waitFor(() => expect(SizingObserver.callbacks.length).toBeGreaterThan(0));
+    await waitFor(() =>
+      expect(SizingObserver.callbacks.length).toBeGreaterThan(0),
+    );
     // Without a layout jsdom reports a zero-width box, so the chart falls back to
     // its default width.
     expect(svg().getAttribute("width")).toBe("320");
@@ -298,7 +328,9 @@ describe("<Chart>", () => {
   });
 
   it("understands a pixel height, and leaves other CSS lengths to CSS", () => {
-    const { container, rerender } = render(<Chart type="line" data={[1, 2]} height={240} />);
+    const { container, rerender } = render(
+      <Chart type="line" data={[1, 2]} height={240} />,
+    );
     expect(container.querySelector("svg")?.getAttribute("height")).toBe("240");
 
     rerender(<Chart type="line" data={[1, 2]} height="180px" />);
@@ -325,7 +357,10 @@ describe("<Chart>", () => {
 
     try {
       const { container } = render(<Chart type="area" data={[1, 2, 3]} />);
-      expect((container.querySelector(".rw-chart__area") as SVGPathElement).style.opacity).toBe("1");
+      expect(
+        (container.querySelector(".rw-chart__area") as SVGPathElement).style
+          .opacity,
+      ).toBe("1");
     } finally {
       window.matchMedia = original;
     }

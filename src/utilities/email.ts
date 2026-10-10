@@ -139,7 +139,8 @@ export const suggestDomain = (domain: string): string | null => {
   return bestDistance <= 2 ? best : null;
 };
 
-const localPartPattern = /^[A-Za-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[A-Za-z0-9!#$%&'*+/=?^_`{|}~-]+)*$/;
+const localPartPattern =
+  /^[A-Za-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[A-Za-z0-9!#$%&'*+/=?^_`{|}~-]+)*$/;
 const domainLabelPattern = /^[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?$/;
 /**
  * True when the string is plain ASCII.
@@ -202,7 +203,9 @@ export const validateEmailLocal = (value: string): LocalEmailCheck => {
     {
       id: "local-part",
       label: "The part before @ uses valid characters",
-      passed: localPart.length > 0 && (unicode ? true : localPartPattern.test(localPart)),
+      passed:
+        localPart.length > 0 &&
+        (unicode ? true : localPartPattern.test(localPart)),
       severity: "error",
       ...(localPart.length > 0 && !unicode && !localPartPattern.test(localPart)
         ? {
@@ -235,10 +238,16 @@ export const validateEmailLocal = (value: string): LocalEmailCheck => {
     },
     {
       id: "domain-labels",
-      label: "Every domain label is 1–63 characters without leading or trailing hyphens",
+      label:
+        "Every domain label is 1–63 characters without leading or trailing hyphens",
       passed:
         labels.length > 0 &&
-        labels.every((label) => label.length > 0 && label.length <= 63 && domainLabelPattern.test(label)),
+        labels.every(
+          (label) =>
+            label.length > 0 &&
+            label.length <= 63 &&
+            domainLabelPattern.test(label),
+        ),
       severity: "error",
     },
     {
@@ -265,7 +274,10 @@ export const validateEmailLocal = (value: string): LocalEmailCheck => {
       passed: !isDisposableDomain(normalizedDomain),
       severity: "warning",
       ...(isDisposableDomain(normalizedDomain)
-        ? { detail: "This domain appears on a short list of throwaway providers." }
+        ? {
+            detail:
+              "This domain appears on a short list of throwaway providers.",
+          }
         : {}),
     },
     {
@@ -274,7 +286,10 @@ export const validateEmailLocal = (value: string): LocalEmailCheck => {
       passed: !unicode,
       severity: "info",
       ...(unicode
-        ? { detail: "Non-ASCII addresses are valid under SMTPUTF8 but many systems still reject them." }
+        ? {
+            detail:
+              "Non-ASCII addresses are valid under SMTPUTF8 but many systems still reject them.",
+          }
         : {}),
     },
   ];
@@ -284,9 +299,13 @@ export const validateEmailLocal = (value: string): LocalEmailCheck => {
     normalized,
     localPart,
     domain: normalizedDomain,
-    valid: checks.filter((check) => check.severity === "error").every((check) => check.passed),
+    valid: checks
+      .filter((check) => check.severity === "error")
+      .every((check) => check.passed),
     checks,
-    errors: checks.filter((check) => check.severity === "error" && !check.passed).map((check) => check.id),
+    errors: checks
+      .filter((check) => check.severity === "error" && !check.passed)
+      .map((check) => check.id),
     warnings: checks
       .filter((check) => check.severity === "warning" && !check.passed)
       .map((check) => check.id),

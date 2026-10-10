@@ -28,9 +28,20 @@ what happened:
 
 ```ts
 type ProviderOutcome<T> =
-  | { status: "success"; data: T; source: string; fetchedAt: number; cached?: boolean }
+  | {
+      status: "success";
+      data: T;
+      source: string;
+      fetchedAt: number;
+      cached?: boolean;
+    }
   | { status: "unsupported"; reason: string }
-  | { status: "error"; message: string; retryable: boolean; httpStatus?: number };
+  | {
+      status: "error";
+      message: string;
+      retryable: boolean;
+      httpStatus?: number;
+    };
 ```
 
 `unsupported` means the environment cannot answer — a browser without a Battery Status
@@ -44,22 +55,26 @@ const weather = createOpenMeteoProvider({
   endpoint: "https://api.open-meteo.com/v1/forecast", // your endpoint, your policy
 });
 
-<WeatherWidget provider={weather} locationProvider={barcelona} unit="celsius" />;
+<WeatherWidget
+  provider={weather}
+  locationProvider={barcelona}
+  unit="celsius"
+/>;
 ```
 
-| Provider                          | Network | Notes                                                          |
-| --------------------------------- | ------- | -------------------------------------------------------------- |
-| `createOpenMeteoProvider`         | yes     | Open-Meteo's JSON shape; asks for the endpoint explicitly       |
-| `createStaticWeatherProvider`     | no      | the values you pass; for tests, docs and offline demos          |
+| Provider                      | Network | Notes                                                     |
+| ----------------------------- | ------- | --------------------------------------------------------- |
+| `createOpenMeteoProvider`     | yes     | Open-Meteo's JSON shape; asks for the endpoint explicitly |
+| `createStaticWeatherProvider` | no      | the values you pass; for tests, docs and offline demos    |
 
 `useWeather()` has four coordinate sources and no default:
 
-| `source`        | Where the coordinates come from                                        |
-| --------------- | ---------------------------------------------------------------------- |
-| `coordinates`   | the `coordinates` you pass; the only source with no prompt or request  |
-| `declared`      | `createDeclaredLocationProvider({ latitude, longitude, city })`        |
-| `geolocation`   | the browser's own permission prompt, through `navigator.geolocation`   |
-| `ip`            | an IP-location provider whose endpoint you configured                  |
+| `source`      | Where the coordinates come from                                       |
+| ------------- | --------------------------------------------------------------------- |
+| `coordinates` | the `coordinates` you pass; the only source with no prompt or request |
+| `declared`    | `createDeclaredLocationProvider({ latitude, longitude, city })`       |
+| `geolocation` | the browser's own permission prompt, through `navigator.geolocation`  |
+| `ip`          | an IP-location provider whose endpoint you configured                 |
 
 `source: "ip"` never invents a default endpoint, because asking a third party where
 the user is reveals their IP address. `source: "geolocation"` never runs without the
@@ -68,17 +83,19 @@ browser prompt the user expects. If a provider is missing entirely, the hook rep
 
 ## Location
 
-| Provider                              | Accuracy    | Notes                                              |
-| ------------------------------------- | ----------- | -------------------------------------------------- |
-| `createDeclaredLocationProvider`      | `declared`  | offline; exactly what the application passed in     |
-| `createBrowserGeolocationProvider`    | `precise`   | uses the browser prompt; no polling, no watching    |
-| `createIpLocationProvider`            | `coarse`    | endpoint required; city-level at best, never claimed otherwise |
+| Provider                           | Accuracy   | Notes                                                          |
+| ---------------------------------- | ---------- | -------------------------------------------------------------- |
+| `createDeclaredLocationProvider`   | `declared` | offline; exactly what the application passed in                |
+| `createBrowserGeolocationProvider` | `precise`  | uses the browser prompt; no polling, no watching               |
+| `createIpLocationProvider`         | `coarse`   | endpoint required; city-level at best, never claimed otherwise |
 
 ## E-mail verification
 
 ```tsx
 const verify = createSyntaxEmailVerifier(); // offline, no network, no endpoint
-const remote = createHttpEmailVerifier({ endpoint: "https://your-service/verify" });
+const remote = createHttpEmailVerifier({
+  endpoint: "https://your-service/verify",
+});
 ```
 
 The syntax checker answers "is this shaped like an e-mail address" and says nothing
@@ -94,7 +111,11 @@ the `provider` option; without a provider it stays local.
 useWeather({
   provider: weather,
   coordinates: { latitude: 41.39, longitude: 2.17 },
-  cache: { storage: "sessionStorage", key: "weather:bcn", ttlMs: 10 * 60 * 1000 },
+  cache: {
+    storage: "sessionStorage",
+    key: "weather:bcn",
+    ttlMs: 10 * 60 * 1000,
+  },
 });
 ```
 

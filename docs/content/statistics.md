@@ -62,7 +62,12 @@ variance(values, 0); // population
 ## Example
 
 ```ts
-import { correlation, movingAverage, percentile, regression } from "@nashiuso/rewap/math";
+import {
+  correlation,
+  movingAverage,
+  percentile,
+  regression,
+} from "@nashiuso/rewap/math";
 
 const latencies = [42, 38, 51, 47, 39, 44, 62, 41];
 

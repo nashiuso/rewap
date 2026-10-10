@@ -1,0 +1,23 @@
+{
+  "name": "rewap-example-astro",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "description": "Rewap inside Astro: a React island hydrated two different ways.",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "@astrojs/react": "^3.6.2",
+    "@nashiuso/rewap": "file:../..",
+    "astro": "^4.16.7",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1"
+  }
+}

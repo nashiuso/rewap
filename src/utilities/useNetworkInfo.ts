@@ -10,7 +10,8 @@
 import { useEffect, useState } from "react";
 
 export type EffectiveType = "slow-2g" | "2g" | "3g" | "4g";
-export type ConnectionQuality = "offline" | "poor" | "fair" | "good" | "unknown";
+export type ConnectionQuality =
+  "offline" | "poor" | "fair" | "good" | "unknown";
 
 export interface NetworkInfo {
   /** `navigator.onLine`, or `true` before hydration. */
@@ -74,7 +75,8 @@ export const qualityFrom = (info: {
 
 const readNetwork = (): NetworkInfo => {
   const fallback = {
-    online: typeof navigator === "undefined" ? true : navigator.onLine !== false,
+    online:
+      typeof navigator === "undefined" ? true : navigator.onLine !== false,
     supported: {
       connection: false,
       effectiveType: false,
@@ -89,7 +91,9 @@ const readNetwork = (): NetworkInfo => {
     return { ...fallback, quality: qualityFrom({ online: fallback.online }) };
   }
 
-  const connection = (navigator as Navigator & { connection?: NetworkInformationLike }).connection;
+  const connection = (
+    navigator as Navigator & { connection?: NetworkInformationLike }
+  ).connection;
   if (!connection) {
     return { ...fallback, quality: qualityFrom({ online: fallback.online }) };
   }
@@ -105,12 +109,20 @@ const readNetwork = (): NetworkInfo => {
       type: connection.type !== undefined,
     },
     quality: "unknown",
-    ...(connection.effectiveType !== undefined ? { effectiveType: connection.effectiveType } : {}),
+    ...(connection.effectiveType !== undefined
+      ? { effectiveType: connection.effectiveType }
+      : {}),
     ...(connection.type !== undefined ? { type: connection.type } : {}),
-    ...(connection.downlink !== undefined ? { downlink: connection.downlink } : {}),
-    ...(connection.downlinkMax !== undefined ? { downlinkMax: connection.downlinkMax } : {}),
+    ...(connection.downlink !== undefined
+      ? { downlink: connection.downlink }
+      : {}),
+    ...(connection.downlinkMax !== undefined
+      ? { downlinkMax: connection.downlinkMax }
+      : {}),
     ...(connection.rtt !== undefined ? { rtt: connection.rtt } : {}),
-    ...(connection.saveData !== undefined ? { saveData: connection.saveData } : {}),
+    ...(connection.saveData !== undefined
+      ? { saveData: connection.saveData }
+      : {}),
   };
   info.quality = qualityFrom(info);
   return info;
@@ -121,7 +133,9 @@ export const useNetworkInfo = (): NetworkInfo => {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    const connection = (navigator as Navigator & { connection?: NetworkInformationLike }).connection;
+    const connection = (
+      navigator as Navigator & { connection?: NetworkInformationLike }
+    ).connection;
     const update = () => setInfo(readNetwork());
 
     window.addEventListener("online", update);
@@ -170,7 +184,9 @@ export const useConnection = (): ConnectionSummary => {
     online: info.online,
     quality: info.quality,
     label: qualityLabels[info.quality],
-    ...(info.effectiveType !== undefined ? { effectiveType: info.effectiveType } : {}),
+    ...(info.effectiveType !== undefined
+      ? { effectiveType: info.effectiveType }
+      : {}),
     ...(info.saveData !== undefined ? { saveData: info.saveData } : {}),
     detailed: info.supported.connection,
   };

@@ -1,137 +1,59 @@
 # Examples
 
-Eight worked examples ship in `examples/`. They are ordinary Vite + React +
-TypeScript applications — no CDN, no remote assets — and every one of them is built
-in CI, so the code below is code that runs.
+Two things live in `examples/`, both built from the package in this repository (not
+a published release), with no CDN and no remote assets.
 
 ```bash
 npm install
-npm run examples:dev
+npm run examples:dev   # playground -> :5173
 ```
 
-## Dashboard
+## Playground
 
-Panels of different sizes, `swap` mode, order remembered across reloads, and the
-placeholder showing exactly where a panel will land.
-
-```tsx
-<Layout mode="swap" gap={16} persistence={{ key: "dashboard", storage: "localStorage" }}>
-  <Item id="revenue">
-    <RevenuePanel />
-  </Item>
-  <Item id="traffic">
-    <TrafficPanel />
-  </Item>
-  <Item id="orders">
-    <OrdersTable />
-  </Item>
-</Layout>
-```
-
-## Analytics
-
-A metric with a `<Chart>` inside a draggable item, plus a range control. The chart
-animates on data change and never renders during the drag itself.
+`examples/playground` is one app, not a gallery: a dashboard of six widgets
+(weather, stats, activity log, network, clock, viewport) you can switch between
+`swap`, `reorder` and `grid` modes, try the four motion presets
+(`smooth`/`snappy`/`soft`/`instant`), and watch a live code panel update to match
+whatever you picked. Data is local fixtures — no network call happens, including
+the weather panel, which reads from `createFixtureWeatherProvider` instead of a
+real `createOpenMeteoProvider`.
 
 ```tsx
-<Layout mode="swap" placeholder="outline">
-  <Item id="latency" label="Latency chart">
-    <div style={{ height: 160 }}>
-      <Chart type="area" data={latencySeries} height="100%" ariaLabel="Latency, 24 hours" />
-    </div>
-  </Item>
-</Layout>
-```
-
-## Kanban
-
-Three columns, each a `reorder` layout, cards moving within a column. Items use
-handles so a card's own controls stay clickable.
-
-```tsx
-{
-  columns.map((column) => (
-    <Layout key={column.id} mode="reorder">
-      {column.cards.map((card) => (
-        <Item key={card.id} id={card.id} handleOnly>
-          <CardHeader {...card}>
-            <Item.Handle aria-label="Move card" />
-          </CardHeader>
-          <CardBody {...card} />
-        </Item>
-      ))}
-    </Layout>
-  ));
-}
-```
-
-## Widget board
-
-The reason the widget module exists: a grid of live panels you can rearrange.
-
-```tsx
-<Layout mode="grid" columns={3} gap={12}>
+<Layout mode={mode} motion={motion} placeholder="outline">
   <Item id="weather">
-    <WeatherWidget />
+    <WeatherWidget data={barcelonaWeather} />
   </Item>
-  <Item id="clock">
-    <ClockWidget />
+  <Item id="activity" columnSpan={2}>
+    <StatsWidget entries={activityLog} />
   </Item>
-  <Item id="network">
-    <NetworkWidget />
-  </Item>
-  <Item id="battery">
-    <BatteryWidget />
-  </Item>
+  {/* … */}
 </Layout>
 ```
 
-## Statistics dashboard
+It is the fastest way to feel the difference between the three modes without
+writing any code.
 
-Statistics and charts together: the module computes, the chart draws, an item holds
-both.
+## Astro (SSR)
 
-```tsx
-const stats = useMemo(
-  () => ({
-    mean: mean(samples),
-    p95: percentile(samples, 95),
-    deviation: standardDeviation(samples),
-    fit: regression(hours, samples),
-  }),
-  [samples],
-);
-```
+`examples/astro` is a minimal Astro site proving the React bindings hydrate
+correctly under Astro's partial-hydration model — `client:visible` and
+`client:load` both render the authored order on the server and become
+interactive in the browser without a mismatch warning. See
+[Astro and SSR](astro.html) for the integration itself; the example is the
+smallest page that exercises it.
 
-## Developer dashboard
-
-Frames per second, memory, long tasks, viewport and connection — with the fields the
-browser cannot provide shown as `unsupported` rather than blank.
-
-## Mobile layout
-
-Touch-first: `handleOnly` items, a taller drag threshold, magnetic dragging, and
-`visualHeight` used so the layout follows the viewport when a keyboard opens.
-
-```tsx
-<Layout threshold={8} effects={{ drag: "magnetic", dragScale: 1.03 }}>
-```
-
-## Responsive grid
-
-Column count from the measured width and a `ResizeObserver`, with `columnSpan` used
-instead of a fixed grid, so the same board works on a phone and a wall display.
-
-```tsx
-<Layout mode="grid" columns={columns} minColumnWidth={220} gap={12}>
-  <Item id="map" columnSpan={columns > 2 ? 2 : 1}>
-    <MapPanel />
-  </Item>
-</Layout>
+```bash
+cd examples/astro
+npm install
+npm run build   # also proves it builds outside this repo's own tooling
 ```
 
 ## What the examples are not
 
-They are not a component library, a design system or a starter template. Each one is
-a page that demonstrates one way to use the library, kept small enough to read in a
-sitting — and each one is built and typechecked on every commit.
+They are not a component library, a design system or a gallery of starter
+templates. If you are looking for more worked scenarios — kanban, analytics,
+a statistics dashboard — the patterns are documented in
+[Layout](layout.html), [Items](items.html), [Charts](charts.html) and
+[Widgets](widgets.html); building eight separate example apps for them did not
+make the library easier to use, so it was cut in favor of getting one example
+right and keeping it honest about what actually runs in CI.

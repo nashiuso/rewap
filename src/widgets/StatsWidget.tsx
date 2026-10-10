@@ -9,8 +9,20 @@
 import { useMemo } from "react";
 import type { CSSProperties } from "react";
 
-import { extent, mean, median, movingAverage, standardDeviation } from "../math/statistics";
-import { Widget, WidgetNote, WidgetRows, WidgetRow, WidgetValue } from "./Widget";
+import {
+  extent,
+  mean,
+  median,
+  movingAverage,
+  standardDeviation,
+} from "../math/statistics";
+import {
+  Widget,
+  WidgetNote,
+  WidgetRows,
+  WidgetRow,
+  WidgetValue,
+} from "./Widget";
 
 export interface StatsWidgetProps {
   title?: string;
@@ -27,7 +39,11 @@ export interface StatsWidgetProps {
   style?: CSSProperties;
 }
 
-const sparklinePath = (values: readonly number[], width: number, height: number): string => {
+const sparklinePath = (
+  values: readonly number[],
+  width: number,
+  height: number,
+): string => {
   if (values.length < 2) return "";
   const { min, span } = extent(values);
   const safeSpan = span === 0 ? 1 : span;
@@ -69,7 +85,10 @@ export const StatsWidget = ({
   style,
 }: StatsWidgetProps) => {
   const series = useMemo(
-    () => (movingAverageWindow ? movingAverage(values, movingAverageWindow) : [...values]),
+    () =>
+      movingAverageWindow
+        ? movingAverage(values, movingAverageWindow)
+        : [...values],
     [movingAverageWindow, values],
   );
 
@@ -84,7 +103,8 @@ export const StatsWidget = ({
     [values],
   );
 
-  const format = (value: number): string => (Number.isFinite(value) ? value.toFixed(precision) : "—");
+  const format = (value: number): string =>
+    Number.isFinite(value) ? value.toFixed(precision) : "—";
 
   return (
     <Widget
@@ -97,7 +117,10 @@ export const StatsWidget = ({
       {sparkline && series.length > 1 ? <Sparkline values={series} /> : null}
       <WidgetRows>
         <WidgetRow label="Median" value={format(summary.median)} />
-        <WidgetRow label="Std. deviation" value={`± ${format(summary.deviation)}`} />
+        <WidgetRow
+          label="Std. deviation"
+          value={`± ${format(summary.deviation)}`}
+        />
         <WidgetRow
           label="Range"
           value={
@@ -107,7 +130,9 @@ export const StatsWidget = ({
           }
         />
       </WidgetRows>
-      {summary.count === 0 ? <WidgetNote>No finite values were provided.</WidgetNote> : null}
+      {summary.count === 0 ? (
+        <WidgetNote>No finite values were provided.</WidgetNote>
+      ) : null}
     </Widget>
   );
 };

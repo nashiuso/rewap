@@ -15,7 +15,12 @@ The order can be remembered locally, with nothing leaving the browser.
 A stored record looks like this:
 
 ```json
-{ "version": 1, "mode": "reorder", "ids": ["notes", "weather", "traffic"], "savedAt": 1791379200000 }
+{
+  "version": 1,
+  "mode": "reorder",
+  "ids": ["notes", "weather", "traffic"],
+  "savedAt": 1791379200000
+}
 ```
 
 The version field is checked on read: a record from a different version is ignored
@@ -68,7 +73,11 @@ Two things worth knowing anyway:
 // they are what you reach for when a layout is not the right tool.
 import { createPersistence, applyStoredOrder } from "@nashiuso/rewap/core";
 
-const store = createPersistence({ key: "board", storage: "sessionStorage", mode: "reorder" });
+const store = createPersistence({
+  key: "board",
+  storage: "sessionStorage",
+  mode: "reorder",
+});
 const stored = store.load(); // PersistedLayout | null
 store.save(["a", "b"]); // writes
 store.clear(); // removes

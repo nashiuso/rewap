@@ -15,8 +15,18 @@
  */
 
 import { clamp, damp, now } from "../math/interpolate";
-import { clampRect, rectCenter, translateRect, type Point, type Rect } from "../math/rect";
-import { resolveMotion, type MotionPlan, type MotionValue } from "../motion/presets";
+import {
+  clampRect,
+  rectCenter,
+  translateRect,
+  type Point,
+  type Rect,
+} from "../math/rect";
+import {
+  resolveMotion,
+  type MotionPlan,
+  type MotionValue,
+} from "../motion/presets";
 import type { Ticker, Unsubscribe } from "../motion/ticker";
 import { ticker as defaultTicker } from "../motion/ticker";
 import {
@@ -25,8 +35,16 @@ import {
   visualStateEquals,
   type VisualState,
 } from "../motion/transform";
-import { resolveCollision, type CollisionResult, type CollisionStrategy } from "./collision";
-import { resolveTargetIndex, type Direction, type KeyboardOptions } from "./keyboard";
+import {
+  resolveCollision,
+  type CollisionResult,
+  type CollisionStrategy,
+} from "./collision";
+import {
+  resolveTargetIndex,
+  type Direction,
+  type KeyboardOptions,
+} from "./keyboard";
 import { domGeometry, type GeometryProvider } from "./measure";
 import { orderAfterDrop } from "./order";
 import { createStore, type Store } from "./store";
@@ -123,7 +141,12 @@ export interface DragControllerOptions {
    * Writes the dragged element's visual state. The React bindings route this
    * through the per-element state controller so drag, FLIP and effects compose.
    */
-  applyState?: (id: ItemId, element: HTMLElement, state: VisualState, previous: VisualState) => void;
+  applyState?: (
+    id: ItemId,
+    element: HTMLElement,
+    state: VisualState,
+    previous: VisualState,
+  ) => void;
 }
 
 interface Session {
@@ -154,6 +177,15 @@ interface Session {
   plan: MotionPlan;
 }
 
+/**
+ * Whether a session of this source has a real, trackable screen position.
+ * Keyboard and programmatic moves have no cursor to follow, so they fall back
+ * to a slot's own center; every other source (mouse, touch, pen/"pointer")
+ * does.
+ */
+const hasLivePointer = (source: InputSource): boolean =>
+  source === "pointer" || source === "mouse" || source === "touch";
+
 const defaultStrategies: Record<LayoutMode, CollisionStrategy> = {
   swap: "pointer",
   reorder: "projection",
@@ -171,10 +203,17 @@ export interface DragController {
   drop(reason?: DropReason): void;
   cancel(reason?: DropReason): void;
   /** Keyboard/programmatic move of the active item. */
-  moveInDirection(direction: Direction, options?: { large?: boolean; source?: InputSource }): boolean;
+  moveInDirection(
+    direction: Direction,
+    options?: { large?: boolean; source?: InputSource },
+  ): boolean;
   moveToIndex(index: number, options?: { source?: InputSource }): boolean;
   /** Moves an item without starting a drag session. */
-  moveItemTo(id: ItemId, index: number, source?: InputSource): DropResult | null;
+  moveItemTo(
+    id: ItemId,
+    index: number,
+    source?: InputSource,
+  ): DropResult | null;
   /** Re-applies the base rectangle after the DOM changed under a drag. */
   rebase(rects: Map<ItemId, Rect>): void;
   /** Animates the active element back to rest and closes the session. */
@@ -189,7 +228,9 @@ export interface DragController {
   destroy(): void;
 }
 
-export const createDragController = (options: DragControllerOptions): DragController => {
+export const createDragController = (
+  options: DragControllerOptions,
+): DragController => {
   const mode = options.mode;
   const strategy = options.strategy ?? defaultStrategies[mode];
   const geometry = options.geometry ?? domGeometry;
@@ -201,7 +242,9 @@ export const createDragController = (options: DragControllerOptions): DragContro
   const snapThreshold = options.snap?.threshold ?? 18;
   const prefersReduced = () => options.prefersReducedMotion?.() ?? false;
   const planFor = (): MotionPlan =>
-    resolveMotion(options.motion?.(), { prefersReducedMotion: prefersReduced() });
+    resolveMotion(options.motion?.(), {
+      prefersReducedMotion: prefersReduced(),
+    });
 
   const snapshotStore: Store<DragSnapshot> = createStore<DragSnapshot>({
     status: "idle",
@@ -235,11 +278,14 @@ export const createDragController = (options: DragControllerOptions): DragContro
     const current = snapshotStore.get();
     const next: DragSnapshot = {
       status: patch.status ?? current.status,
-      activeId: patch.activeId !== undefined ? patch.activeId : current.activeId,
+      activeId:
+        patch.activeId !== undefined ? patch.activeId : current.activeId,
       source: patch.source !== undefined ? patch.source : current.source,
       startIndex: patch.startIndex ?? current.startIndex,
       destinationIndex:
-        patch.destinationIndex !== undefined ? patch.destinationIndex : current.destinationIndex,
+        patch.destinationIndex !== undefined
+          ? patch.destinationIndex
+          : current.destinationIndex,
       itemCount: patch.itemCount ?? current.itemCount,
     };
     if (
@@ -259,17 +305,26 @@ export const createDragController = (options: DragControllerOptions): DragContro
     const slots = slotsNow();
     if (slots.length <= 1) return "x";
     const firstRow = slots[0]?.slot.row;
-    const singleRow = slots.every((candidate) => candidate.slot.row === firstRow);
+    const singleRow = slots.every(
+      (candidate) => candidate.slot.row === firstRow,
+    );
     return singleRow ? "x" : "y";
   };
 
   const slotFor = (index: number | null): Slot | null => {
     if (index === null) return null;
-    return slotsNow().find((candidate) => candidate.index === index)?.slot ?? null;
+    return (
+      slotsNow().find((candidate) => candidate.index === index)?.slot ?? null
+    );
   };
 
-  const writeState = (element: HTMLElement, next: VisualState, previous: VisualState): void => {
-    if (options.applyState) options.applyState(session?.id ?? "", element, next, previous);
+  const writeState = (
+    element: HTMLElement,
+    next: VisualState,
+    previous: VisualState,
+  ): void => {
+    if (options.applyState)
+      options.applyState(session?.id ?? "", element, next, previous);
     else applyVisualState(element, next, previous, { round: true });
   };
 
@@ -311,7 +366,9 @@ export const createDragController = (options: DragControllerOptions): DragContro
     const rotation = effects.velocityRotation
       ? clamp(
           tracker.value().x *
-            (typeof effects.velocityRotation === "number" ? effects.velocityRotation * 0.01 : 0.01),
+            (typeof effects.velocityRotation === "number"
+              ? effects.velocityRotation * 0.01
+              : 0.01),
           -8,
           8,
         )
@@ -339,16 +396,24 @@ export const createDragController = (options: DragControllerOptions): DragContro
     session.destinationSlot = slotFor(index);
     publish({ destinationIndex: index });
 
-    if (session.destinationSlot && index !== null && index !== session.startIndex) {
+    if (
+      session.destinationSlot &&
+      index !== null &&
+      index !== session.startIndex
+    ) {
       const event = buildSwapEvent(session, session.destinationSlot);
       options.onDestination?.(event, previousSlot);
-      options.onAnnounce?.(`${labelFor(session.id)} moved to position ${index + 1}`, "polite");
+      options.onAnnounce?.(
+        `${labelFor(session.id)} moved to position ${index + 1}`,
+        "polite",
+      );
     } else {
       options.onDestination?.(null, previousSlot);
     }
   };
 
-  const labelFor = (id: ItemId): string => options.getLabel?.(id) ?? `Item ${id}`;
+  const labelFor = (id: ItemId): string =>
+    options.getLabel?.(id) ?? `Item ${id}`;
 
   const buildSwapEvent = (active: Session, slot: Slot): SwapEvent => ({
     item: active.id,
@@ -376,12 +441,30 @@ export const createDragController = (options: DragControllerOptions): DragContro
     const candidates = slotsNow();
     if (candidates.length === 0) return null;
     const axis = axisFor();
-    const activeRect = translateRect(active.baseRect, active.visual.x, active.visual.y);
+    const activeRect = translateRect(
+      active.baseRect,
+      active.visual.x,
+      active.visual.y,
+    );
+    // NOTE(nashiuso): this used to check `active.source === "pointer"`, which only
+    // matches the literal "pointer" InputSource (stylus/pen via sourceFromPointer's
+    // fallback branch) and never "mouse" or "touch" — i.e. it was false for every
+    // normal drag, so real drags always fell back to the dragged rect's own center
+    // instead of the live cursor position. That center is derived from `baseRect`,
+    // which gets nudged by `rebase()` whenever the live DOM reorder shifts the
+    // dragged element's resting position mid-drag, and the two updates don't land
+    // in the same tick — so the "pointer" collision resolution was reading a
+    // laggy, occasionally wildly-off position instead of where the mouse actually
+    // was. Use the live pointer for every source that has one and only fall back
+    // to the rect center for keyboard/programmatic moves, which have no cursor.
+    const pointerForCollision = hasLivePointer(active.source)
+      ? active.pointer
+      : rectCenter(activeRect);
     const resolved: CollisionResult | null = resolveCollision(
       {
         activeRect,
         originRect: active.baseRect,
-        pointer: active.source === "pointer" ? active.pointer : rectCenter(activeRect),
+        pointer: pointerForCollision,
         candidates,
         origin: active.startSlot.slot,
         axis,
@@ -454,7 +537,9 @@ export const createDragController = (options: DragControllerOptions): DragContro
     const startIndex = order.indexOf(input.id);
     if (startIndex === -1) return false;
 
-    const startSlot = slotsNow().find((candidate) => candidate.id === input.id) ?? {
+    const startSlot = slotsNow().find(
+      (candidate) => candidate.id === input.id,
+    ) ?? {
       id: input.id,
       index: startIndex,
       rect: baseRect,
@@ -481,7 +566,10 @@ export const createDragController = (options: DragControllerOptions): DragContro
       started: false,
       // Mouse, touch and pen are all pointer input, so they share the drag
       // threshold; keyboard and programmatic moves start immediately.
-      passedThreshold: input.immediate === true || source === "keyboard" || source === "programmatic",
+      passedThreshold:
+        input.immediate === true ||
+        source === "keyboard" ||
+        source === "programmatic",
       moved: false,
       lastMoveAt: now(),
       plan: planFor(),
@@ -538,7 +626,10 @@ export const createDragController = (options: DragControllerOptions): DragContro
     tracker.add(pointer, timestamp);
 
     if (!active.started) {
-      const travelled = Math.hypot(pointer.x - active.grab.x, pointer.y - active.grab.y);
+      const travelled = Math.hypot(
+        pointer.x - active.grab.x,
+        pointer.y - active.grab.y,
+      );
       if (travelled >= threshold) {
         active.passedThreshold = true;
         startSession(active);
@@ -567,7 +658,7 @@ export const createDragController = (options: DragControllerOptions): DragContro
       ids,
       changed: toIndex !== active.startIndex,
       event: buildSwapEvent(active, destinationSlot),
-      pointer: active.source === "pointer" ? active.pointer : null,
+      pointer: hasLivePointer(active.source) ? active.pointer : null,
     };
   };
 
@@ -592,13 +683,24 @@ export const createDragController = (options: DragControllerOptions): DragContro
     if (commit && toIndex !== active.startIndex) {
       const result = buildDropResult(active, toIndex);
       options.onDrop?.(result);
-      options.onAnnounce?.(`${labelFor(active.id)} dropped at position ${toIndex + 1}`, "polite");
-    } else if (reason === "escape" || (commit && toIndex === active.startIndex)) {
+      options.onAnnounce?.(
+        `${labelFor(active.id)} dropped at position ${toIndex + 1}`,
+        "polite",
+      );
+    } else if (
+      reason === "escape" ||
+      (commit && toIndex === active.startIndex)
+    ) {
       options.onAnnounce?.(`Drag cancelled`, "polite");
     }
 
     session = null;
-    publish({ status: "idle", activeId: null, source: null, destinationIndex: null });
+    publish({
+      status: "idle",
+      activeId: null,
+      source: null,
+      destinationIndex: null,
+    });
     options.onEnd?.(endEvent);
     settleElement(active);
   };
@@ -625,8 +727,13 @@ export const createDragController = (options: DragControllerOptions): DragContro
     publish({ status: "settling" });
     let elapsed = 0;
     const duration =
-      plan.kind === "tween" ? Math.max(0.12, plan.duration) : clamp(0.16 + total / 2600, 0.16, 0.45);
-    const easing = plan.kind === "tween" ? plan.easing : (t: number) => 1 - Math.pow(1 - t, 3);
+      plan.kind === "tween"
+        ? Math.max(0.12, plan.duration)
+        : clamp(0.16 + total / 2600, 0.16, 0.45);
+    const easing =
+      plan.kind === "tween"
+        ? plan.easing
+        : (t: number) => 1 - Math.pow(1 - t, 3);
 
     settleHandle = activeTicker.subscribe((delta) => {
       elapsed += delta;
@@ -655,6 +762,14 @@ export const createDragController = (options: DragControllerOptions): DragContro
 
   const drop = (reason: DropReason = "drop"): void => {
     if (!session) return;
+    // NOTE(nashiuso): `destinationIndex` is written inside `physicsFrame`, which
+    // runs off the shared rAF ticker, not on every pointer event. A pointerup
+    // that lands between two frames — always true for a mouse, occasionally
+    // true for a very fast real drag — used to commit whatever the *previous*
+    // frame had resolved, one slot behind the pointer's actual final position.
+    // Resolving once more here, synchronously, makes the commit match what the
+    // user was looking at when they let go.
+    setDestination(resolveDestination(session));
     finishSession(reason, true);
   };
 
@@ -664,16 +779,22 @@ export const createDragController = (options: DragControllerOptions): DragContro
     finishSession(reason, false);
   };
 
-  const moveToIndex = (index: number, moveOptions: { source?: InputSource } = {}): boolean => {
+  const moveToIndex = (
+    index: number,
+    moveOptions: { source?: InputSource } = {},
+  ): boolean => {
     const active = session;
     if (!active) return false;
     const candidates = slotsNow();
     if (candidates.length === 0) return false;
     const bounded = Math.max(0, Math.min(candidates.length - 1, index));
     active.source = moveOptions.source ?? active.source;
-    // Keyboard drags have no pointer: place the virtual pointer at the target slot.
+    // Keyboard/programmatic moves have no pointer: place the virtual pointer at
+    // the target slot. (Was `!== "pointer"`, the same inverted check as above —
+    // harmless here in practice since this path isn't reached mid pointer-drag,
+    // but worth matching the real fix for consistency.)
     const target = candidates[bounded];
-    if (target && active.source !== "pointer") {
+    if (target && !hasLivePointer(active.source)) {
       const center = rectCenter(target.rect);
       active.grabOffset = {
         x: target.rect.width / 2,
@@ -683,7 +804,7 @@ export const createDragController = (options: DragControllerOptions): DragContro
       active.pointer = center;
     }
     setDestination(bounded);
-    if (active.source !== "pointer") {
+    if (!hasLivePointer(active.source)) {
       active.visual = computeDesired(active);
       apply(active);
       const pointer = active.pointer;
@@ -720,22 +841,50 @@ export const createDragController = (options: DragControllerOptions): DragContro
     return moveToIndex(next, { source: moveOptions.source ?? "keyboard" });
   };
 
-  const moveItemTo = (id: ItemId, index: number, source: InputSource = "programmatic"): DropResult | null => {
+  const moveItemTo = (
+    id: ItemId,
+    index: number,
+    source: InputSource = "programmatic",
+  ): DropResult | null => {
     const order = options.getOrder();
     const fromIndex = order.indexOf(id);
     if (fromIndex === -1) return null;
     invalidateSlots();
     const candidates = slotsNow();
-    const bounded = Math.max(0, Math.min(Math.max(0, candidates.length - 1), index));
+    const bounded = Math.max(
+      0,
+      Math.min(Math.max(0, candidates.length - 1), index),
+    );
     if (bounded === fromIndex) return null;
 
-    const ids = orderAfterDrop(order, id, fromIndex, bounded, mode === "swap" ? "swap" : "reorder");
-    const fromRect = candidates[fromIndex]?.rect ?? { x: 0, y: 0, width: 0, height: 0 };
+    const ids = orderAfterDrop(
+      order,
+      id,
+      fromIndex,
+      bounded,
+      mode === "swap" ? "swap" : "reorder",
+    );
+    const fromRect = candidates[fromIndex]?.rect ?? {
+      x: 0,
+      y: 0,
+      width: 0,
+      height: 0,
+    };
     const toRect = candidates[bounded]?.rect ?? fromRect;
     const event: SwapEvent = {
       item: id,
-      previousSlot: candidates[fromIndex]?.slot ?? { index: fromIndex, column: 0, row: 0, rect: fromRect },
-      nextSlot: candidates[bounded]?.slot ?? { index: bounded, column: 0, row: 0, rect: toRect },
+      previousSlot: candidates[fromIndex]?.slot ?? {
+        index: fromIndex,
+        column: 0,
+        row: 0,
+        rect: fromRect,
+      },
+      nextSlot: candidates[bounded]?.slot ?? {
+        index: bounded,
+        column: 0,
+        row: 0,
+        rect: toRect,
+      },
       position: rectCenter(toRect),
       velocity: { x: 0, y: 0 },
       mode,
@@ -765,9 +914,21 @@ export const createDragController = (options: DragControllerOptions): DragContro
     active.baseRect = next;
     // Keep the element visually where it is: the transform is measured from its
     // own box, which just moved underneath it.
-    active.visual = { ...active.visual, x: active.visual.x + dx, y: active.visual.y + dy };
-    active.applied = { ...active.applied, x: active.applied.x + dx, y: active.applied.y + dy };
-    active.desired = { ...active.desired, x: active.desired.x + dx, y: active.desired.y + dy };
+    active.visual = {
+      ...active.visual,
+      x: active.visual.x + dx,
+      y: active.visual.y + dy,
+    };
+    active.applied = {
+      ...active.applied,
+      x: active.applied.x + dx,
+      y: active.applied.y + dy,
+    };
+    active.desired = {
+      ...active.desired,
+      x: active.desired.x + dx,
+      y: active.desired.y + dy,
+    };
     writeState(active.element, active.visual, active.applied);
     active.applied = { ...active.visual };
   };
@@ -810,4 +971,7 @@ export const createDragController = (options: DragControllerOptions): DragContro
 };
 
 /** Convenience: the vector between two points, used by keyboards and tests. */
-export const moveVector = (from: Point, to: Point): MoveVector => ({ x: to.x - from.x, y: to.y - from.y });
+export const moveVector = (from: Point, to: Point): MoveVector => ({
+  x: to.x - from.x,
+  y: to.y - from.y,
+});

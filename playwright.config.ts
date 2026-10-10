@@ -33,11 +33,19 @@ export default defineConfig({
   projects: [
     // The mobile specs drive a touch screen, so they run on the phone project
     // only: `page.touchscreen` throws on a context without `hasTouch`.
-    { name: "chromium", use: { ...devices["Desktop Chrome"] }, testIgnore: /mobile|touch/ },
-    { name: "mobile", use: { ...devices["Pixel 7"] }, testMatch: /mobile|touch/ },
+    {
+      name: "chromium",
+      use: { ...devices["Desktop Chrome"] },
+      testIgnore: /mobile|touch/,
+    },
+    {
+      name: "mobile",
+      use: { ...devices["Pixel 7"] },
+      testMatch: /mobile|touch/,
+    },
   ],
   webServer: {
-    command: `npm run examples:build && npx vite preview --config examples/vite.config.ts --port ${PORT} --strictPort --host 127.0.0.1`,
+    command: `npm run examples:build && npx vite preview --config examples/playground/vite.config.ts --port ${PORT} --strictPort --host 127.0.0.1`,
     url: BASE_URL,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

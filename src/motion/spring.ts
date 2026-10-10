@@ -32,7 +32,11 @@ export interface SpringRestOptions {
   restVelocity?: number;
 }
 
-export const defaultSpring: SpringConfig = { stiffness: 300, damping: 30, mass: 1 };
+export const defaultSpring: SpringConfig = {
+  stiffness: 300,
+  damping: 30,
+  mass: 1,
+};
 
 /** Fixed integration sub-step (seconds). Independent of display refresh rate. */
 export const FIXED_TIMESTEP = 1 / 240;
@@ -57,8 +61,13 @@ export const angularFrequency = (config: SpringConfig): number =>
   Math.sqrt(Math.max(0, config.stiffness) / Math.max(0.0001, config.mass));
 
 /** Acceleration for a spring displaced by `displacement` with velocity `velocity`. */
-export const springAcceleration = (displacement: number, velocity: number, config: SpringConfig): number =>
-  (-config.stiffness * displacement - config.damping * velocity) / Math.max(0.0001, config.mass);
+export const springAcceleration = (
+  displacement: number,
+  velocity: number,
+  config: SpringConfig,
+): number =>
+  (-config.stiffness * displacement - config.damping * velocity) /
+  Math.max(0.0001, config.mass);
 
 /**
  * Advances a one-dimensional spring toward `target` by `delta` seconds.
@@ -124,11 +133,17 @@ export const springDuration = (
     const root = Math.sqrt(zeta * zeta - 1);
     const slowPole = omega * (zeta - root);
     if (slowPole <= 0) return maxSeconds;
-    return Math.min(maxSeconds, Math.log(initialDisplacement / tolerance) / slowPole);
+    return Math.min(
+      maxSeconds,
+      Math.log(initialDisplacement / tolerance) / slowPole,
+    );
   }
   const decay = zeta * omega;
   if (decay <= 0) return maxSeconds;
-  return Math.min(maxSeconds, Math.log(initialDisplacement / tolerance) / decay);
+  return Math.min(
+    maxSeconds,
+    Math.log(initialDisplacement / tolerance) / decay,
+  );
 };
 
 /** Samples a spring trajectory on a fixed grid — handy for charts and tests. */
@@ -176,4 +191,5 @@ export const integrateSpring = (
 };
 
 /** Clamp helper re-exported for simulation consumers. */
-export const clampVelocity = (velocity: number, limit = 6000): number => clamp(velocity, -limit, limit);
+export const clampVelocity = (velocity: number, limit = 6000): number =>
+  clamp(velocity, -limit, limit);

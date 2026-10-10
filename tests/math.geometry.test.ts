@@ -56,29 +56,55 @@ describe("math/geometry", () => {
     expect(nearest(entries, { x: 260, y: 250 })?.id).toBe("b");
     // The edge metric ignores centres: 10 px past b's right edge is nearer to b
     // than to c, even though c's centre is closer along x.
-    expect(nearest(entries, { x: 310, y: 50 }, { metric: metrics.edge })?.id).toBe("b");
+    expect(
+      nearest(entries, { x: 310, y: 50 }, { metric: metrics.edge })?.id,
+    ).toBe("b");
     // Directly above c, the edge metric picks c while the centre metric picks b.
-    expect(nearest(entries, { x: 450, y: 250 }, { metric: metrics.edge })?.id).toBe("c");
-    expect(nearest(entries, { x: 450, y: 250 }, { metric: metrics.center })?.id).toBe("c");
-    expect(nearest(entries, { x: 300, y: 250 }, { metric: metrics.center })?.id).toBe("b");
-    expect(nearest(entries, { x: 60, y: 50 }, { exclude: ["a"] })?.id).toBe("b");
-    expect(nearest(entries, { x: 5000, y: 5000 }, { maxDistance: 100 })).toBeNull();
+    expect(
+      nearest(entries, { x: 450, y: 250 }, { metric: metrics.edge })?.id,
+    ).toBe("c");
+    expect(
+      nearest(entries, { x: 450, y: 250 }, { metric: metrics.center })?.id,
+    ).toBe("c");
+    expect(
+      nearest(entries, { x: 300, y: 250 }, { metric: metrics.center })?.id,
+    ).toBe("b");
+    expect(nearest(entries, { x: 60, y: 50 }, { exclude: ["a"] })?.id).toBe(
+      "b",
+    );
+    expect(
+      nearest(entries, { x: 5000, y: 5000 }, { maxDistance: 100 }),
+    ).toBeNull();
     expect(nearest([], { x: 0, y: 0 })).toBeNull();
   });
 
   it("projects points onto lines and segments", () => {
-    expect(projectPointOnLine({ x: 5, y: 10 }, { x: 0, y: 0 }, { x: 10, y: 0 })).toEqual({ x: 5, y: 0 });
-    expect(projectPointOnSegment({ x: 50, y: 10 }, { x: 0, y: 0 }, { x: 10, y: 0 })).toEqual({ x: 10, y: 0 });
-    expect(projectPointOnSegment({ x: -50, y: 10 }, { x: 0, y: 0 }, { x: 10, y: 0 })).toEqual({ x: 0, y: 0 });
-    expect(projectPointOnLine({ x: 5, y: 5 }, { x: 1, y: 1 }, { x: 1, y: 1 })).toEqual({ x: 1, y: 1 });
+    expect(
+      projectPointOnLine({ x: 5, y: 10 }, { x: 0, y: 0 }, { x: 10, y: 0 }),
+    ).toEqual({ x: 5, y: 0 });
+    expect(
+      projectPointOnSegment({ x: 50, y: 10 }, { x: 0, y: 0 }, { x: 10, y: 0 }),
+    ).toEqual({ x: 10, y: 0 });
+    expect(
+      projectPointOnSegment({ x: -50, y: 10 }, { x: 0, y: 0 }, { x: 10, y: 0 }),
+    ).toEqual({ x: 0, y: 0 });
+    expect(
+      projectPointOnLine({ x: 5, y: 5 }, { x: 1, y: 1 }, { x: 1, y: 1 }),
+    ).toEqual({ x: 1, y: 1 });
   });
 
   it("projects on an axis and returns a clamped ratio", () => {
     expect(projectOnAxis({ x: 10, y: 20 }, { x: 0, y: 0 }, "x")).toBe(10);
     expect(projectOnAxis({ x: 10, y: 20 }, { x: 0, y: 0 }, "y")).toBe(20);
-    expect(projectRatio({ x: 5, y: 50 }, { x: 0, y: 0 }, { x: 10, y: 0 })).toBe(0.5);
-    expect(projectRatio({ x: 500, y: 0 }, { x: 0, y: 0 }, { x: 10, y: 0 })).toBe(1);
-    expect(projectRatio({ x: 5, y: 5 }, { x: 0, y: 0 }, { x: 0, y: 0 })).toBe(0);
+    expect(projectRatio({ x: 5, y: 50 }, { x: 0, y: 0 }, { x: 10, y: 0 })).toBe(
+      0.5,
+    );
+    expect(
+      projectRatio({ x: 500, y: 0 }, { x: 0, y: 0 }, { x: 10, y: 0 }),
+    ).toBe(1);
+    expect(projectRatio({ x: 5, y: 5 }, { x: 0, y: 0 }, { x: 0, y: 0 })).toBe(
+      0,
+    );
   });
 
   it("rotates points and converts angles", () => {

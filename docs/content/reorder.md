@@ -5,7 +5,11 @@ It is the mode for lists: a queue, a playlist, a set of rows where the order its
 the data.
 
 ```tsx
-<Layout mode="reorder" gap={8} onSwap={(event) => console.log(event.nextSlot.index)}>
+<Layout
+  mode="reorder"
+  gap={8}
+  onSwap={(event) => console.log(event.nextSlot.index)}
+>
   {rows.map((row) => (
     <Item key={row.id} id={row.id} label={row.title}>
       {row.title}
@@ -31,7 +35,7 @@ and with `grid`, which moves into a cell.
 | --------- | -------------------------------- | ---------------------------------------------- |
 | `swap`    | `c b a d`                        | dashboards, panels of different sizes          |
 | `reorder` | `b c a d`                        | lists, queues, rankings                        |
-| `grid`    | `b c a d`, placed by cell         | tile boards where the position is a 2D address |
+| `grid`    | `b c a d`, placed by cell        | tile boards where the position is a 2D address |
 
 The mode lives on the layout, and changing it does not remount the items. It does
 change what the committed order is, so pick one per layout.

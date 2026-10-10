@@ -11,7 +11,8 @@ export const clamp = (value: number, min: number, max: number): number =>
 export const clamp01 = (value: number): number => clamp(value, 0, 1);
 
 /** Linear interpolation between `from` and `to`. `t` is not clamped on purpose. */
-export const lerp = (from: number, to: number, t: number): number => from + (to - from) * t;
+export const lerp = (from: number, to: number, t: number): number =>
+  from + (to - from) * t;
 
 /** Linear interpolation between two points. */
 export const lerpPoint = (
@@ -35,14 +36,23 @@ export const lerpRect = (
 });
 
 /** Inverse of `lerp`: where does `value` sit between `from` and `to`? */
-export const inverseLerp = (from: number, to: number, value: number): number => {
+export const inverseLerp = (
+  from: number,
+  to: number,
+  value: number,
+): number => {
   if (from === to) return 0;
   return (value - from) / (to - from);
 };
 
 /** Maps `value` from one range to another, clamped to the destination range. */
-export const remap = (value: number, inMin: number, inMax: number, outMin: number, outMax: number): number =>
-  lerp(outMin, outMax, clamp01(inverseLerp(inMin, inMax, value)));
+export const remap = (
+  value: number,
+  inMin: number,
+  inMax: number,
+  outMin: number,
+  outMax: number,
+): number => lerp(outMin, outMax, clamp01(inverseLerp(inMin, inMax, value)));
 
 /** Hermite smoothstep easing on `0..1`. */
 export const smoothstep = (t: number): number => {
@@ -63,7 +73,12 @@ export const smootherstep = (t: number): number => {
  * `0.001` is very snappy, `0.3` is soft. Unlike `lerp(value, target, 0.1)`,
  * damping with `dt` behaves identically at 60 Hz and 144 Hz.
  */
-export const damp = (value: number, target: number, smoothing: number, dt: number): number => {
+export const damp = (
+  value: number,
+  target: number,
+  smoothing: number,
+  dt: number,
+): number => {
   if (dt <= 0) return value;
   const factor = 1 - Math.pow(clamp01(smoothing), dt);
   return value + (target - value) * factor;
@@ -100,14 +115,19 @@ export const snapToNearest = (
   targets: readonly number[],
   threshold = Number.POSITIVE_INFINITY,
 ): SnapResult => {
-  let best: SnapResult = { value, index: -1, distance: Number.POSITIVE_INFINITY };
+  let best: SnapResult = {
+    value,
+    index: -1,
+    distance: Number.POSITIVE_INFINITY,
+  };
   for (let i = 0; i < targets.length; i += 1) {
     const target = targets[i];
     if (target === undefined) continue;
     const d = Math.abs(target - value);
     if (d < best.distance) best = { value: target, index: i, distance: d };
   }
-  if (best.index === -1 || best.distance > threshold) return { value, index: -1, distance: best.distance };
+  if (best.index === -1 || best.distance > threshold)
+    return { value, index: -1, distance: best.distance };
   return best;
 };
 
@@ -129,7 +149,10 @@ export const snapToNearestSorted = (
   const current = sorted[low];
   if (current === undefined) return null;
   const previous = sorted[low - 1];
-  if (previous !== undefined && Math.abs(previous - value) <= Math.abs(current - value)) {
+  if (
+    previous !== undefined &&
+    Math.abs(previous - value) <= Math.abs(current - value)
+  ) {
     return { index: low - 1, value: previous };
   }
   return { index: low, value: current };
@@ -143,7 +166,10 @@ export const sum = (values: readonly number[]): number => {
 
 /** Monotonic clock in milliseconds; `performance.now()` when available. */
 export const now = (): number => {
-  if (typeof performance !== "undefined" && typeof performance.now === "function") {
+  if (
+    typeof performance !== "undefined" &&
+    typeof performance.now === "function"
+  ) {
     return performance.now();
   }
   return Date.now();

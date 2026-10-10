@@ -66,7 +66,9 @@ export const scaffold = (options: ScaffoldOptions): ScaffoldResult => {
   const notes: string[] = [];
 
   if (!templateNames.includes(name)) {
-    throw new Error(`Unknown template "${name}". Available: ${templateNames.join(", ")}.`);
+    throw new Error(
+      `Unknown template "${name}". Available: ${templateNames.join(", ")}.`,
+    );
   }
 
   const exists = existsSync(directory);
@@ -138,9 +140,13 @@ export const scaffold = (options: ScaffoldOptions): ScaffoldResult => {
       });
     installed = run(directory, command) === 0;
     if (!installed)
-      notes.push(`The install step failed. Run \`${command}\` inside the project once you are online.`);
+      notes.push(
+        `The install step failed. Run \`${command}\` inside the project once you are online.`,
+      );
   } else {
-    notes.push(`Dependencies were not installed. Run \`${command}\` inside the project when you are ready.`);
+    notes.push(
+      `Dependencies were not installed. Run \`${command}\` inside the project when you are ready.`,
+    );
   }
 
   return {

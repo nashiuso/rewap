@@ -1,0 +1,20 @@
+# Flags newly-introduced dependencies with known vulnerabilities or
+# incompatible licenses on a pull request, before they land on main.
+# GitHub's official action; no third-party service involved.
+name: Dependency review
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/dependency-review-action@v4

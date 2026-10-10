@@ -50,7 +50,10 @@ export const cellRect = (index: number, options: GeometryOptions): Rect => {
 export interface InstalledGeometry {
   provider: GeometryProvider;
   /** Current order, so tests can re-describe the layout after a reorder. */
-  layout(options: { ids: readonly string[]; index?: (id: string) => number }): void;
+  layout(options: {
+    ids: readonly string[];
+    index?: (id: string) => number;
+  }): void;
   restore(): void;
 }
 
@@ -61,11 +64,14 @@ export interface InstalledGeometry {
  * `data-rewap-layout` for the container, and by its inline transform otherwise —
  * which is exactly what the drag engine needs to see.
  */
-export const installGeometry = (options: GeometryOptions): InstalledGeometry => {
+export const installGeometry = (
+  options: GeometryOptions,
+): InstalledGeometry => {
   const original = Element.prototype.getBoundingClientRect;
   let current = options;
 
-  const idsNow = (): readonly string[] => (typeof current.ids === "function" ? current.ids() : current.ids);
+  const idsNow = (): readonly string[] =>
+    typeof current.ids === "function" ? current.ids() : current.ids;
 
   const rectsFor = (element: Element): Rect => {
     const ids = idsNow();
@@ -75,7 +81,9 @@ export const installGeometry = (options: GeometryOptions): InstalledGeometry => 
       if (index === -1) return rect(0, 0, 0, 0);
       const base = cellRect(index, current);
       const transform = (element as HTMLElement).style?.transform ?? "";
-      const match = /translate3d\(\s*(-?[\d.]+)px,\s*(-?[\d.]+)px/.exec(transform);
+      const match = /translate3d\(\s*(-?[\d.]+)px,\s*(-?[\d.]+)px/.exec(
+        transform,
+      );
       if (!match) return base;
       return translateRect(base, Number(match[1] ?? 0), Number(match[2] ?? 0));
     }
@@ -158,7 +166,10 @@ export interface PointerLike {
 export const pointerEvent = (type: string, init: PointerLike): Event => {
   const event = new Event(type, { bubbles: true, cancelable: true });
   // `timeStamp` is getter-only on Event, so it has to be defined, not assigned.
-  Object.defineProperty(event, "timeStamp", { value: performance.now(), configurable: true });
+  Object.defineProperty(event, "timeStamp", {
+    value: performance.now(),
+    configurable: true,
+  });
   Object.assign(event, {
     pointerId: init.pointerId ?? 1,
     clientX: init.clientX,
@@ -180,7 +191,10 @@ export const firePointer = (
 };
 
 /** Center of the synthetic cell at `index`. */
-export const slotCenter = (index: number, options: GeometryOptions): { x: number; y: number } => {
+export const slotCenter = (
+  index: number,
+  options: GeometryOptions,
+): { x: number; y: number } => {
   const cell = cellRect(index, options);
   return { x: cell.x + cell.width / 2, y: cell.y + cell.height / 2 };
 };
@@ -203,7 +217,9 @@ export interface DragPointerOptions {
  * Drives a full pointer drag: down on `from`, interpolated moves on `window`
  * (which is where the layout listens once a gesture is in flight), then up.
  */
-export const dragPointer = async (options: DragPointerOptions): Promise<void> => {
+export const dragPointer = async (
+  options: DragPointerOptions,
+): Promise<void> => {
   const {
     from,
     fromPoint,
@@ -250,7 +266,12 @@ export const dragPointer = async (options: DragPointerOptions): Promise<void> =>
 
 export const keyEvent = (
   type: "keydown" | "keyup",
-  init: { key: string; shiftKey?: boolean; metaKey?: boolean; ctrlKey?: boolean },
+  init: {
+    key: string;
+    shiftKey?: boolean;
+    metaKey?: boolean;
+    ctrlKey?: boolean;
+  },
 ): Event => {
   const event = new KeyboardEvent(type, {
     bubbles: true,

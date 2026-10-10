@@ -8,7 +8,8 @@
 import { useEffect, useState } from "react";
 
 const read = (query: string): boolean => {
-  if (typeof window === "undefined" || typeof window.matchMedia !== "function") return false;
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function")
+    return false;
   try {
     return window.matchMedia(query).matches;
   } catch {
@@ -20,7 +21,11 @@ export const useMediaQuery = (query: string): boolean => {
   const [matches, setMatches] = useState(() => read(query));
 
   useEffect(() => {
-    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
+    if (
+      typeof window === "undefined" ||
+      typeof window.matchMedia !== "function"
+    )
+      return;
     const media = window.matchMedia(query);
     setMatches(media.matches);
     const onChange = (event: MediaQueryListEvent) => setMatches(event.matches);

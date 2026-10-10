@@ -3,14 +3,14 @@
   "version": "1.1.1",
   "description": "A React interaction library for draggable, swappable, reorderable and animated layouts. Local-first, dependency-light, TypeScript-native.",
   "license": "MIT",
-  "author": "nashisuso (https://github.com/nashisuso)",
-  "homepage": "https://github.com/nashisuso/rewap#readme",
+  "author": "nashiuso (https://github.com/nashiuso)",
+  "homepage": "https://nashiuso.github.io/rewap/",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nashisuso/rewap.git"
+    "url": "git+https://github.com/nashiuso/rewap.git"
   },
   "bugs": {
-    "url": "https://github.com/nashisuso/rewap/issues"
+    "url": "https://github.com/nashiuso/rewap/issues"
   },
   "keywords": [
     "react",
@@ -149,12 +149,12 @@
   ],
   "workspaces": [
     "docs",
-    "examples"
+    "examples/playground"
   ],
   "scripts": {
     "build": "tsup && npm run build:types && node scripts/build-css.mjs",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "typecheck:examples": "tsc --noEmit -p examples/tsconfig.json",
+    "typecheck:examples": "tsc --noEmit -p examples/playground/tsconfig.json",
     "lint": "eslint . --max-warnings=0",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -163,16 +163,18 @@
     "verify:package": "node scripts/verify-package.mjs",
     "size": "node scripts/size.mjs",
     "banner": "node scripts/banner.mjs",
-    "docs:build": "node scripts/banner.mjs && node docs/build.mjs",
-    "docs:dev": "node docs/serve.mjs",
-    "examples:dev": "vite --config examples/vite.config.ts",
-    "examples:build": "vite build --config examples/vite.config.ts",
-    "examples:preview": "vite preview --config examples/vite.config.ts",
+    "docs:build": "npm run banner && npm run build --workspace docs",
+    "docs:dev": "npm run dev --workspace docs",
+    "examples:dev": "npm run banner && npm run dev --workspace @nashiuso/rewap-playground",
+    "examples:build": "npm run banner && npm run build --workspace @nashiuso/rewap-playground",
+    "examples:preview": "npm run preview --workspace @nashiuso/rewap-playground",
     "test:e2e": "playwright test",
     "ci": "npm run format:check && npm run typecheck && npm run typecheck:examples && npm run lint && npm test && npm run build && npm run lint:package && npm run verify:package && npm run test:types",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
     "lint:package": "npm run build && publint --strict",
+    "site:build": "node scripts/site/build.mjs",
+    "site:preview": "node scripts/site/preview.mjs",
     "verify:release": "npm run ci && npm run examples:build && npm run docs:build && npm run test:e2e && npm pack --dry-run",
     "build:types": "tsc -p tsconfig.build.json && node scripts/build-types.mjs"
   },

@@ -57,14 +57,24 @@ export interface UsePerformanceOptions {
   measureFps?: boolean;
 }
 
-const windowOf = (): Window | null => (typeof window === "undefined" ? null : window);
+const windowOf = (): Window | null =>
+  typeof window === "undefined" ? null : window;
 
 const readMemory = (): MemoryInfo | undefined => {
   const performance_ = windowOf()?.performance as Performance & {
-    memory?: { usedJSHeapSize: number; totalJSHeapSize: number; jsHeapSizeLimit: number };
+    memory?: {
+      usedJSHeapSize: number;
+      totalJSHeapSize: number;
+      jsHeapSizeLimit: number;
+    };
   };
   const memory = performance_?.memory;
-  if (!memory || !Number.isFinite(memory.jsHeapSizeLimit) || memory.jsHeapSizeLimit <= 0) return undefined;
+  if (
+    !memory ||
+    !Number.isFinite(memory.jsHeapSizeLimit) ||
+    memory.jsHeapSizeLimit <= 0
+  )
+    return undefined;
   return {
     usedJSHeapSize: memory.usedJSHeapSize,
     totalJSHeapSize: memory.totalJSHeapSize,
@@ -75,13 +85,19 @@ const readMemory = (): MemoryInfo | undefined => {
 
 const readNavigation = (): NavigationTimings | undefined => {
   const win = windowOf();
-  if (!win || typeof win.performance?.getEntriesByType !== "function") return undefined;
-  const [entry] = win.performance.getEntriesByType("navigation") as PerformanceNavigationTiming[];
+  if (!win || typeof win.performance?.getEntriesByType !== "function")
+    return undefined;
+  const [entry] = win.performance.getEntriesByType(
+    "navigation",
+  ) as PerformanceNavigationTiming[];
   if (!entry) return undefined;
   return {
     ttfb: Math.max(0, entry.responseStart - entry.requestStart),
     domInteractive: Math.max(0, entry.domInteractive - entry.startTime),
-    domContentLoaded: Math.max(0, entry.domContentLoadedEventEnd - entry.startTime),
+    domContentLoaded: Math.max(
+      0,
+      entry.domContentLoadedEventEnd - entry.startTime,
+    ),
     load: Math.max(0, entry.loadEventEnd - entry.startTime),
   };
 };
@@ -92,7 +108,9 @@ const readNavigation = (): NavigationTimings | undefined => {
  * and it does not need a second timer running just to be precise about a number
  * nobody acts on.
  */
-export const usePerformance = (options: UsePerformanceOptions = {}): PerformanceState => {
+export const usePerformance = (
+  options: UsePerformanceOptions = {},
+): PerformanceState => {
   const interval = Math.max(200, options.interval ?? 1000);
   const measureFps = options.measureFps ?? true;
   const [state, setState] = useState<PerformanceState>(() => ({
@@ -111,8 +129,12 @@ export const usePerformance = (options: UsePerformanceOptions = {}): Performance
     ...(typeof navigator !== "undefined" && navigator.hardwareConcurrency
       ? { hardwareConcurrency: navigator.hardwareConcurrency }
       : {}),
-    ...(typeof navigator !== "undefined" && (navigator as Navigator & { deviceMemory?: number }).deviceMemory
-      ? { deviceMemory: (navigator as Navigator & { deviceMemory?: number }).deviceMemory }
+    ...(typeof navigator !== "undefined" &&
+    (navigator as Navigator & { deviceMemory?: number }).deviceMemory
+      ? {
+          deviceMemory: (navigator as Navigator & { deviceMemory?: number })
+            .deviceMemory,
+        }
       : {}),
     cpuTemperature: {
       supported: false,
@@ -164,7 +186,10 @@ export const usePerformance = (options: UsePerformanceOptions = {}): Performance
         ...previous,
         supported: { ...previous.supported, longTasks: observer !== null },
         fps: frames === 0 ? 0 : Math.round((frames / seconds) * 10) / 10,
-        frameTime: frames === 0 ? 0 : Math.round(((1000 * seconds) / frames) * 100) / 100,
+        frameTime:
+          frames === 0
+            ? 0
+            : Math.round(((1000 * seconds) / frames) * 100) / 100,
         frames,
         longTasks,
         ...(readMemory() ? { memory: readMemory() } : {}),

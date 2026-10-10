@@ -28,12 +28,18 @@ export interface Ticker {
 }
 
 const raf: ((callback: (time: number) => void) => number) | null =
-  typeof requestAnimationFrame === "function" ? requestAnimationFrame.bind(globalThis) : null;
+  typeof requestAnimationFrame === "function"
+    ? requestAnimationFrame.bind(globalThis)
+    : null;
 
 const caf: ((handle: number) => void) | null =
-  typeof cancelAnimationFrame === "function" ? cancelAnimationFrame.bind(globalThis) : null;
+  typeof cancelAnimationFrame === "function"
+    ? cancelAnimationFrame.bind(globalThis)
+    : null;
 
-export const createTicker = (options: { fallbackInterval?: number } = {}): Ticker => {
+export const createTicker = (
+  options: { fallbackInterval?: number } = {},
+): Ticker => {
   const callbacks = new Set<TickerCallback>();
   const interval = options.fallbackInterval ?? 16;
   let handle: number | null = null;

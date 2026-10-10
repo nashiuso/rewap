@@ -18,9 +18,20 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { Item } from "../src/react/Item";
 import { Layout } from "../src/react/Layout";
 import { useLayout, type LayoutController } from "../src/react/useLayout";
-import { dragPointer, installGeometry, slotCenter, type InstalledGeometry } from "./helpers";
+import {
+  dragPointer,
+  installGeometry,
+  slotCenter,
+  type InstalledGeometry,
+} from "./helpers";
 
-const LIST = { ids: ["a", "b", "c"], columns: 1, cellWidth: 200, cellHeight: 120, gap: 10 };
+const LIST = {
+  ids: ["a", "b", "c"],
+  columns: 1,
+  cellWidth: 200,
+  cellHeight: 120,
+  gap: 10,
+};
 const ROW = { ...LIST, columns: 3 };
 const TALL = { ...LIST, cellWidth: 320, cellHeight: 90, gap: 8 };
 
@@ -71,7 +82,9 @@ const Probe = ({ handle }: { handle: { current: ProbeHandle | null } }) => {
   return null;
 };
 
-const rerender = async (handle: { current: ProbeHandle | null }): Promise<void> => {
+const rerender = async (handle: {
+  current: ProbeHandle | null;
+}): Promise<void> => {
   await act(async () => {
     handle.current?.render();
   });
@@ -81,7 +94,8 @@ let geometry: InstalledGeometry;
 
 beforeEach(() => {
   observers.length = 0;
-  globalThis.ResizeObserver = RecordingResizeObserver as unknown as typeof ResizeObserver;
+  globalThis.ResizeObserver =
+    RecordingResizeObserver as unknown as typeof ResizeObserver;
   geometry = installGeometry(LIST);
 });
 
@@ -109,7 +123,9 @@ describe("responsive layouts", () => {
     );
 
     await waitFor(() => expect(handle.current?.api.slots).toHaveLength(3));
-    expect(handle.current?.api.slots.map((slot) => Math.round(slot.rect.y))).toEqual([100, 230, 360]);
+    expect(
+      handle.current?.api.slots.map((slot) => Math.round(slot.rect.y)),
+    ).toEqual([100, 230, 360]);
 
     // Same list, taller cells.
     const taller = installGeometry(TALL);
@@ -131,7 +147,9 @@ describe("responsive layouts", () => {
   it("drops into the slot that is under the pointer after a breakpoint change", async () => {
     const { container } = render(<Layout>{items}</Layout>);
     const nodeOf = (id: string): HTMLElement =>
-      container.querySelector<HTMLElement>(`[data-rewap-item="${id}"]`) as HTMLElement;
+      container.querySelector<HTMLElement>(
+        `[data-rewap-item="${id}"]`,
+      ) as HTMLElement;
 
     const row = installGeometry(ROW);
     try {
@@ -182,9 +200,11 @@ describe("responsive layouts", () => {
     const observer = observers[0] as RecordingResizeObserver;
     expect(observer.observed.size).toBe(3);
     for (const id of ["a", "b", "c"]) {
-      expect(observer.observed.has(container.querySelector(`[data-rewap-item="${id}"]`) as Element)).toBe(
-        true,
-      );
+      expect(
+        observer.observed.has(
+          container.querySelector(`[data-rewap-item="${id}"]`) as Element,
+        ),
+      ).toBe(true);
     }
   });
 

@@ -142,7 +142,16 @@ describe("keyboard grammar", () => {
   it("advertises the shortcuts it actually handles", () => {
     // The list is public documentation as much as code, so it is worth a guard:
     // a shortcut that is handled but not announced is invisible to assistive tech.
-    for (const key of ["Space", "Enter", "Escape", "ArrowUp", "Home", "End", "Control+Z", "Meta+Z"]) {
+    for (const key of [
+      "Space",
+      "Enter",
+      "Escape",
+      "ArrowUp",
+      "Home",
+      "End",
+      "Control+Z",
+      "Meta+Z",
+    ]) {
       expect(ariaKeyShortcuts).toContain(key);
     }
     expect(keyboardActions.map((action) => action.group)).toEqual([
@@ -164,12 +173,18 @@ describe("keyboard grammar", () => {
   });
 
   it("describes the item and its position", () => {
-    expect(describeDragState({ label: "Card", index: 0, total: 3, grabbed: false })).toBe(
-      "Card, position 1 of 3",
-    );
-    expect(describeDragState({ label: "Card", index: 2, total: 3, grabbed: true, source: "keyboard" })).toBe(
-      "Card grabbed, position 3 of 3",
-    );
+    expect(
+      describeDragState({ label: "Card", index: 0, total: 3, grabbed: false }),
+    ).toBe("Card, position 1 of 3");
+    expect(
+      describeDragState({
+        label: "Card",
+        index: 2,
+        total: 3,
+        grabbed: true,
+        source: "keyboard",
+      }),
+    ).toBe("Card grabbed, position 3 of 3");
   });
 });
 

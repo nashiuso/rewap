@@ -14,9 +14,20 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { Item } from "../src/react/Item";
 import { Layout } from "../src/react/Layout";
 import { memoryStorage, type PersistedLayout } from "../src/core/persistence";
-import { dragPointer, installGeometry, slotCenter, type InstalledGeometry } from "./helpers";
+import {
+  dragPointer,
+  installGeometry,
+  slotCenter,
+  type InstalledGeometry,
+} from "./helpers";
 
-const CELLS = { ids: ["a", "b", "c"], columns: 1, cellWidth: 200, cellHeight: 120, gap: 10 };
+const CELLS = {
+  ids: ["a", "b", "c"],
+  columns: 1,
+  cellWidth: 200,
+  cellHeight: 120,
+  gap: 10,
+};
 const KEY = "rewap:test";
 
 let geometry: InstalledGeometry;
@@ -26,10 +37,19 @@ const idsInDom = (container: HTMLElement): string[] =>
     (element) => element.dataset.rewapItem ?? "",
   );
 
-const write = (storage: Storage, ids: string[], mode: "swap" | "reorder" = "swap"): void => {
+const write = (
+  storage: Storage,
+  ids: string[],
+  mode: "swap" | "reorder" = "swap",
+): void => {
   storage.setItem(
     KEY,
-    JSON.stringify({ version: 1, mode, ids, savedAt: Date.now() } satisfies PersistedLayout),
+    JSON.stringify({
+      version: 1,
+      mode,
+      ids,
+      savedAt: Date.now(),
+    } satisfies PersistedLayout),
   );
 };
 
@@ -96,21 +116,28 @@ describe("persistence", () => {
     // Undo is driven through the keyboard so the test does not need a ref. The
     // shortcut is handled by the layout element, so it has to be dispatched from
     // inside it (React listens at the root, not on `document`).
-    fireEvent.keyDown(container.querySelector("[data-rewap-layout]") as HTMLElement, {
-      key: "z",
-      metaKey: true,
-    });
+    fireEvent.keyDown(
+      container.querySelector("[data-rewap-layout]") as HTMLElement,
+      {
+        key: "z",
+        metaKey: true,
+      },
+    );
 
     await waitFor(() => expect(idsInDom(container)).toEqual(["a", "b", "c"]));
     await waitFor(() =>
-      expect(JSON.parse(window.localStorage.getItem(KEY) as string).ids).toEqual(["a", "b", "c"]),
+      expect(
+        JSON.parse(window.localStorage.getItem(KEY) as string).ids,
+      ).toEqual(["a", "b", "c"]),
     );
   });
 
   it("accepts a custom storage object", async () => {
     const storage = memoryStorage();
     write(storage as unknown as Storage, ["b", "a", "c"]);
-    const { container } = render(<Board storage={storage as unknown as Storage} />);
+    const { container } = render(
+      <Board storage={storage as unknown as Storage} />,
+    );
 
     await waitFor(() => expect(idsInDom(container)).toEqual(["b", "a", "c"]));
   });
@@ -137,7 +164,9 @@ describe("persistence", () => {
         <Layout
           items={ids.map((id) => ({ id }))}
           onChange={(next) => {
-            const order = next.map((item) => (typeof item === "string" ? item : item.id));
+            const order = next.map((item) =>
+              typeof item === "string" ? item : item.id,
+            );
             onChange(order);
             setIds(order);
           }}
@@ -168,7 +197,12 @@ describe("persistence", () => {
   it("re-hydrates when the key changes", async () => {
     window.localStorage.setItem(
       "rewap:other",
-      JSON.stringify({ version: 1, mode: "swap", ids: ["b", "c", "a"], savedAt: 0 }),
+      JSON.stringify({
+        version: 1,
+        mode: "swap",
+        ids: ["b", "c", "a"],
+        savedAt: 0,
+      }),
     );
 
     const TwoKeys = ({ keyName }: { keyName: string }) => (
@@ -180,9 +214,13 @@ describe("persistence", () => {
     );
 
     const view = render(<TwoKeys keyName={KEY} />);
-    await waitFor(() => expect(idsInDom(view.container)).toEqual(["a", "b", "c"]));
+    await waitFor(() =>
+      expect(idsInDom(view.container)).toEqual(["a", "b", "c"]),
+    );
 
     view.rerender(<TwoKeys keyName="rewap:other" />);
-    await waitFor(() => expect(idsInDom(view.container)).toEqual(["b", "c", "a"]));
+    await waitFor(() =>
+      expect(idsInDom(view.container)).toEqual(["b", "c", "a"]),
+    );
   });
 });

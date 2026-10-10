@@ -86,7 +86,12 @@ not supported — see [known limitations](known-limitations.html).
 ```tsx
 <Layout mode="grid" columns="auto-fit" minColumnWidth={240} gap={16}>
   {cards.map((card) => (
-    <Item key={card.id} id={card.id} columnSpan={card.wide ? 2 : 1} label={card.title}>
+    <Item
+      key={card.id}
+      id={card.id}
+      columnSpan={card.wide ? 2 : 1}
+      label={card.title}
+    >
       <Card {...card} />
     </Item>
   ))}

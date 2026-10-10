@@ -29,15 +29,26 @@ export const ViewportWidget = ({
   const keyboardInset = Math.max(0, viewport.height - viewport.visualHeight);
 
   return (
-    <Widget title={title} className={className} style={style} meta={viewport.breakpoint}>
+    <Widget
+      title={title}
+      className={className}
+      style={style}
+      meta={viewport.breakpoint}
+    >
       <WidgetValue unit="px">{viewport.width}</WidgetValue>
       <WidgetRows>
         <WidgetRow label="Height" value={`${viewport.height} px`} />
-        <WidgetRow label="Visual height" value={`${Math.round(viewport.visualHeight)} px`} />
+        <WidgetRow
+          label="Visual height"
+          value={`${Math.round(viewport.visualHeight)} px`}
+        />
         <WidgetRow label="Orientation" value={viewport.orientation} />
         <WidgetRow label="Device pixel ratio" value={`${viewport.dpr}×`} />
         {keyboardInset > 0 ? (
-          <WidgetRow label="Viewport inset" value={`${Math.round(keyboardInset)} px`} />
+          <WidgetRow
+            label="Viewport inset"
+            value={`${Math.round(keyboardInset)} px`}
+          />
         ) : null}
         {showScroll ? (
           <WidgetRow

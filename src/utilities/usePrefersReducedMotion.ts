@@ -11,7 +11,8 @@ import { useEffect, useState } from "react";
 const query = "(prefers-reduced-motion: reduce)";
 
 const readPreference = (): boolean => {
-  if (typeof window === "undefined" || typeof window.matchMedia !== "function") return false;
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function")
+    return false;
   try {
     return window.matchMedia(query).matches;
   } catch {
@@ -23,9 +24,14 @@ export const usePrefersReducedMotion = (): boolean => {
   const [prefersReduced, setPrefersReduced] = useState(readPreference);
 
   useEffect(() => {
-    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
+    if (
+      typeof window === "undefined" ||
+      typeof window.matchMedia !== "function"
+    )
+      return;
     const media = window.matchMedia(query);
-    const onChange = (event: MediaQueryListEvent) => setPrefersReduced(event.matches);
+    const onChange = (event: MediaQueryListEvent) =>
+      setPrefersReduced(event.matches);
     setPrefersReduced(media.matches);
     if (typeof media.addEventListener === "function") {
       media.addEventListener("change", onChange);

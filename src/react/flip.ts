@@ -54,18 +54,27 @@ export const playFlip = (
   }
 
   node.set({ x: dx, y: dy });
-  const handle = node.animate({ x: 0, y: 0 }, options.plan, { ticker: options.ticker });
+  const handle = node.animate({ x: 0, y: 0 }, options.plan, {
+    ticker: options.ticker,
+  });
   return () => handle.cancel();
 };
 
 /** Size difference between two rects, used to animate scale during FLIP. */
-export const flipScale = (previous: Rect, next: Rect): { x: number; y: number } => {
+export const flipScale = (
+  previous: Rect,
+  next: Rect,
+): { x: number; y: number } => {
   if (previous.width === 0 || previous.height === 0) return { x: 1, y: 1 };
   return { x: next.width / previous.width, y: next.height / previous.height };
 };
 
 /** True when a rectangle moved or resized by more than `threshold` pixels. */
-export const rectChanged = (a: Rect | undefined, b: Rect, threshold = 0.5): boolean => {
+export const rectChanged = (
+  a: Rect | undefined,
+  b: Rect,
+  threshold = 0.5,
+): boolean => {
   if (!a) return true;
   return (
     Math.abs(a.x - b.x) > threshold ||

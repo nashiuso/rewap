@@ -49,11 +49,17 @@ export const deriveColumns = (options: GridOptions): number => {
   if (minColumnWidth <= 0) return 1;
   const derived = Math.floor((containerWidth + gap) / (minColumnWidth + gap));
   const bounded = Math.max(1, derived);
-  return maxColumns === undefined ? bounded : Math.min(bounded, Math.max(1, maxColumns));
+  return maxColumns === undefined
+    ? bounded
+    : Math.min(bounded, Math.max(1, maxColumns));
 };
 
 /** Column width for a fixed column count, so cells fill the container exactly. */
-export const deriveColumnWidth = (containerWidth: number, columns: number, gap: number): number => {
+export const deriveColumnWidth = (
+  containerWidth: number,
+  columns: number,
+  gap: number,
+): number => {
   const count = Math.max(1, columns);
   return Math.max(0, (containerWidth - gap * (count - 1)) / count);
 };
@@ -68,24 +74,36 @@ export const gridCellRect = (
 ): Rect => {
   const x = metrics.x + column * (metrics.columnWidth + metrics.columnGap);
   const y = metrics.y + row * (metrics.rowHeight + metrics.rowGap);
-  const width = metrics.columnWidth * columnSpan + metrics.columnGap * Math.max(0, columnSpan - 1);
-  const height = metrics.rowHeight * rowSpan + metrics.rowGap * Math.max(0, rowSpan - 1);
+  const width =
+    metrics.columnWidth * columnSpan +
+    metrics.columnGap * Math.max(0, columnSpan - 1);
+  const height =
+    metrics.rowHeight * rowSpan + metrics.rowGap * Math.max(0, rowSpan - 1);
   return rect(x, y, width, height);
 };
 
 /** Rectangle of a flow index (row-major order), the inverse of {@link flowIndexFromCell}. */
-export const gridCellRectFromIndex = (metrics: GridMetrics, index: number): Rect => {
+export const gridCellRectFromIndex = (
+  metrics: GridMetrics,
+  index: number,
+): Rect => {
   const column = index % metrics.columns;
   const row = Math.floor(index / metrics.columns);
   return gridCellRect(metrics, column, row);
 };
 
 /** Converts a `column`/`row` coordinate pair into a row-major flow index. */
-export const flowIndexFromCell = (column: number, row: number, columns: number): number =>
-  row * Math.max(1, columns) + column;
+export const flowIndexFromCell = (
+  column: number,
+  row: number,
+  columns: number,
+): number => row * Math.max(1, columns) + column;
 
 /** Converts a flow index into `column`/`row` coordinates. */
-export const cellFromFlowIndex = (index: number, columns: number): { column: number; row: number } => {
+export const cellFromFlowIndex = (
+  index: number,
+  columns: number,
+): { column: number; row: number } => {
   const count = Math.max(1, columns);
   const safe = Math.max(0, index);
   return { column: safe % count, row: Math.floor(safe / count) };
@@ -114,14 +132,22 @@ export interface GridPlacement {
   rowSpan: number;
 }
 
-export const gridAutoFlow = (items: readonly GridFlowItem[], columns: number): GridPlacement[] => {
+export const gridAutoFlow = (
+  items: readonly GridFlowItem[],
+  columns: number,
+): GridPlacement[] => {
   const count = Math.max(1, columns);
   const placements: GridPlacement[] = [];
   const occupied = new Set<string>();
   let column = 0;
   let row = 0;
 
-  const isFree = (c: number, r: number, columnSpan: number, rowSpan: number): boolean => {
+  const isFree = (
+    c: number,
+    r: number,
+    columnSpan: number,
+    rowSpan: number,
+  ): boolean => {
     if (c + columnSpan > count) return false;
     for (let dc = 0; dc < columnSpan; dc += 1) {
       for (let dr = 0; dr < rowSpan; dr += 1) {
@@ -138,7 +164,8 @@ export const gridAutoFlow = (items: readonly GridFlowItem[], columns: number): G
     while (!placed) {
       if (isFree(column, row, columnSpan, rowSpan)) {
         for (let dc = 0; dc < columnSpan; dc += 1) {
-          for (let dr = 0; dr < rowSpan; dr += 1) occupied.add(`${column + dc}:${row + dr}`);
+          for (let dr = 0; dr < rowSpan; dr += 1)
+            occupied.add(`${column + dc}:${row + dr}`);
         }
         placements.push({ index, column, row, columnSpan, rowSpan });
         column += columnSpan;
@@ -164,8 +191,14 @@ export const gridCellAtPoint = (
 ): { column: number; row: number } => {
   const columnStep = metrics.columnWidth + metrics.columnGap;
   const rowStep = metrics.rowHeight + metrics.rowGap;
-  const column = columnStep <= 0 ? 0 : Math.round((x - metrics.x - metrics.columnWidth / 2) / columnStep);
-  const row = rowStep <= 0 ? 0 : Math.round((y - metrics.y - metrics.rowHeight / 2) / rowStep);
+  const column =
+    columnStep <= 0
+      ? 0
+      : Math.round((x - metrics.x - metrics.columnWidth / 2) / columnStep);
+  const row =
+    rowStep <= 0
+      ? 0
+      : Math.round((y - metrics.y - metrics.rowHeight / 2) / rowStep);
   return {
     column: clamp(column, 0, Math.max(0, metrics.columns - 1)),
     row: Math.max(0, row),

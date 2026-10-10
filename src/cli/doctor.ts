@@ -55,7 +55,8 @@ const sourceFiles = (directory: string, limit = 4000): string[] => {
       if (entry.name === "node_modules" || entry.name.startsWith(".")) continue;
       const full = join(path, entry.name);
       if (entry.isDirectory()) walk(full);
-      else if (/\.(tsx?|jsx?|mjs|astro|css|html)$/.test(entry.name)) files.push(full);
+      else if (/\.(tsx?|jsx?|mjs|astro|css|html)$/.test(entry.name))
+        files.push(full);
     }
   };
   for (const root of roots) walk(root);
@@ -65,19 +66,26 @@ const sourceFiles = (directory: string, limit = 4000): string[] => {
 const requiredNodeMajor = 18;
 const requiredNodeMinor = 18;
 
-export const doctor = (target = process.cwd(), expectedVersion = "1.1.1"): DoctorReport => {
+export const doctor = (
+  target = process.cwd(),
+  expectedVersion = "1.1.1",
+): DoctorReport => {
   const directory = resolve(target);
   const checks: Check[] = [];
   const add = (check: Check): void => {
     checks.push(check);
   };
 
-  const [major, minor] = process.versions.node.split(".").map(Number) as [number, number];
+  const [major, minor] = process.versions.node.split(".").map(Number) as [
+    number,
+    number,
+  ];
   add({
     id: "node",
     title: "Node version",
     status:
-      major > requiredNodeMajor || (major === requiredNodeMajor && minor >= requiredNodeMinor)
+      major > requiredNodeMajor ||
+      (major === requiredNodeMajor && minor >= requiredNodeMinor)
         ? "ok"
         : "fail",
     detail: `running ${process.versions.node}; the build scripts need >= ${requiredNodeMajor}.${requiredNodeMinor}`,
@@ -88,7 +96,12 @@ export const doctor = (target = process.cwd(), expectedVersion = "1.1.1"): Docto
   const manifest = existsSync(manifestPath) ? readJson(manifestPath) : null;
   add(
     manifest
-      ? { id: "package", title: "package.json", status: "ok", detail: manifestPath }
+      ? {
+          id: "package",
+          title: "package.json",
+          status: "ok",
+          detail: manifestPath,
+        }
       : {
           id: "package",
           title: "package.json",
@@ -118,7 +131,11 @@ export const doctor = (target = process.cwd(), expectedVersion = "1.1.1"): Docto
           detail: installed
             ? `installed ${installed}${declared ? `, declared ${declared}` : ""}`
             : `declared ${declared} but not installed`,
-          ...(installed ? {} : { hint: "Run your package manager's install command in this project." }),
+          ...(installed
+            ? {}
+            : {
+                hint: "Run your package manager's install command in this project.",
+              }),
         }
       : {
           id: "rewap",
@@ -147,7 +164,9 @@ export const doctor = (target = process.cwd(), expectedVersion = "1.1.1"): Docto
           title: "react",
           status: Number(react.split(".")[0]) >= 18 ? "ok" : "fail",
           detail: `installed ${react}; the peer range is >=18.0.0`,
-          ...(Number(react.split(".")[0]) >= 18 ? {} : { hint: "Upgrade React to 18 or newer." }),
+          ...(Number(react.split(".")[0]) >= 18
+            ? {}
+            : { hint: "Upgrade React to 18 or newer." }),
         }
       : {
           id: "react",
@@ -158,7 +177,9 @@ export const doctor = (target = process.cwd(), expectedVersion = "1.1.1"): Docto
   );
 
   const files = sourceFiles(directory);
-  const stylesheet = files.find((file) => /@nashiuso\/rewap\/(styles|tokens)\.css/.test(readFileSafe(file)));
+  const stylesheet = files.find((file) =>
+    /@nashiuso\/rewap\/(styles|tokens)\.css/.test(readFileSafe(file)),
+  );
   add(
     stylesheet
       ? {
@@ -177,11 +198,18 @@ export const doctor = (target = process.cwd(), expectedVersion = "1.1.1"): Docto
   );
 
   const cdn = files.filter((file) =>
-    /cdn\.jsdelivr\.net|unpkg\.com|cdnjs\.cloudflare\.com/.test(readFileSafe(file)),
+    /cdn\.jsdelivr\.net|unpkg\.com|cdnjs\.cloudflare\.com/.test(
+      readFileSafe(file),
+    ),
   );
   add(
     cdn.length === 0
-      ? { id: "cdn", title: "no CDN references", status: "ok", detail: "nothing in source points at a CDN" }
+      ? {
+          id: "cdn",
+          title: "no CDN references",
+          status: "ok",
+          detail: "nothing in source points at a CDN",
+        }
       : {
           id: "cdn",
           title: "no CDN references",
@@ -194,9 +222,12 @@ export const doctor = (target = process.cwd(), expectedVersion = "1.1.1"): Docto
         },
   );
 
-  const lockfiles = ["package-lock.json", "pnpm-lock.yaml", "yarn.lock", "bun.lockb"].filter((file) =>
-    existsSync(join(directory, file)),
-  );
+  const lockfiles = [
+    "package-lock.json",
+    "pnpm-lock.yaml",
+    "yarn.lock",
+    "bun.lockb",
+  ].filter((file) => existsSync(join(directory, file)));
   add(
     lockfiles.length <= 1
       ? {
@@ -214,9 +245,13 @@ export const doctor = (target = process.cwd(), expectedVersion = "1.1.1"): Docto
         },
   );
 
-  const rewapFiles = files.filter((file) => /@nashiuso\/rewap/.test(readFileSafe(file)));
+  const rewapFiles = files.filter((file) =>
+    /@nashiuso\/rewap/.test(readFileSafe(file)),
+  );
   const usesSubpath = rewapFiles.some((file) =>
-    /@nashiuso\/rewap\/(utilities|providers|charts|widgets|math|motion)/.test(readFileSafe(file)),
+    /@nashiuso\/rewap\/(utilities|providers|charts|widgets|math|motion)/.test(
+      readFileSafe(file),
+    ),
   );
   add({
     id: "subpaths",

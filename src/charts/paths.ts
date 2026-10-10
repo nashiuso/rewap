@@ -30,7 +30,10 @@ export const linePath = (points: readonly Point[]): string => {
  * clamped so the curve never overshoots a local extremum — which matters for data
  * honesty: a smoothed line must not invent peaks.
  */
-export const smoothLinePath = (points: readonly Point[], tension = 0.2): string => {
+export const smoothLinePath = (
+  points: readonly Point[],
+  tension = 0.2,
+): string => {
   if (points.length < 3 || tension <= 0) return linePath(points);
   const t = Math.min(1, tension) / 1.6;
 

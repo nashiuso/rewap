@@ -6,7 +6,12 @@ Optional, local SVG charts in `@nashiuso/rewap/charts`.
 import { Chart } from "@nashiuso/rewap/charts";
 import "@nashiuso/rewap/charts.css";
 
-<Chart type="line" data={[12, 18, 15, 24, 31]} height={180} ariaLabel="Revenue by week" />;
+<Chart
+  type="line"
+  data={[12, 18, 15, 24, 31]}
+  height={180}
+  ariaLabel="Revenue by week"
+/>;
 ```
 
 No charting dependency, no canvas, no data fetching. The path maths and the scales

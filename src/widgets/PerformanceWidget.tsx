@@ -9,8 +9,19 @@
 
 import type { CSSProperties } from "react";
 
-import { usePerformance, type UsePerformanceOptions } from "../utilities/usePerformance";
-import { Widget, WidgetBar, WidgetNote, WidgetRows, WidgetRow, WidgetState, WidgetValue } from "./Widget";
+import {
+  usePerformance,
+  type UsePerformanceOptions,
+} from "../utilities/usePerformance";
+import {
+  Widget,
+  WidgetBar,
+  WidgetNote,
+  WidgetRows,
+  WidgetRow,
+  WidgetState,
+  WidgetValue,
+} from "./Widget";
 
 export interface PerformanceWidgetProps extends UsePerformanceOptions {
   title?: string;
@@ -31,7 +42,12 @@ export const PerformanceWidget = ({
   ...performanceOptions
 }: PerformanceWidgetProps) => {
   const performance = usePerformance(performanceOptions);
-  const audio = performance.fps >= 55 ? "positive" : performance.fps >= 30 ? "caution" : "negative";
+  const audio =
+    performance.fps >= 55
+      ? "positive"
+      : performance.fps >= 30
+        ? "caution"
+        : "negative";
 
   return (
     <Widget
@@ -40,17 +56,26 @@ export const PerformanceWidget = ({
       style={style}
       meta={`measured over ${Math.round(performanceOptions.interval ?? 1000)} ms`}
     >
-      <WidgetValue unit="fps">{performance.supported.fps ? performance.fps.toFixed(1) : "—"}</WidgetValue>
+      <WidgetValue unit="fps">
+        {performance.supported.fps ? performance.fps.toFixed(1) : "—"}
+      </WidgetValue>
       <WidgetBar
         value={Math.min(1, performance.fps / 60)}
         tone={audio}
         label="Frames per second relative to 60"
       />
       <WidgetRows>
-        <WidgetRow label="Frame time" value={`${performance.frameTime.toFixed(2)} ms`} />
+        <WidgetRow
+          label="Frame time"
+          value={`${performance.frameTime.toFixed(2)} ms`}
+        />
         <WidgetRow
           label="Long tasks"
-          value={performance.supported.longTasks ? String(performance.longTasks) : "not observable"}
+          value={
+            performance.supported.longTasks
+              ? String(performance.longTasks)
+              : "not observable"
+          }
           title="Tasks over 50 ms observed in the last window."
         />
         {showMemory ? (
@@ -69,18 +94,33 @@ export const PerformanceWidget = ({
           />
         ) : null}
         {performance.navigation ? (
-          <WidgetRow label="TTFB" value={formatMs(performance.navigation.ttfb)} />
+          <WidgetRow
+            label="TTFB"
+            value={formatMs(performance.navigation.ttfb)}
+          />
         ) : null}
         {performance.hardwareConcurrency ? (
-          <WidgetRow label="Logical cores" value={String(performance.hardwareConcurrency)} />
+          <WidgetRow
+            label="Logical cores"
+            value={String(performance.hardwareConcurrency)}
+          />
         ) : null}
         {performance.deviceMemory ? (
-          <WidgetRow label="Device memory" value={`≥ ${performance.deviceMemory} GB`} />
+          <WidgetRow
+            label="Device memory"
+            value={`≥ ${performance.deviceMemory} GB`}
+          />
         ) : null}
-        <WidgetRow label="CPU temperature" value="unavailable" title={performance.cpuTemperature.reason} />
+        <WidgetRow
+          label="CPU temperature"
+          value="unavailable"
+          title={performance.cpuTemperature.reason}
+        />
       </WidgetRows>
       <WidgetState tone="caution">
-        {performance.cpuTemperature.supported ? "" : "Hardware sensors are not exposed to web pages"}
+        {performance.cpuTemperature.supported
+          ? ""
+          : "Hardware sensors are not exposed to web pages"}
       </WidgetState>
       <WidgetNote>{performance.cpuTemperature.reason}</WidgetNote>
     </Widget>

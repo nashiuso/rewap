@@ -142,6 +142,6 @@ be a separate project, not a flag on this one.
 **How do I report a bug?**
 
 Open an issue on GitHub with the smallest reproduction you can manage. See
-[CONTRIBUTING.md](https://github.com/nashisuso/rewap/blob/main/CONTRIBUTING.md) for
-what helps most (a failing test is ideal) and [SECURITY.md](https://github.com/nashisuso/rewap/blob/main/SECURITY.md)
+[CONTRIBUTING.md](https://github.com/nashiuso/rewap/blob/main/CONTRIBUTING.md) for
+what helps most (a failing test is ideal) and [SECURITY.md](https://github.com/nashiuso/rewap/blob/main/SECURITY.md)
 for anything sensitive.

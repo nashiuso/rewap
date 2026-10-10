@@ -10,7 +10,13 @@ import { createContext, useContext } from "react";
 
 import type { DragController, DragSnapshot } from "../core/drag";
 import type { SlotCandidate } from "../core/types";
-import type { EffectsOptions, ItemId, LayoutMode, PlaceholderStyle, Slot } from "../core/types";
+import type {
+  EffectsOptions,
+  ItemId,
+  LayoutMode,
+  PlaceholderStyle,
+  Slot,
+} from "../core/types";
 import type { MotionValue } from "../motion/presets";
 import type { Announcer } from "../accessibility";
 
@@ -73,10 +79,14 @@ export interface LayoutContextValue {
 
 export const LayoutContext = createContext<LayoutContextValue | null>(null);
 
-export const useLayoutContext = (component = "useLayout"): LayoutContextValue => {
+export const useLayoutContext = (
+  component = "useLayout",
+): LayoutContextValue => {
   const value = useContext(LayoutContext);
   if (!value) {
-    throw new Error(`[@nashiuso/rewap] ${component} must be used inside a <Layout> component.`);
+    throw new Error(
+      `[@nashiuso/rewap] ${component} must be used inside a <Layout> component.`,
+    );
   }
   return value;
 };
@@ -87,4 +97,5 @@ export const useLayoutContext = (component = "useLayout"): LayoutContextValue =>
  * Named like a hook because it is one: it calls `useContext`, and a function that
  * does that cannot be called conditionally no matter what it is named.
  */
-export const useHasLayoutContext = (): boolean => useContext(LayoutContext) !== null;
+export const useHasLayoutContext = (): boolean =>
+  useContext(LayoutContext) !== null;

@@ -75,8 +75,10 @@ export const variance = (values: readonly number[], ddof = 1): number => {
   return total / denominator;
 };
 
-export const standardDeviation = (values: readonly number[], ddof = 1): number =>
-  Math.sqrt(variance(values, ddof));
+export const standardDeviation = (
+  values: readonly number[],
+  ddof = 1,
+): number => Math.sqrt(variance(values, ddof));
 
 /** Linear-interpolated percentile. `p` is `0..100`. */
 export const percentile = (values: readonly number[], p: number): number => {
@@ -93,7 +95,8 @@ export const percentile = (values: readonly number[], p: number): number => {
   return low + (high - low) * (position - lower);
 };
 
-export const quantile = (values: readonly number[], q: number): number => percentile(values, q * 100);
+export const quantile = (values: readonly number[], q: number): number =>
+  percentile(values, q * 100);
 
 export interface Range {
   min: number;
@@ -104,7 +107,8 @@ export interface Range {
 /** Min/max/span, ignoring non-finite values. */
 export const extent = (values: readonly number[]): Range => {
   const data = finite(values);
-  if (data.length === 0) return { min: Number.NaN, max: Number.NaN, span: Number.NaN };
+  if (data.length === 0)
+    return { min: Number.NaN, max: Number.NaN, span: Number.NaN };
   let min = data[0] ?? Number.NaN;
   let max = min;
   for (const value of data) {
@@ -118,7 +122,10 @@ export const interquartileRange = (values: readonly number[]): number =>
   percentile(values, 75) - percentile(values, 25);
 
 /** Pearson correlation coefficient in `-1..1`, or `NaN` for degenerate input. */
-export const correlation = (xs: readonly number[], ys: readonly number[]): number => {
+export const correlation = (
+  xs: readonly number[],
+  ys: readonly number[],
+): number => {
   const length = Math.min(xs.length, ys.length);
   const x: number[] = [];
   const y: number[] = [];
@@ -157,7 +164,10 @@ export interface Regression {
 }
 
 /** Ordinary least squares regression of `ys` on `xs`. */
-export const regression = (xs: readonly number[], ys: readonly number[]): Regression => {
+export const regression = (
+  xs: readonly number[],
+  ys: readonly number[],
+): Regression => {
   const length = Math.min(xs.length, ys.length);
   const x: number[] = [];
   const y: number[] = [];
@@ -194,11 +204,19 @@ export const regression = (xs: readonly number[], ys: readonly number[]): Regres
     total += deviation * deviation;
   }
   const r2 = total === 0 ? 1 : 1 - residual / total;
-  return { slope, intercept, r2, predict: (value: number) => slope * value + intercept };
+  return {
+    slope,
+    intercept,
+    r2,
+    predict: (value: number) => slope * value + intercept,
+  };
 };
 
 /** Simple moving average with a trailing window. Returns `values.length` entries. */
-export const movingAverage = (values: readonly number[], window: number): number[] => {
+export const movingAverage = (
+  values: readonly number[],
+  window: number,
+): number[] => {
   const data = finite(values);
   const size = Math.max(1, Math.floor(window));
   const result: number[] = [];
@@ -212,13 +230,18 @@ export const movingAverage = (values: readonly number[], window: number): number
 };
 
 /** Exponential moving average with smoothing factor `alpha` (`0..1`). */
-export const movingAverageExponential = (values: readonly number[], alpha = 0.3): number[] => {
+export const movingAverageExponential = (
+  values: readonly number[],
+  alpha = 0.3,
+): number[] => {
   const data = finite(values);
   const factor = Math.min(1, Math.max(0, alpha));
   const result: number[] = [];
   let previous = Number.NaN;
   for (const value of data) {
-    previous = Number.isNaN(previous) ? value : previous + factor * (value - previous);
+    previous = Number.isNaN(previous)
+      ? value
+      : previous + factor * (value - previous);
     result.push(previous);
   }
   return result;
@@ -244,7 +267,10 @@ export const histogram = (values: readonly number[], bins = 10): Histogram => {
   for (let i = 0; i <= binCount; i += 1) edges.push(min + binWidth * i);
   const counts = new Array<number>(binCount).fill(0);
   for (const value of data) {
-    const index = Math.min(binCount - 1, Math.max(0, Math.floor((value - min) / binWidth)));
+    const index = Math.min(
+      binCount - 1,
+      Math.max(0, Math.floor((value - min) / binWidth)),
+    );
     counts[index] = (counts[index] ?? 0) + 1;
   }
   return { edges, counts, binWidth };

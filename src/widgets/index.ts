@@ -11,7 +11,10 @@ export { NetworkWidget, type NetworkWidgetProps } from "./NetworkWidget";
 export { StatsWidget, type StatsWidgetProps } from "./StatsWidget";
 export { ClockWidget, type ClockWidgetProps } from "./ClockWidget";
 export { ViewportWidget, type ViewportWidgetProps } from "./ViewportWidget";
-export { PerformanceWidget, type PerformanceWidgetProps } from "./PerformanceWidget";
+export {
+  PerformanceWidget,
+  type PerformanceWidgetProps,
+} from "./PerformanceWidget";
 export { BatteryWidget, type BatteryWidgetProps } from "./BatteryWidget";
 export {
   Widget,

@@ -32,7 +32,8 @@ if (typeof globalThis.ResizeObserver === "undefined") {
     unobserve(): void {}
     disconnect(): void {}
   }
-  globalThis.ResizeObserver = ResizeObserverStub as unknown as typeof ResizeObserver;
+  globalThis.ResizeObserver =
+    ResizeObserverStub as unknown as typeof ResizeObserver;
 }
 
 // --------------------------------------------------------------- pointer capture
@@ -41,7 +42,8 @@ if (typeof Element !== "undefined") {
     Element.prototype.setPointerCapture = function setPointerCapture() {};
   }
   if (!Element.prototype.releasePointerCapture) {
-    Element.prototype.releasePointerCapture = function releasePointerCapture() {};
+    Element.prototype.releasePointerCapture =
+      function releasePointerCapture() {};
   }
   if (!Element.prototype.hasPointerCapture) {
     Element.prototype.hasPointerCapture = function hasPointerCapture() {

@@ -20,7 +20,10 @@ export interface StoreOptions<T> {
   equals?: (a: T, b: T) => boolean;
 }
 
-export const createStore = <T>(initial: T, options: StoreOptions<T> = {}): Store<T> => {
+export const createStore = <T>(
+  initial: T,
+  options: StoreOptions<T> = {},
+): Store<T> => {
   let value = initial;
   const listeners = new Set<() => void>();
   const equals = options.equals ?? Object.is;
@@ -42,7 +45,10 @@ export const createStore = <T>(initial: T, options: StoreOptions<T> = {}): Store
   return {
     get: () => value,
     set(update) {
-      const next = typeof update === "function" ? (update as (previous: T) => T)(value) : update;
+      const next =
+        typeof update === "function"
+          ? (update as (previous: T) => T)(value)
+          : update;
       if (equals(value, next)) return;
       value = next;
       schedule();
@@ -95,7 +101,10 @@ export interface HistoryOptions<T> {
   equals?: (a: T, b: T) => boolean;
 }
 
-export const createHistory = <T>(initial: T, options: HistoryOptions<T> = {}): History<T> => {
+export const createHistory = <T>(
+  initial: T,
+  options: HistoryOptions<T> = {},
+): History<T> => {
   const limit = Math.max(1, Math.floor(options.limit ?? 50));
   const equals = options.equals ?? Object.is;
   let start = initial;

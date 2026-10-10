@@ -32,7 +32,7 @@ export default defineConfig([
     target: "es2020",
     external: ["react", "react-dom", "react/jsx-runtime"],
     banner: {
-      js: "/* @nashiuso/rewap v1.1.1 | MIT | github.com/nashisuso */",
+      js: "/* @nashiuso/rewap v1.1.1 | MIT | github.com/nashiuso */",
     },
   },
   // The CLI is a Node program, not a browser module: ESM only, with a shebang, and
@@ -46,7 +46,7 @@ export default defineConfig([
     clean: false,
     sourcemap: false,
     banner: {
-      js: "#!/usr/bin/env node\n/* @nashiuso/rewap v1.1.1 | MIT | github.com/nashisuso */",
+      js: "#!/usr/bin/env node\n/* @nashiuso/rewap v1.1.1 | MIT | github.com/nashiuso */",
     },
   },
 ]);

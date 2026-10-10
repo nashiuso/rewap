@@ -77,7 +77,11 @@ describe("createRewap()", () => {
   });
 
   it("keeps the history limit it was given", () => {
-    const layout = createRewap({ ids: ["a", "b", "c", "d"], mode: "reorder", history: { limit: 2 } });
+    const layout = createRewap({
+      ids: ["a", "b", "c", "d"],
+      mode: "reorder",
+      history: { limit: 2 },
+    });
     layout.move("d", 0);
     layout.move("d", 1);
     layout.move("d", 2);
@@ -115,7 +119,11 @@ describe("createRewap()", () => {
 
   it("appends items the stored order does not know about", () => {
     const storage = memoryStorage();
-    const first = createRewap({ ids: ["a", "b"], mode: "reorder", persistence: { key: "board", storage } });
+    const first = createRewap({
+      ids: ["a", "b"],
+      mode: "reorder",
+      persistence: { key: "board", storage },
+    });
     first.move("b", 0);
     first.destroy();
 

@@ -73,7 +73,9 @@ interface OpenMeteoResponse {
  * const weather = createOpenMeteoProvider();
  * ```
  */
-export const createOpenMeteoProvider = (options: OpenMeteoOptions = {}): WeatherProvider => {
+export const createOpenMeteoProvider = (
+  options: OpenMeteoOptions = {},
+): WeatherProvider => {
   const baseUrl = options.baseUrl ?? "https://api.open-meteo.com/v1/forecast";
   const timeoutMs = options.timeoutMs ?? 8000;
 
@@ -105,29 +107,51 @@ export const createOpenMeteoProvider = (options: OpenMeteoOptions = {}): Weather
             typeof response.data === "object" && response.data !== null
               ? ((response.data as { reason?: string }).reason ?? null)
               : null;
-          return providerError(reason ?? `Open-Meteo responded with HTTP ${response.status}.`, {
-            httpStatus: response.status,
-            retryable: response.status >= 500 || response.status === 429,
-          });
+          return providerError(
+            reason ?? `Open-Meteo responded with HTTP ${response.status}.`,
+            {
+              httpStatus: response.status,
+              retryable: response.status >= 500 || response.status === 429,
+            },
+          );
         }
 
         const payload = response.data as OpenMeteoResponse | null;
         const current = payload?.current;
-        if (!payload || !current || typeof current.temperature_2m !== "number") {
-          return providerError("Open-Meteo returned no current observation.", { retryable: true });
+        if (
+          !payload ||
+          !current ||
+          typeof current.temperature_2m !== "number"
+        ) {
+          return providerError("Open-Meteo returned no current observation.", {
+            retryable: true,
+          });
         }
 
         const data: WeatherData = {
           temperature: current.temperature_2m,
           apparentTemperature:
-            typeof current.apparent_temperature === "number" ? current.apparent_temperature : null,
+            typeof current.apparent_temperature === "number"
+              ? current.apparent_temperature
+              : null,
           condition: conditionFromWmoCode(
-            typeof current.weather_code === "number" ? current.weather_code : null,
+            typeof current.weather_code === "number"
+              ? current.weather_code
+              : null,
           ),
-          conditionCode: typeof current.weather_code === "number" ? current.weather_code : null,
+          conditionCode:
+            typeof current.weather_code === "number"
+              ? current.weather_code
+              : null,
           unit: request.unit,
-          humidity: typeof current.relative_humidity_2m === "number" ? current.relative_humidity_2m : null,
-          windSpeed: typeof current.wind_speed_10m === "number" ? current.wind_speed_10m : null,
+          humidity:
+            typeof current.relative_humidity_2m === "number"
+              ? current.relative_humidity_2m
+              : null,
+          windSpeed:
+            typeof current.wind_speed_10m === "number"
+              ? current.wind_speed_10m
+              : null,
           observedAt: current.time ?? null,
           timezone: payload.timezone ?? null,
         };
@@ -135,11 +159,18 @@ export const createOpenMeteoProvider = (options: OpenMeteoOptions = {}): Weather
         return providerSuccess(data, "open-meteo");
       } catch (error) {
         if (error instanceof DOMException && error.name === "AbortError") {
-          return providerError("The weather request was aborted.", { retryable: false });
+          return providerError("The weather request was aborted.", {
+            retryable: false,
+          });
         }
-        return providerError(error instanceof Error ? error.message : "The weather request failed.", {
-          retryable: true,
-        });
+        return providerError(
+          error instanceof Error
+            ? error.message
+            : "The weather request failed.",
+          {
+            retryable: true,
+          },
+        );
       }
     },
   };
@@ -176,7 +207,9 @@ export const createStaticWeatherProvider = (
 });
 
 /** Provider that always reports "unsupported" — useful to model a disabled feature. */
-export const createUnsupportedWeatherProvider = (reason: string): WeatherProvider => ({
+export const createUnsupportedWeatherProvider = (
+  reason: string,
+): WeatherProvider => ({
   name: "unsupported",
   endpoint: null,
   async fetchWeather() {
@@ -195,5 +228,7 @@ export const convertTemperature = (
 };
 
 /** `21°C` / `70°F`, with the degree symbol and unit letter. */
-export const formatTemperature = (value: number, unit: "celsius" | "fahrenheit"): string =>
-  `${Math.round(value)}\u00b0${unit === "celsius" ? "C" : "F"}`;
+export const formatTemperature = (
+  value: number,
+  unit: "celsius" | "fahrenheit",
+): string => `${Math.round(value)}\u00b0${unit === "celsius" ? "C" : "F"}`;

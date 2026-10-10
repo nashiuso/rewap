@@ -21,7 +21,13 @@ import {
   type InstalledGeometry,
 } from "./helpers";
 
-const CELLS = { ids: ["a", "b"], columns: 1, cellWidth: 200, cellHeight: 120, gap: 10 };
+const CELLS = {
+  ids: ["a", "b"],
+  columns: 1,
+  cellWidth: 200,
+  cellHeight: 120,
+  gap: 10,
+};
 let geometry: InstalledGeometry;
 
 const idsInDom = (container: HTMLElement): string[] =>
@@ -30,7 +36,9 @@ const idsInDom = (container: HTMLElement): string[] =>
   );
 
 const itemOf = (container: HTMLElement, id: string): HTMLElement =>
-  container.querySelector<HTMLElement>(`[data-rewap-item="${id}"]`) as HTMLElement;
+  container.querySelector<HTMLElement>(
+    `[data-rewap-item="${id}"]`,
+  ) as HTMLElement;
 
 beforeEach(() => {
   geometry = installGeometry(CELLS);
@@ -85,15 +93,27 @@ describe("touch dragging", () => {
     expect(element.style.transform).toMatch(/translate3d\(/);
     expect(element.style.transform).not.toBe("translate3d(0px, 0px, 0)");
     // The layout, not the item, carries the dragging flag.
-    expect(container.querySelector("[data-rewap-layout]")?.hasAttribute("data-rewap-dragging")).toBe(true);
+    expect(
+      container
+        .querySelector("[data-rewap-layout]")
+        ?.hasAttribute("data-rewap-dragging"),
+    ).toBe(true);
 
     await act(async () => {
-      firePointer(window, "pointercancel", { clientX: 120, clientY: 260, pointerType: "touch" });
+      firePointer(window, "pointercancel", {
+        clientX: 120,
+        clientY: 260,
+        pointerType: "touch",
+      });
     });
     // `cancel` settles the item back into its slot, so the flag clears a little
     // later rather than on the spot.
     await advanceFrame(60);
-    expect(container.querySelector("[data-rewap-layout]")?.hasAttribute("data-rewap-dragging")).toBe(false);
+    expect(
+      container
+        .querySelector("[data-rewap-layout]")
+        ?.hasAttribute("data-rewap-dragging"),
+    ).toBe(false);
   });
 
   it("does not wait for a hover phase on a handle-only item", async () => {
@@ -129,8 +149,16 @@ describe("touch dragging", () => {
     );
 
     const paragraph = container.querySelector("p") as HTMLElement;
-    fireEvent.pointerDown(paragraph, { pointerType: "touch", clientX: 100, clientY: 160 });
-    fireEvent.pointerMove(window, { pointerType: "touch", clientX: 100, clientY: 300 });
+    fireEvent.pointerDown(paragraph, {
+      pointerType: "touch",
+      clientX: 100,
+      clientY: 160,
+    });
+    fireEvent.pointerMove(window, {
+      pointerType: "touch",
+      clientX: 100,
+      clientY: 300,
+    });
 
     expect(itemOf(container, "a").style.transform).toBe("");
     expect(idsInDom(container)).toEqual(["a", "b"]);

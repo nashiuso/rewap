@@ -64,7 +64,9 @@ Indexes are clamped, so `move("a", 999)` goes to the last slot rather than faili
 const [mode, setMode] = useState<LayoutMode>("swap");
 
 <>
-  <button onClick={() => setMode(mode === "swap" ? "reorder" : "swap")}>Toggle mode</button>
+  <button onClick={() => setMode(mode === "swap" ? "reorder" : "swap")}>
+    Toggle mode
+  </button>
   <Layout mode={mode}>…</Layout>
 </>;
 ```

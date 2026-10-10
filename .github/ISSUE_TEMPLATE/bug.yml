@@ -1,0 +1,70 @@
+name: Bug report
+description: Something doesn't work the way the docs say it should.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This is a one-person project (see MAINTAINERS.md), so the single most
+        useful thing you can do is make this reproducible without your app.
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: The exact version from your lockfile, e.g. `1.1.1`.
+      placeholder: "1.1.1"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: mode
+    attributes:
+      label: Layout mode
+      options:
+        - swap
+        - reorder
+        - grid
+        - not layout-related
+    validations:
+      required: true
+
+  - type: dropdown
+    id: input
+    attributes:
+      label: Input device
+      options:
+        - mouse/trackpad (pointer)
+        - touch
+        - keyboard
+        - not interaction-related
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: What happened instead
+    validations:
+      required: true
+
+  - type: input
+    id: repro
+    attributes:
+      label: Reproduction
+      description: A StackBlitz, a small repository, or the smallest code snippet that shows it. A description of a drag is very hard to act on — see CONTRIBUTING.md.
+    validations:
+      required: true
+
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and OS
+      description: Required if this looks like a layout, animation, or platform-API (battery/network/keyboard) issue.

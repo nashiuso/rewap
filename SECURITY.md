@@ -7,7 +7,7 @@ severe and cheap to patch.
 
 ## Reporting
 
-Open a [*private security advisory*](https://github.com/nashisuso/rewap/security/advisories/new)
+Open a [_private security advisory_](https://github.com/nashiuso/rewap/security/advisories/new)
 rather than a public issue, or email the address on my GitHub profile.
 
 Expect an acknowledgement within a few days. This is a side project, so a fix may

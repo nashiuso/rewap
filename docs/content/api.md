@@ -129,7 +129,8 @@ type PhysicsOptions = { smoothing?: number }; // velocity sampling, 0.35 by defa
 ## Motion
 
 ```ts
-type MotionValue = "smooth" | "snappy" | "soft" | "instant" | MotionPlan | false | null;
+type MotionValue =
+  "smooth" | "snappy" | "soft" | "instant" | MotionPlan | false | null;
 
 type MotionPlan =
   | { type: "spring"; stiffness?: number; damping?: number; mass?: number }

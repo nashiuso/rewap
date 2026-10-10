@@ -30,11 +30,14 @@ export const memoryStorage = (): StorageLike => {
   };
 };
 
-export const resolveStorage = (kind: StorageKind = "localStorage"): StorageLike => {
+export const resolveStorage = (
+  kind: StorageKind = "localStorage",
+): StorageLike => {
   if (kind === "memory") return memoryStorage();
   if (typeof window === "undefined") return memoryStorage();
   try {
-    const storage = kind === "sessionStorage" ? window.sessionStorage : window.localStorage;
+    const storage =
+      kind === "sessionStorage" ? window.sessionStorage : window.localStorage;
     // Access alone can throw in restricted contexts; probe with a write.
     const probe = "__rewap_probe__";
     storage.setItem(probe, "1");
@@ -85,8 +88,12 @@ const isPersistedLayout = (value: unknown): value is PersistedLayout => {
 };
 
 export const createPersistence = (options: PersistenceOptions): Persistence => {
-  const kind: StorageKind = isStorageLike(options.storage) ? "memory" : (options.storage ?? "localStorage");
-  const storage = isStorageLike(options.storage) ? options.storage : resolveStorage(kind);
+  const kind: StorageKind = isStorageLike(options.storage)
+    ? "memory"
+    : (options.storage ?? "localStorage");
+  const storage = isStorageLike(options.storage)
+    ? options.storage
+    : resolveStorage(kind);
 
   return {
     key: options.key,
@@ -130,7 +137,10 @@ export const createPersistence = (options: PersistenceOptions): Persistence => {
  * Applies a stored order to a live order, dropping unknown ids and appending new
  * ones at the end so a stored layout never hides items the developer added later.
  */
-export const applyStoredOrder = (stored: readonly ItemId[], available: readonly ItemId[]): ItemId[] => {
+export const applyStoredOrder = (
+  stored: readonly ItemId[],
+  available: readonly ItemId[],
+): ItemId[] => {
   const availableSet = new Set(available);
   const kept = stored.filter((id) => availableSet.has(id));
   const keptSet = new Set(kept);

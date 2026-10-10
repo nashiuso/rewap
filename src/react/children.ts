@@ -11,7 +11,14 @@
  * what preserves component state across a swap.
  */
 
-import { Children, Fragment, cloneElement, isValidElement, type ReactElement, type ReactNode } from "react";
+import {
+  Children,
+  Fragment,
+  cloneElement,
+  isValidElement,
+  type ReactElement,
+  type ReactNode,
+} from "react";
 
 import type { ItemId } from "../core/types";
 
@@ -72,7 +79,10 @@ export const idsFromChildren = (children: ReactNode): ItemId[] => {
  * Unknown or duplicated ids fall back to the authored position, so a layout can
  * never silently drop a child.
  */
-export const orderChildren = (children: ReactNode, order: readonly ItemId[]): ReactNode[] => {
+export const orderChildren = (
+  children: ReactNode,
+  order: readonly ItemId[],
+): ReactNode[] => {
   const entries = childEntries(children);
   if (entries.length === 0) return [];
 
@@ -96,14 +106,17 @@ export const orderChildren = (children: ReactNode, order: readonly ItemId[]): Re
     }
   }
   for (const entry of entries) {
-    if (entry.id === null || placed.has(entry.id) || duplicated.has(entry.id)) continue;
+    if (entry.id === null || placed.has(entry.id) || duplicated.has(entry.id))
+      continue;
     placed.add(entry.id);
     sortedIds.push(entry.id);
   }
 
   const result: ReactNode[] = entries.map((entry) => entry.child);
   const itemPositions = entries
-    .map((entry, index) => (entry.id !== null && !duplicated.has(entry.id) ? index : -1))
+    .map((entry, index) =>
+      entry.id !== null && !duplicated.has(entry.id) ? index : -1,
+    )
     .filter((index) => index >= 0);
 
   itemPositions.forEach((position, index) => {
@@ -112,7 +125,8 @@ export const orderChildren = (children: ReactNode, order: readonly ItemId[]): Re
     const element = byId.get(id);
     if (!element) return;
     // Re-key by id so React moves the node instead of reconciling by position.
-    result[position] = element.key === id ? element : cloneElement(element, { key: id });
+    result[position] =
+      element.key === id ? element : cloneElement(element, { key: id });
   });
 
   return result.map((child, index) => {

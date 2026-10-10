@@ -9,8 +9,17 @@
 
 import { clamp01 } from "../math/interpolate";
 import type { MotionPlan } from "./presets";
-import { integrateSpring, springAtRest, type SpringConfig, type SpringState } from "./spring";
-import { ticker as defaultTicker, type Ticker, type Unsubscribe } from "./ticker";
+import {
+  integrateSpring,
+  springAtRest,
+  type SpringConfig,
+  type SpringState,
+} from "./spring";
+import {
+  ticker as defaultTicker,
+  type Ticker,
+  type Unsubscribe,
+} from "./ticker";
 import { lerpVisualState, type VisualState } from "./transform";
 
 export interface AnimationHandle {
@@ -58,7 +67,10 @@ export const animateValue = (options: AnimateValueOptions): AnimationHandle => {
   if (plan.kind === "instant" || options.from === options.to) {
     onUpdate(options.to, 0);
     onComplete?.();
-    Object.defineProperty(handle, "finished", { value: true, configurable: true });
+    Object.defineProperty(handle, "finished", {
+      value: true,
+      configurable: true,
+    });
     resolve(true);
     handle.cancel = () => {};
     handle.finish = () => {};
@@ -73,7 +85,10 @@ export const animateValue = (options: AnimateValueOptions): AnimationHandle => {
   const complete = (): void => {
     if (settled) return;
     settled = true;
-    Object.defineProperty(handle, "finished", { value: true, configurable: true });
+    Object.defineProperty(handle, "finished", {
+      value: true,
+      configurable: true,
+    });
     unsubscribe?.();
     unsubscribe = null;
     onComplete?.();
@@ -83,7 +98,10 @@ export const animateValue = (options: AnimateValueOptions): AnimationHandle => {
   const cancel = (): void => {
     if (settled) return;
     settled = true;
-    Object.defineProperty(handle, "finished", { value: true, configurable: true });
+    Object.defineProperty(handle, "finished", {
+      value: true,
+      configurable: true,
+    });
     unsubscribe?.();
     unsubscribe = null;
     resolve(false);
@@ -146,7 +164,9 @@ export interface AnimateVisualOptions {
  * Every channel shares one spring configuration and one subscriber, so a card
  * moving, scaling and fading still costs a single rAF callback.
  */
-export const animateVisualState = (options: AnimateVisualOptions): AnimationHandle => {
+export const animateVisualState = (
+  options: AnimateVisualOptions,
+): AnimationHandle => {
   const { plan, onUpdate, onComplete } = options;
   const { handle, resolve } = createHandle();
   const activeTicker = options.ticker ?? defaultTicker;
@@ -154,14 +174,25 @@ export const animateVisualState = (options: AnimateVisualOptions): AnimationHand
   if (plan.kind === "instant") {
     onUpdate(options.to, 1);
     onComplete?.();
-    Object.defineProperty(handle, "finished", { value: true, configurable: true });
+    Object.defineProperty(handle, "finished", {
+      value: true,
+      configurable: true,
+    });
     resolve(true);
     handle.cancel = () => {};
     handle.finish = () => {};
     return handle;
   }
 
-  const keys: (keyof VisualState)[] = ["x", "y", "scale", "rotate", "opacity", "blur", "elevation"];
+  const keys: (keyof VisualState)[] = [
+    "x",
+    "y",
+    "scale",
+    "rotate",
+    "opacity",
+    "blur",
+    "elevation",
+  ];
   const channels = new Map<keyof VisualState, SpringState>();
   for (const key of keys) {
     channels.set(key, { value: options.from[key], velocity: 0 });
@@ -178,7 +209,10 @@ export const animateVisualState = (options: AnimateVisualOptions): AnimationHand
   const complete = (): void => {
     if (settled) return;
     settled = true;
-    Object.defineProperty(handle, "finished", { value: true, configurable: true });
+    Object.defineProperty(handle, "finished", {
+      value: true,
+      configurable: true,
+    });
     unsubscribe?.();
     unsubscribe = null;
     onComplete?.();
@@ -188,7 +222,10 @@ export const animateVisualState = (options: AnimateVisualOptions): AnimationHand
   handle.cancel = () => {
     if (settled) return;
     settled = true;
-    Object.defineProperty(handle, "finished", { value: true, configurable: true });
+    Object.defineProperty(handle, "finished", {
+      value: true,
+      configurable: true,
+    });
     unsubscribe?.();
     unsubscribe = null;
     resolve(false);
@@ -206,7 +243,10 @@ export const animateVisualState = (options: AnimateVisualOptions): AnimationHand
     if (plan.kind === "tween") {
       elapsed += delta;
       const t = plan.duration <= 0 ? 1 : clamp01(elapsed / plan.duration);
-      emit(lerpVisualState(options.from, options.to, plan.easing(t)), plan.easing(t));
+      emit(
+        lerpVisualState(options.from, options.to, plan.easing(t)),
+        plan.easing(t),
+      );
       if (t >= 1) complete();
       return;
     }
@@ -239,13 +279,20 @@ const stepChannel = (
   config: SpringConfig,
   delta: number,
 ): { state: SpringState; resting: boolean } => {
-  const stepped = integrateSpring(state, { target, config, onUpdate: () => {}, onComplete: () => {} }, delta);
+  const stepped = integrateSpring(
+    state,
+    { target, config, onUpdate: () => {}, onComplete: () => {} },
+    delta,
+  );
   const resting = springAtRest(stepped.state, target, config);
   return { state: stepped.state, resting };
 };
 
 /** Snaps the channels to their target so the last emitted frame is exact. */
-const channelProgress = (channels: Map<keyof VisualState, SpringState>, target: VisualState): number => {
+const channelProgress = (
+  channels: Map<keyof VisualState, SpringState>,
+  target: VisualState,
+): number => {
   let total = 0;
   let count = 0;
   for (const [key, state] of channels) {
@@ -259,4 +306,5 @@ const channelProgress = (channels: Map<keyof VisualState, SpringState>, target: 
 };
 
 /** Promise form for tests and orchestration: resolves when the animation settles. */
-export const animationComplete = (handle: AnimationHandle): Promise<boolean> => handle.done;
+export const animationComplete = (handle: AnimationHandle): Promise<boolean> =>
+  handle.done;

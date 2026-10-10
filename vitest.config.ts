@@ -16,12 +16,28 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "@nashiuso/rewap/charts": new URL("./src/charts/index.ts", import.meta.url).pathname,
-      "@nashiuso/rewap/widgets": new URL("./src/widgets/index.ts", import.meta.url).pathname,
-      "@nashiuso/rewap/utilities": new URL("./src/utilities/index.ts", import.meta.url).pathname,
-      "@nashiuso/rewap/providers": new URL("./src/providers/index.ts", import.meta.url).pathname,
-      "@nashiuso/rewap/math": new URL("./src/math/index.ts", import.meta.url).pathname,
-      "@nashiuso/rewap/motion": new URL("./src/motion/index.ts", import.meta.url).pathname,
+      "@nashiuso/rewap/charts": new URL(
+        "./src/charts/index.ts",
+        import.meta.url,
+      ).pathname,
+      "@nashiuso/rewap/widgets": new URL(
+        "./src/widgets/index.ts",
+        import.meta.url,
+      ).pathname,
+      "@nashiuso/rewap/utilities": new URL(
+        "./src/utilities/index.ts",
+        import.meta.url,
+      ).pathname,
+      "@nashiuso/rewap/providers": new URL(
+        "./src/providers/index.ts",
+        import.meta.url,
+      ).pathname,
+      "@nashiuso/rewap/math": new URL("./src/math/index.ts", import.meta.url)
+        .pathname,
+      "@nashiuso/rewap/motion": new URL(
+        "./src/motion/index.ts",
+        import.meta.url,
+      ).pathname,
       "@nashiuso/rewap": new URL("./src/index.ts", import.meta.url).pathname,
     },
   },

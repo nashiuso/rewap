@@ -14,8 +14,18 @@ API that happens to work in one browser.
 ## useViewport
 
 ```tsx
-const { width, height, visualHeight, orientation, breakpoint, isMobile, isDesktop, dpr, scrollX, scrollY } =
-  useViewport({ trackScroll: true });
+const {
+  width,
+  height,
+  visualHeight,
+  orientation,
+  breakpoint,
+  isMobile,
+  isDesktop,
+  dpr,
+  scrollX,
+  scrollY,
+} = useViewport({ trackScroll: true });
 ```
 
 Reads the real viewport and the visual viewport. `visualHeight` shrinks when a mobile
@@ -41,8 +51,15 @@ unknown` — `unknown` when there is nothing to judge by, rather than guessing `
 ## useBattery
 
 ```tsx
-const { supported, loading, charging, level, chargingTime, dischargingTime, unsupportedReason } =
-  useBattery();
+const {
+  supported,
+  loading,
+  charging,
+  level,
+  chargingTime,
+  dischargingTime,
+  unsupportedReason,
+} = useBattery();
 ```
 
 Chromium-only. Elsewhere you get `supported: false` and a reason to show. `level` is
@@ -51,8 +68,16 @@ Chromium-only. Elsewhere you get `supported: false` and a reason to show. `level
 ## usePerformance
 
 ```tsx
-const { fps, frameTime, longTasks, memory, navigation, hardwareConcurrency, deviceMemory, cpuTemperature } =
-  usePerformance({ interval: 1000, measureFps: true });
+const {
+  fps,
+  frameTime,
+  longTasks,
+  memory,
+  navigation,
+  hardwareConcurrency,
+  deviceMemory,
+  cpuTemperature,
+} = usePerformance({ interval: 1000, measureFps: true });
 ```
 
 Frame counting is real; `longTasks` needs `PerformanceObserver`; `memory` is
@@ -99,7 +124,9 @@ deprecated `navigator.platform` string.
 import { useEmailVerification } from "@nashiuso/rewap/utilities";
 import { createSyntaxOnlyVerificationProvider } from "@nashiuso/rewap/providers";
 
-const check = useEmailVerification(email, { provider: createSyntaxOnlyVerificationProvider() });
+const check = useEmailVerification(email, {
+  provider: createSyntaxOnlyVerificationProvider(),
+});
 // { value, normalized, valid, local, remote, verify(), reset() }
 ```
 
@@ -151,9 +178,20 @@ Every provider method returns a `ProviderOutcome<T>`:
 
 ```ts
 type ProviderOutcome<T> =
-  | { status: "success"; data: T; source: string; fetchedAt: number; cached?: boolean }
+  | {
+      status: "success";
+      data: T;
+      source: string;
+      fetchedAt: number;
+      cached?: boolean;
+    }
   | { status: "unsupported"; reason: string }
-  | { status: "error"; message: string; retryable: boolean; httpStatus?: number };
+  | {
+      status: "error";
+      message: string;
+      retryable: boolean;
+      httpStatus?: number;
+    };
 ```
 
 `unsupported` and `error` are different states on purpose: "this browser cannot tell

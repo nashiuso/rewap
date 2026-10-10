@@ -1,6 +1,12 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { cubicBezier, easings, easeOutCubic, linear, resolveEasing } from "../src/motion/easing";
+import {
+  cubicBezier,
+  easings,
+  easeOutCubic,
+  linear,
+  resolveEasing,
+} from "../src/motion/easing";
 import {
   describeMotion,
   motionDuration,
@@ -48,7 +54,10 @@ describe("motion/easing", () => {
     expect(resolveEasing((t) => t * 2)(0.5)).toBe(1);
     expect(resolveEasing([0, 0, 1, 1])(0.5)).toBeCloseTo(0.5, 2);
     // Unknown names fall back to a sane default instead of throwing.
-    expect(resolveEasing("nope" as never)(0.5)).toBeCloseTo(easeOutCubic(0.5), 6);
+    expect(resolveEasing("nope" as never)(0.5)).toBeCloseTo(
+      easeOutCubic(0.5),
+      6,
+    );
   });
 });
 
@@ -61,20 +70,44 @@ describe("motion/presets", () => {
   });
 
   it("resolves custom springs and tweens", () => {
-    const spring = resolveMotion({ type: "spring", stiffness: 420, damping: 32, mass: 0.8 });
-    expect(spring).toMatchObject({ kind: "spring", config: { stiffness: 420, damping: 32, mass: 0.8 } });
+    const spring = resolveMotion({
+      type: "spring",
+      stiffness: 420,
+      damping: 32,
+      mass: 0.8,
+    });
+    expect(spring).toMatchObject({
+      kind: "spring",
+      config: { stiffness: 420, damping: 32, mass: 0.8 },
+    });
 
-    const tween = resolveMotion({ type: "tween", duration: 0.3, easing: "linear" });
+    const tween = resolveMotion({
+      type: "tween",
+      duration: 0.3,
+      easing: "linear",
+    });
     expect(tween).toMatchObject({ kind: "tween", duration: 0.3 });
-    expect(resolveMotion({ type: "tween", duration: 0 })).toEqual({ kind: "instant" });
+    expect(resolveMotion({ type: "tween", duration: 0 })).toEqual({
+      kind: "instant",
+    });
   });
 
   it("honours prefers-reduced-motion unless explicitly opted out", () => {
-    expect(resolveMotion("smooth", { prefersReducedMotion: true })).toEqual({ kind: "instant" });
-    expect(resolveMotion(undefined, { prefersReducedMotion: true })).toEqual({ kind: "instant" });
+    expect(resolveMotion("smooth", { prefersReducedMotion: true })).toEqual({
+      kind: "instant",
+    });
+    expect(resolveMotion(undefined, { prefersReducedMotion: true })).toEqual({
+      kind: "instant",
+    });
     expect(
       resolveMotion(
-        { type: "spring", stiffness: 300, damping: 30, mass: 1, respectReducedMotion: false },
+        {
+          type: "spring",
+          stiffness: 300,
+          damping: 30,
+          mass: 1,
+          respectReducedMotion: false,
+        },
         {
           prefersReducedMotion: true,
         },
@@ -86,12 +119,19 @@ describe("motion/presets", () => {
 
   it("describes plans and durations", () => {
     expect(describeMotion({ kind: "instant" })).toBe("instant");
-    expect(describeMotion({ kind: "tween", duration: 0.25, easing: linear })).toBe("tween(250ms)");
-    expect(describeMotion({ kind: "spring", config: { stiffness: 300, damping: 30, mass: 1 } })).toContain(
-      "spring",
-    );
+    expect(
+      describeMotion({ kind: "tween", duration: 0.25, easing: linear }),
+    ).toBe("tween(250ms)");
+    expect(
+      describeMotion({
+        kind: "spring",
+        config: { stiffness: 300, damping: 30, mass: 1 },
+      }),
+    ).toContain("spring");
     expect(motionDuration({ kind: "instant" })).toBe(0);
-    expect(motionDuration({ kind: "tween", duration: 0.3, easing: linear })).toBe(0.3);
+    expect(
+      motionDuration({ kind: "tween", duration: 0.3, easing: linear }),
+    ).toBe(0.3);
     expect(softTween.kind).toBe("tween");
   });
 });
@@ -132,7 +172,12 @@ describe("motion/ticker", () => {
 describe("motion/animator", () => {
   it("applies the final value immediately for instant plans", async () => {
     const onUpdate = vi.fn();
-    const handle = animateValue({ from: 0, to: 10, plan: { kind: "instant" }, onUpdate });
+    const handle = animateValue({
+      from: 0,
+      to: 10,
+      plan: { kind: "instant" },
+      onUpdate,
+    });
     await handle.done;
     expect(onUpdate).toHaveBeenCalledWith(10, 0);
     expect(handle.finished).toBe(true);
@@ -161,7 +206,10 @@ describe("motion/animator", () => {
     animateValue({
       from: 0,
       to: 50,
-      plan: { kind: "spring", config: { stiffness: 400, damping: 40, mass: 1 } },
+      plan: {
+        kind: "spring",
+        config: { stiffness: 400, damping: 40, mass: 1 },
+      },
       ticker,
       onUpdate: (value) => values.push(value),
       onComplete,
@@ -181,7 +229,10 @@ describe("motion/animator", () => {
     const cancelled = animateValue({
       from: 0,
       to: 100,
-      plan: { kind: "spring", config: { stiffness: 300, damping: 30, mass: 1 } },
+      plan: {
+        kind: "spring",
+        config: { stiffness: 300, damping: 30, mass: 1 },
+      },
       ticker,
       onUpdate,
     });
@@ -192,7 +243,10 @@ describe("motion/animator", () => {
     const finished = animateValue({
       from: 0,
       to: 100,
-      plan: { kind: "spring", config: { stiffness: 300, damping: 30, mass: 1 } },
+      plan: {
+        kind: "spring",
+        config: { stiffness: 300, damping: 30, mass: 1 },
+      },
       ticker,
       onUpdate,
     });
@@ -206,7 +260,10 @@ describe("motion/animator", () => {
     const handle = animateVisualState({
       from: createVisualState({ x: 0, scale: 1, opacity: 1 }),
       to: createVisualState({ x: 40, scale: 1.1, opacity: 0.5 }),
-      plan: { kind: "spring", config: { stiffness: 500, damping: 40, mass: 1 } },
+      plan: {
+        kind: "spring",
+        config: { stiffness: 500, damping: 40, mass: 1 },
+      },
       ticker,
       onUpdate: (state) => states.push(state.x),
     });
@@ -222,10 +279,14 @@ describe("motion/animator", () => {
 
 describe("motion/transform", () => {
   it("composes transform strings", () => {
-    expect(transformString(createVisualState({ x: 10, y: -5 }))).toBe("translate3d(10px, -5px, 0)");
-    expect(transformString(createVisualState({ x: 1, y: 2, scale: 1.5, rotate: 12 }))).toBe(
-      "translate3d(1px, 2px, 0) scale(1.5) rotate(12deg)",
+    expect(transformString(createVisualState({ x: 10, y: -5 }))).toBe(
+      "translate3d(10px, -5px, 0)",
     );
+    expect(
+      transformString(
+        createVisualState({ x: 1, y: 2, scale: 1.5, rotate: 12 }),
+      ),
+    ).toBe("translate3d(1px, 2px, 0) scale(1.5) rotate(12deg)");
     expect(transformString(createVisualState({ x: 1.005, y: 0 }), false)).toBe(
       "translate3d(1.005px, 0px, 0)",
     );
@@ -241,10 +302,18 @@ describe("motion/transform", () => {
     applyVisualState(element, first, first);
     expect(element.style.boxShadow).toBe("");
 
-    applyVisualState(element, createVisualState({ x: 10, y: 10, elevation: 1 }), first);
+    applyVisualState(
+      element,
+      createVisualState({ x: 10, y: 10, elevation: 1 }),
+      first,
+    );
     expect(element.style.boxShadow).not.toBe("");
 
-    applyVisualState(element, createVisualState({ x: 10, y: 10, blur: 4 }), first);
+    applyVisualState(
+      element,
+      createVisualState({ x: 10, y: 10, blur: 4 }),
+      first,
+    );
     expect(element.style.filter).toBe("blur(4px)");
   });
 
@@ -255,7 +324,12 @@ describe("motion/transform", () => {
     expect(lerpVisualState(a, b, 0.5).opacity).toBe(0.5);
     expect(visualStateEquals(a, { ...a })).toBe(true);
     expect(visualStateEquals(a, b)).toBe(false);
-    expect(identityVisualState).toMatchObject({ x: 0, y: 0, scale: 1, opacity: 1 });
+    expect(identityVisualState).toMatchObject({
+      x: 0,
+      y: 0,
+      scale: 1,
+      opacity: 1,
+    });
   });
 
   it("reads back its own translate values", () => {

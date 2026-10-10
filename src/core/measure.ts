@@ -28,7 +28,8 @@ export const domGeometry: GeometryProvider = {
     return rectFromDOMRect(domRect);
   },
   viewport() {
-    if (typeof window === "undefined") return { x: 0, y: 0, width: 0, height: 0 };
+    if (typeof window === "undefined")
+      return { x: 0, y: 0, width: 0, height: 0 };
     return { x: 0, y: 0, width: window.innerWidth, height: window.innerHeight };
   },
 };
@@ -39,7 +40,8 @@ export const createStaticGeometry = (
   viewportRect?: Rect,
 ): GeometryProvider => ({
   measure(element) {
-    const found = typeof rects === "function" ? rects(element) : rects.get(element);
+    const found =
+      typeof rects === "function" ? rects(element) : rects.get(element);
     return found ?? { x: 0, y: 0, width: 0, height: 0 };
   },
   viewport() {
@@ -61,7 +63,11 @@ export interface ClusterOptions {
 export const clusterLines = (
   rects: readonly Rect[],
   options: ClusterOptions = {},
-): { columns: number[]; rows: number[]; placement: { column: number; row: number }[] } => {
+): {
+  columns: number[];
+  rows: number[];
+  placement: { column: number; row: number }[];
+} => {
   const tolerance = options.tolerance ?? 1;
   const columns: number[] = [];
   const rows: number[] = [];
@@ -153,15 +159,23 @@ export const measureSlots = (
 };
 
 /** Finds the candidate owning a slot index, or `null`. */
-export const candidateAtIndex = (candidates: readonly SlotCandidate[], index: number): SlotCandidate | null =>
+export const candidateAtIndex = (
+  candidates: readonly SlotCandidate[],
+  index: number,
+): SlotCandidate | null =>
   candidates.find((candidate) => candidate.index === index) ?? null;
 
 /** Finds a candidate by item id, or `null`. */
-export const candidateForId = (candidates: readonly SlotCandidate[], id: ItemId): SlotCandidate | null =>
+export const candidateForId = (
+  candidates: readonly SlotCandidate[],
+  id: ItemId,
+): SlotCandidate | null =>
   candidates.find((candidate) => candidate.id === id) ?? null;
 
 /** Rows of candidates, ordered by row then column. */
-export const candidatesByRow = (candidates: readonly SlotCandidate[]): SlotCandidate[][] => {
+export const candidatesByRow = (
+  candidates: readonly SlotCandidate[],
+): SlotCandidate[][] => {
   const rows = new Map<number, SlotCandidate[]>();
   for (const candidate of candidates) {
     const row = rows.get(candidate.slot.row);

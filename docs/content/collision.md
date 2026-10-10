@@ -29,7 +29,10 @@ axis as a line and answers with a _position_ in the resulting order.
 `resolveCollision()` handles the difference for you:
 
 ```ts
-resolveCollision({ activeRect, pointer, candidates, mode }, { strategy, exclude: "dragged-id" });
+resolveCollision(
+  { activeRect, pointer, candidates, mode },
+  { strategy, exclude: "dragged-id" },
+);
 ```
 
 Place-based strategies get the dragged item's slot filtered out before they run.

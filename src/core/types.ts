@@ -16,7 +16,8 @@ export type LayoutMode = "swap" | "reorder" | "grid";
 export type PlaceholderStyle = "auto" | "outline" | "ghost" | "none";
 
 /** How the drag input was produced. */
-export type InputSource = "pointer" | "mouse" | "touch" | "keyboard" | "programmatic";
+export type InputSource =
+  "pointer" | "mouse" | "touch" | "keyboard" | "programmatic";
 
 /** Why a drag session ended. */
 export type DropReason = "drop" | "cancel" | "escape" | "outside";

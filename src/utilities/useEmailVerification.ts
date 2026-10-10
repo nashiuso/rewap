@@ -17,10 +17,17 @@ import type {
 import { validateEmailLocal, type LocalEmailCheck } from "./email";
 
 export type EmailVerificationStatus =
-  "empty" | "invalid" | "valid" | "verifying" | "verified" | "rejected" | "error";
+  | "empty"
+  | "invalid"
+  | "valid"
+  | "verifying"
+  | "verified"
+  | "rejected"
+  | "error";
 
 export interface RemoteVerificationState {
-  status: "not-configured" | "idle" | "pending" | "verified" | "rejected" | "error";
+  status:
+    "not-configured" | "idle" | "pending" | "verified" | "rejected" | "error";
   provider: string | null;
   endpoint: string | null;
   message: string | null;
@@ -53,7 +60,9 @@ export interface UseEmailVerificationOptions {
   debounceMs?: number;
 }
 
-const idleRemote = (provider: EmailVerificationProvider | undefined): RemoteVerificationState => ({
+const idleRemote = (
+  provider: EmailVerificationProvider | undefined,
+): RemoteVerificationState => ({
   status: provider ? "idle" : "not-configured",
   provider: provider?.name ?? null,
   endpoint: provider?.endpoint ?? null,
@@ -70,61 +79,75 @@ export const useEmailVerification = (
 ): EmailVerificationResult => {
   const provider = options.provider;
   const local = useMemo(() => validateEmailLocal(email), [email]);
-  const [remote, setRemote] = useState<RemoteVerificationState>(() => idleRemote(provider));
+  const [remote, setRemote] = useState<RemoteVerificationState>(() =>
+    idleRemote(provider),
+  );
   const controllerRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     setRemote((previous) =>
-      previous.provider === (provider?.name ?? null) ? previous : idleRemote(provider),
+      previous.provider === (provider?.name ?? null)
+        ? previous
+        : idleRemote(provider),
     );
   }, [provider]);
 
-  const verify = useCallback(async (): Promise<ProviderOutcome<EmailVerificationVerdict> | null> => {
-    if (!provider) {
-      setRemote(idleRemote(undefined));
-      return null;
-    }
-    if (!local.valid) {
+  const verify =
+    useCallback(async (): Promise<ProviderOutcome<EmailVerificationVerdict> | null> => {
+      if (!provider) {
+        setRemote(idleRemote(undefined));
+        return null;
+      }
+      if (!local.valid) {
+        setRemote((previous) => ({
+          ...previous,
+          status: "idle",
+          message:
+            "The address does not pass local validation, so it was not sent anywhere.",
+        }));
+        return null;
+      }
+
+      controllerRef.current?.abort();
+      const controller = new AbortController();
+      controllerRef.current = controller;
+
       setRemote((previous) => ({
         ...previous,
-        status: "idle",
-        message: "The address does not pass local validation, so it was not sent anywhere.",
+        status: "pending",
+        message: null,
       }));
-      return null;
-    }
 
-    controllerRef.current?.abort();
-    const controller = new AbortController();
-    controllerRef.current = controller;
+      const outcome = await provider.verify({
+        email: local.normalized,
+        signal: controller.signal,
+      });
+      if (controller.signal.aborted) return outcome;
 
-    setRemote((previous) => ({ ...previous, status: "pending", message: null }));
+      setRemote({
+        status:
+          outcome.status === "success"
+            ? outcome.data.deliverable
+              ? "verified"
+              : "rejected"
+            : outcome.status === "unsupported"
+              ? "error"
+              : "error",
+        provider: provider.name,
+        endpoint: provider.endpoint,
+        message:
+          outcome.status === "success"
+            ? outcome.data.message
+            : outcome.status === "error"
+              ? outcome.message
+              : outcome.reason,
+        checkedAt: outcome.status === "success" ? outcome.fetchedAt : null,
+        unsupportedReason:
+          outcome.status === "unsupported" ? outcome.reason : null,
+      });
 
-    const outcome = await provider.verify({ email: local.normalized, signal: controller.signal });
-    if (controller.signal.aborted) return outcome;
-
-    setRemote({
-      status:
-        outcome.status === "success"
-          ? outcome.data.deliverable
-            ? "verified"
-            : "rejected"
-          : outcome.status === "unsupported"
-            ? "error"
-            : "error",
-      provider: provider.name,
-      endpoint: provider.endpoint,
-      message:
-        outcome.status === "success"
-          ? outcome.data.message
-          : outcome.status === "error"
-            ? outcome.message
-            : outcome.reason,
-      checkedAt: outcome.status === "success" ? outcome.fetchedAt : null,
-      unsupportedReason: outcome.status === "unsupported" ? outcome.reason : null,
-    });
-
-    return outcome;
-  }, [local.normalized, local.valid, provider]);
+      return outcome;
+    }, [local.normalized, local.valid, provider]);
 
   const reset = useCallback(() => {
     controllerRef.current?.abort();
@@ -139,7 +162,14 @@ export const useEmailVerification = (
       void verify();
     }, options.debounceMs ?? 600);
     return () => clearTimeout(timeout);
-  }, [local.valid, local.normalized, options.autoVerify, options.debounceMs, provider, verify]);
+  }, [
+    local.valid,
+    local.normalized,
+    options.autoVerify,
+    options.debounceMs,
+    provider,
+    verify,
+  ]);
 
   const status: EmailVerificationStatus =
     local.value.length === 0

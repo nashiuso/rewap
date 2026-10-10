@@ -14,9 +14,16 @@ import {
 
 const config: SpringConfig = { stiffness: 320, damping: 32, mass: 1 };
 
-const simulate = (target: number, steps: number, delta = 1 / 60, from = 0, cfg = config) => {
+const simulate = (
+  target: number,
+  steps: number,
+  delta = 1 / 60,
+  from = 0,
+  cfg = config,
+) => {
   let state = { value: from, velocity: 0 };
-  for (let i = 0; i < steps; i += 1) state = stepSpring(state, target, cfg, delta);
+  for (let i = 0; i < steps; i += 1)
+    state = stepSpring(state, target, cfg, delta);
   return state;
 };
 
@@ -24,15 +31,29 @@ describe("motion/spring", () => {
   it("computes derived spring properties", () => {
     expect(criticalDamping(400, 1)).toBe(40);
     expect(criticalDamping(0, 0)).toBeCloseTo(0, 6);
-    expect(dampingRatio({ stiffness: 400, damping: 40, mass: 1 })).toBeCloseTo(1, 6);
-    expect(dampingRatio({ stiffness: 400, damping: 20, mass: 1 })).toBeCloseTo(0.5, 6);
-    expect(angularFrequency({ stiffness: 400, damping: 40, mass: 1 })).toBeCloseTo(20, 6);
+    expect(dampingRatio({ stiffness: 400, damping: 40, mass: 1 })).toBeCloseTo(
+      1,
+      6,
+    );
+    expect(dampingRatio({ stiffness: 400, damping: 20, mass: 1 })).toBeCloseTo(
+      0.5,
+      6,
+    );
+    expect(
+      angularFrequency({ stiffness: 400, damping: 40, mass: 1 }),
+    ).toBeCloseTo(20, 6);
   });
 
   it("computes acceleration from displacement and velocity", () => {
-    expect(springAcceleration(1, 0, { stiffness: 100, damping: 10, mass: 1 })).toBe(-100);
-    expect(springAcceleration(0, 10, { stiffness: 100, damping: 10, mass: 1 })).toBe(-100);
-    expect(springAcceleration(1, 0, { stiffness: 100, damping: 10, mass: 2 })).toBe(-50);
+    expect(
+      springAcceleration(1, 0, { stiffness: 100, damping: 10, mass: 1 }),
+    ).toBe(-100);
+    expect(
+      springAcceleration(0, 10, { stiffness: 100, damping: 10, mass: 1 }),
+    ).toBe(-100);
+    expect(
+      springAcceleration(1, 0, { stiffness: 100, damping: 10, mass: 2 }),
+    ).toBe(-50);
   });
 
   it("converges on the target", () => {
@@ -54,7 +75,12 @@ describe("motion/spring", () => {
       let state = { value: 0, velocity: 0 };
       let max = 0;
       for (let i = 0; i < 200; i += 1) {
-        state = stepSpring(state, 100, { stiffness: 400, damping, mass: 1 }, 1 / 120);
+        state = stepSpring(
+          state,
+          100,
+          { stiffness: 400, damping, mass: 1 },
+          1 / 120,
+        );
         max = Math.max(max, state.value);
       }
       return max;
@@ -68,7 +94,12 @@ describe("motion/spring", () => {
     const stepsToRest = (stiffness: number) => {
       let state = { value: 0, velocity: 0 };
       for (let i = 0; i < 600; i += 1) {
-        state = stepSpring(state, 100, { stiffness, damping: 2 * Math.sqrt(stiffness), mass: 1 }, 1 / 60);
+        state = stepSpring(
+          state,
+          100,
+          { stiffness, damping: 2 * Math.sqrt(stiffness), mass: 1 },
+          1 / 60,
+        );
         if (springAtRest(state, 100)) return i;
       }
       return 600;
@@ -79,8 +110,16 @@ describe("motion/spring", () => {
   it("respects mass: a heavy body lags behind a light one", () => {
     // Measured early, while both springs are still accelerating towards the
     // target: the lighter body has travelled further.
-    const light = simulate(100, 6, 1 / 60, 0, { stiffness: 320, damping: 32, mass: 0.5 });
-    const heavy = simulate(100, 6, 1 / 60, 0, { stiffness: 320, damping: 32, mass: 2 });
+    const light = simulate(100, 6, 1 / 60, 0, {
+      stiffness: 320,
+      damping: 32,
+      mass: 0.5,
+    });
+    const heavy = simulate(100, 6, 1 / 60, 0, {
+      stiffness: 320,
+      damping: 32,
+      mass: 2,
+    });
     expect(light.value).toBeGreaterThan(heavy.value);
     expect(light.value).toBeGreaterThan(0);
   });
@@ -89,7 +128,11 @@ describe("motion/spring", () => {
     expect(springAtRest({ value: 100, velocity: 0 }, 100)).toBe(true);
     expect(springAtRest({ value: 100.5, velocity: 0 }, 100)).toBe(false);
     expect(springAtRest({ value: 100, velocity: 5 }, 100)).toBe(false);
-    expect(springAtRest({ value: 100.05, velocity: 0 }, 100, config, { restDistance: 0.5 })).toBe(true);
+    expect(
+      springAtRest({ value: 100.05, velocity: 0 }, 100, config, {
+        restDistance: 0.5,
+      }),
+    ).toBe(true);
   });
 
   it("clamps absurd frame deltas so a background tab cannot explode", () => {

@@ -15,7 +15,10 @@ export interface LinearScale {
 }
 
 /** Rounds a range to human-friendly endpoints (1, 2, 5 × 10ⁿ). */
-export const niceDomain = (domain: [number, number], count = 5): [number, number] => {
+export const niceDomain = (
+  domain: [number, number],
+  count = 5,
+): [number, number] => {
   let [min, max] = domain;
   if (!Number.isFinite(min) || !Number.isFinite(max)) return [0, 1];
   if (min === max) {
@@ -53,7 +56,10 @@ export const niceTicks = (domain: [number, number], count = 5): number[] => {
 };
 
 /** Linear mapping from a data domain to a pixel range. */
-export const linearScale = (domain: [number, number], range: [number, number]): LinearScale => {
+export const linearScale = (
+  domain: [number, number],
+  range: [number, number],
+): LinearScale => {
   const [d0, d1] = domain;
   const [r0, r1] = range;
   const span = d1 - d0;
@@ -81,7 +87,11 @@ export interface BandScale {
 }
 
 /** Category scale with padding, used by bar charts and histograms. */
-export const bandScale = (count: number, range: [number, number], padding = 0.24): BandScale => {
+export const bandScale = (
+  count: number,
+  range: [number, number],
+  padding = 0.24,
+): BandScale => {
   const [r0, r1] = range;
   const width = r1 - r0;
   const safeCount = Math.max(1, count);
@@ -108,7 +118,10 @@ export interface ChartDomain {
 }
 
 /** Data domain of a point list, padded when the values are constant. */
-export const domainOf = (points: readonly Point[], includeZero = false): ChartDomain => {
+export const domainOf = (
+  points: readonly Point[],
+  includeZero = false,
+): ChartDomain => {
   if (points.length === 0) return { x: [0, 1], y: [0, 1] };
   let minX = Number.POSITIVE_INFINITY;
   let maxX = Number.NEGATIVE_INFINITY;
@@ -137,7 +150,9 @@ export const seriesToPoints = (values: readonly number[]): Point[] =>
   values.map((value, index) => ({ x: index, y: value }));
 
 /** Normalizes the accepted `data` shapes into a list of series. */
-export const normalizeSeries = (data: unknown): { id: string; points: Point[] }[] => {
+export const normalizeSeries = (
+  data: unknown,
+): { id: string; points: Point[] }[] => {
   if (!Array.isArray(data) || data.length === 0) return [];
   const first = data[0];
 
@@ -145,8 +160,14 @@ export const normalizeSeries = (data: unknown): { id: string; points: Point[] }[
     return [{ id: "series-0", points: seriesToPoints(data as number[]) }];
   }
 
-  if (typeof first === "object" && first !== null && "data" in (first as Record<string, unknown>)) {
-    return (data as { id?: string; label?: string; data: number[] | Point[] }[]).map((series, index) => ({
+  if (
+    typeof first === "object" &&
+    first !== null &&
+    "data" in (first as Record<string, unknown>)
+  ) {
+    return (
+      data as { id?: string; label?: string; data: number[] | Point[] }[]
+    ).map((series, index) => ({
       id: series.id ?? series.label ?? `series-${index}`,
       points:
         series.data.length > 0 && typeof series.data[0] === "number"

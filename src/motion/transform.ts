@@ -41,13 +41,19 @@ export const identityVisualState: VisualState = {
   elevation: 0,
 };
 
-export const createVisualState = (patch: Partial<VisualState> = {}): VisualState => ({
+export const createVisualState = (
+  patch: Partial<VisualState> = {},
+): VisualState => ({
   ...identityVisualState,
   ...patch,
 });
 
 /** Interpolates two visual states — used by the animator between keyframes. */
-export const lerpVisualState = (from: VisualState, to: VisualState, t: number): VisualState => ({
+export const lerpVisualState = (
+  from: VisualState,
+  to: VisualState,
+  t: number,
+): VisualState => ({
   x: lerp(from.x, to.x, t),
   y: lerp(from.y, to.y, t),
   scale: lerp(from.scale, to.scale, t),
@@ -90,15 +96,20 @@ export interface TransformOptions {
 }
 
 const format = (value: number, round: boolean): string => {
-  const n = round ? Math.round(value * 100) / 100 : Math.round(value * 1000) / 1000;
+  const n = round
+    ? Math.round(value * 100) / 100
+    : Math.round(value * 1000) / 1000;
   return String(n);
 };
 
 /** Composes the `transform` string for a visual state. */
 export const transformString = (state: VisualState, round = false): string => {
-  const parts = [`translate3d(${format(state.x, round)}px, ${format(state.y, round)}px, 0)`];
+  const parts = [
+    `translate3d(${format(state.x, round)}px, ${format(state.y, round)}px, 0)`,
+  ];
   if (state.scale !== 1) parts.push(`scale(${format(state.scale, false)})`);
-  if (state.rotate !== 0) parts.push(`rotate(${format(state.rotate, false)}deg)`);
+  if (state.rotate !== 0)
+    parts.push(`rotate(${format(state.rotate, false)}deg)`);
   return parts.join(" ");
 };
 
@@ -126,7 +137,8 @@ export const applyVisualState = (
     style.transform = transformString(state, round);
   }
 
-  if (state.opacity !== previous.opacity) style.opacity = format(state.opacity, false);
+  if (state.opacity !== previous.opacity)
+    style.opacity = format(state.opacity, false);
   if (state.blur !== previous.blur) {
     style.filter = state.blur > 0 ? `blur(${format(state.blur, false)}px)` : "";
   }
@@ -137,7 +149,8 @@ export const applyVisualState = (
   if (options.variables) {
     const variables = options.variables(state);
     for (const [name, value] of Object.entries(variables)) {
-      if (style.getPropertyValue(name) !== value) style.setProperty(name, value);
+      if (style.getPropertyValue(name) !== value)
+        style.setProperty(name, value);
     }
   }
 };
@@ -160,8 +173,12 @@ export const applyTransform = (
 };
 
 /** Reads back the translate component of an inline transform written by this module. */
-export const readTranslate = (element: HTMLElement): { x: number; y: number } => {
-  const match = /translate3d\(\s*(-?[\d.]+)px,\s*(-?[\d.]+)px/.exec(element.style.transform);
+export const readTranslate = (
+  element: HTMLElement,
+): { x: number; y: number } => {
+  const match = /translate3d\(\s*(-?[\d.]+)px,\s*(-?[\d.]+)px/.exec(
+    element.style.transform,
+  );
   if (!match) return { x: 0, y: 0 };
   return { x: Number(match[1] ?? 0), y: Number(match[2] ?? 0) };
 };

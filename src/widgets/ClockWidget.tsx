@@ -10,7 +10,13 @@
 import { useEffect, useMemo, useState } from "react";
 import type { CSSProperties } from "react";
 
-import { Widget, WidgetNote, WidgetRows, WidgetRow, WidgetValue } from "./Widget";
+import {
+  Widget,
+  WidgetNote,
+  WidgetRows,
+  WidgetRow,
+  WidgetValue,
+} from "./Widget";
 
 export interface ClockWidgetProps {
   title?: string;
@@ -51,7 +57,10 @@ export const ClockWidget = ({
   }, [interval]);
 
   const deviceZone = useMemo(
-    () => (typeof Intl !== "undefined" ? Intl.DateTimeFormat().resolvedOptions().timeZone : "UTC"),
+    () =>
+      typeof Intl !== "undefined"
+        ? Intl.DateTimeFormat().resolvedOptions().timeZone
+        : "UTC",
     [],
   );
   const zone = timeZone ?? deviceZone;
@@ -102,16 +111,23 @@ export const ClockWidget = ({
       title={title}
       className={className}
       style={style}
-      meta={timeZone && timeZone !== deviceZone ? "override zone" : "device clock"}
+      meta={
+        timeZone && timeZone !== deviceZone ? "override zone" : "device clock"
+      }
     >
       <WidgetValue>{time}</WidgetValue>
       <WidgetRows>
         {showDate ? <WidgetRow label="Date" value={date} /> : null}
         {showTimeZone ? (
-          <WidgetRow label="Time zone" value={`${zone}${offset ? ` (${offset})` : ""}`} />
+          <WidgetRow
+            label="Time zone"
+            value={`${zone}${offset ? ` (${offset})` : ""}`}
+          />
         ) : null}
       </WidgetRows>
-      <WidgetNote>Read from this device's clock — not synchronized with a time server.</WidgetNote>
+      <WidgetNote>
+        Read from this device's clock — not synchronized with a time server.
+      </WidgetNote>
     </Widget>
   );
 };

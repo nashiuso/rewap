@@ -44,9 +44,15 @@ const unsupported = (reason: string): BatteryState => ({
 
 export const useBattery = (): BatteryState => {
   const [state, setState] = useState<BatteryState>(() => {
-    if (typeof navigator === "undefined") return unsupported("No browser environment.");
-    if (typeof (navigator as Navigator & { getBattery?: unknown }).getBattery !== "function") {
-      return unsupported("navigator.getBattery() is not implemented in this browser.");
+    if (typeof navigator === "undefined")
+      return unsupported("No browser environment.");
+    if (
+      typeof (navigator as Navigator & { getBattery?: unknown }).getBattery !==
+      "function"
+    ) {
+      return unsupported(
+        "navigator.getBattery() is not implemented in this browser.",
+      );
     }
     return {
       supported: true,
@@ -60,8 +66,11 @@ export const useBattery = (): BatteryState => {
 
   useEffect(() => {
     if (typeof navigator === "undefined") return;
-    const getBattery = (navigator as Navigator & { getBattery?: () => Promise<BatteryManagerLike> })
-      .getBattery;
+    const getBattery = (
+      navigator as Navigator & {
+        getBattery?: () => Promise<BatteryManagerLike>;
+      }
+    ).getBattery;
     if (typeof getBattery !== "function") return;
 
     let cancelled = false;
@@ -74,8 +83,12 @@ export const useBattery = (): BatteryState => {
         loading: false,
         charging: manager.charging,
         level: Number.isFinite(manager.level) ? manager.level : null,
-        chargingTime: Number.isFinite(manager.chargingTime) ? manager.chargingTime : null,
-        dischargingTime: Number.isFinite(manager.dischargingTime) ? manager.dischargingTime : null,
+        chargingTime: Number.isFinite(manager.chargingTime)
+          ? manager.chargingTime
+          : null,
+        dischargingTime: Number.isFinite(manager.dischargingTime)
+          ? manager.dischargingTime
+          : null,
       });
     };
 

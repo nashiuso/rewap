@@ -25,7 +25,8 @@ export const packageRoot = resolve(here, "..", "..");
 
 export const templatesRoot = join(packageRoot, "templates");
 
-export const templateDir = (name: TemplateName): string => join(templatesRoot, name);
+export const templateDir = (name: TemplateName): string =>
+  join(templatesRoot, name);
 
 export const isTemplateName = (value: string): value is TemplateName =>
   (templateNames as string[]).includes(value);
@@ -50,8 +51,8 @@ export const readTemplate = (name: TemplateName): TemplateFile[] => {
 
   const files: TemplateFile[] = [];
   const walk = (directory: string): void => {
-    for (const entry of readdirSync(directory, { withFileTypes: true }).sort((a, b) =>
-      a.name.localeCompare(b.name),
+    for (const entry of readdirSync(directory, { withFileTypes: true }).sort(
+      (a, b) => a.name.localeCompare(b.name),
     )) {
       const full = join(directory, entry.name);
       if (entry.isDirectory()) {
@@ -74,8 +75,16 @@ export const readTemplate = (name: TemplateName): TemplateFile[] => {
 };
 
 /** Substitutes `__NAME__` and friends. Keeps the templates runnable as-is. */
-export const fillTemplate = (contents: string, values: Record<string, string>): string =>
-  contents.replace(/__([A-Z_]+)__/g, (match, key: string) => values[key] ?? match);
+export const fillTemplate = (
+  contents: string,
+  values: Record<string, string>,
+): string =>
+  contents.replace(
+    /__([A-Z_]+)__/g,
+    (match, key: string) => values[key] ?? match,
+  );
 
-export const templatePackageName = (name: TemplateName, projectName: string): string =>
-  name === "astro" ? `${projectName}-astro` : projectName;
+export const templatePackageName = (
+  name: TemplateName,
+  projectName: string,
+): string => (name === "astro" ? `${projectName}-astro` : projectName);

@@ -106,7 +106,8 @@ export const useViewport = (options: ViewportOptions = {}): ViewportState => {
 
     window.addEventListener("resize", schedule);
     window.addEventListener("orientationchange", schedule);
-    if (trackScroll) window.addEventListener("scroll", schedule, { passive: true });
+    if (trackScroll)
+      window.addEventListener("scroll", schedule, { passive: true });
     const visual = window.visualViewport;
     visual?.addEventListener("resize", schedule);
     visual?.addEventListener("scroll", schedule);
@@ -119,7 +120,10 @@ export const useViewport = (options: ViewportOptions = {}): ViewportState => {
       if (trackScroll) window.removeEventListener("scroll", schedule);
       visual?.removeEventListener("resize", schedule);
       visual?.removeEventListener("scroll", schedule);
-      if (frameRef.current !== null && typeof cancelAnimationFrame === "function") {
+      if (
+        frameRef.current !== null &&
+        typeof cancelAnimationFrame === "function"
+      ) {
         cancelAnimationFrame(frameRef.current);
         frameRef.current = null;
       }

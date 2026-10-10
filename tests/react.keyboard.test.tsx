@@ -13,7 +13,12 @@ import type { DragEndEvent, SwapEvent } from "../src/core/types";
 import { Item } from "../src/react/Item";
 import { Layout } from "../src/react/Layout";
 import { useLayout } from "../src/react/useLayout";
-import { advanceFrame, installGeometry, type GeometryOptions, type InstalledGeometry } from "./helpers";
+import {
+  advanceFrame,
+  installGeometry,
+  type GeometryOptions,
+  type InstalledGeometry,
+} from "./helpers";
 
 const LIST: GeometryOptions = { ids: ["a", "b", "c"], columns: 1 };
 
@@ -25,12 +30,18 @@ const idsInDom = (container: HTMLElement): string[] =>
   );
 
 const itemOf = (container: HTMLElement, id: string): HTMLElement =>
-  container.querySelector<HTMLElement>(`[data-rewap-item="${id}"]`) as HTMLElement;
+  container.querySelector<HTMLElement>(
+    `[data-rewap-item="${id}"]`,
+  ) as HTMLElement;
 
 const rootOf = (container: HTMLElement): HTMLElement =>
   container.querySelector<HTMLElement>("[data-rewap-layout]") as HTMLElement;
 
-const press = async (target: Element, key: string, init: Record<string, unknown> = {}): Promise<void> => {
+const press = async (
+  target: Element,
+  key: string,
+  init: Record<string, unknown> = {},
+): Promise<void> => {
   await act(async () => {
     fireEvent.keyDown(target, { key, ...init });
   });
@@ -73,13 +84,19 @@ describe("keyboard dragging", () => {
     await press(item, "ArrowDown");
     expect(idsInDom(container)).toEqual(["b", "a", "c"]);
     expect(onSwap).toHaveBeenCalledTimes(1);
-    expect(onSwap.mock.calls[0]?.[0]).toMatchObject({ item: "a", source: "keyboard" });
+    expect(onSwap.mock.calls[0]?.[0]).toMatchObject({
+      item: "a",
+      source: "keyboard",
+    });
 
     await press(item, "Enter");
     await waitFor(() => expect(rootOf(container).dataset.status).toBe("idle"));
     expect(idsInDom(container)).toEqual(["b", "a", "c"]);
     expect(onChange).toHaveBeenCalledTimes(1);
-    expect(onChange.mock.calls[0]?.[1]).toMatchObject({ source: "keyboard", ids: ["b", "a", "c"] });
+    expect(onChange.mock.calls[0]?.[1]).toMatchObject({
+      source: "keyboard",
+      ids: ["b", "a", "c"],
+    });
   });
 
   it("moves three slots with Shift and jumps to the ends with Home and End", async () => {
@@ -339,7 +356,9 @@ describe("keyboard dragging", () => {
     await press(item, "ArrowDown");
 
     const polite = document.querySelector('[data-rewap-announcer="polite"]');
-    const assertive = document.querySelector('[data-rewap-announcer="assertive"]');
+    const assertive = document.querySelector(
+      '[data-rewap-announcer="assertive"]',
+    );
     expect(assertive?.textContent).toContain("grabbed");
     expect(polite?.textContent).toContain("moved to position 2");
 

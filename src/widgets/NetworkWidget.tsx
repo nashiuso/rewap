@@ -8,7 +8,13 @@
 import type { CSSProperties } from "react";
 
 import { useNetworkInfo } from "../utilities/useNetworkInfo";
-import { Widget, WidgetNote, WidgetRows, WidgetRow, WidgetState } from "./Widget";
+import {
+  Widget,
+  WidgetNote,
+  WidgetRows,
+  WidgetRow,
+  WidgetState,
+} from "./Widget";
 
 export interface NetworkWidgetProps {
   title?: string;
@@ -16,14 +22,20 @@ export interface NetworkWidgetProps {
   style?: CSSProperties;
 }
 
-const toneFor = (quality: string): "positive" | "caution" | "negative" | "neutral" => {
+const toneFor = (
+  quality: string,
+): "positive" | "caution" | "negative" | "neutral" => {
   if (quality === "good") return "positive";
   if (quality === "fair") return "caution";
   if (quality === "poor" || quality === "offline") return "negative";
   return "neutral";
 };
 
-export const NetworkWidget = ({ title = "Network", className, style }: NetworkWidgetProps) => {
+export const NetworkWidget = ({
+  title = "Network",
+  className,
+  style,
+}: NetworkWidgetProps) => {
   const info = useNetworkInfo();
   const unavailable = "not available in this browser";
 
@@ -41,17 +53,27 @@ export const NetworkWidget = ({ title = "Network", className, style }: NetworkWi
         <WidgetRow label="Online" value={info.online ? "yes" : "no"} />
         <WidgetRow
           label="Effective type"
-          value={info.supported.effectiveType ? (info.effectiveType ?? "—") : unavailable}
+          value={
+            info.supported.effectiveType
+              ? (info.effectiveType ?? "—")
+              : unavailable
+          }
         />
         <WidgetRow
           label="Downlink"
           value={
-            info.supported.downlink && info.downlink !== undefined ? `${info.downlink} Mbps` : unavailable
+            info.supported.downlink && info.downlink !== undefined
+              ? `${info.downlink} Mbps`
+              : unavailable
           }
         />
         <WidgetRow
           label="Round trip"
-          value={info.supported.rtt && info.rtt !== undefined ? `${info.rtt} ms` : unavailable}
+          value={
+            info.supported.rtt && info.rtt !== undefined
+              ? `${info.rtt} ms`
+              : unavailable
+          }
         />
         <WidgetRow
           label="Save data"
@@ -66,7 +88,8 @@ export const NetworkWidget = ({ title = "Network", className, style }: NetworkWi
       </WidgetRows>
       {!info.supported.connection ? (
         <WidgetNote>
-          The Network Information API is not implemented here, so only the online/offline flag is reported.
+          The Network Information API is not implemented here, so only the
+          online/offline flag is reported.
         </WidgetNote>
       ) : null}
     </Widget>
