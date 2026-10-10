@@ -1,6 +1,9 @@
-# Quick start
+---
+title: Quick start
+description: A reorderable list, a controlled board, persistence, and a handle — in one file each.
+---
 
-A reorderable list in one file.
+A reorderable list in one file:
 
 ```tsx
 import { Item, Layout } from "@nashiuso/rewap";
@@ -43,10 +46,10 @@ const [order, setOrder] = useState(panels);
 </Layout>;
 ```
 
-`items` plus `onChange` makes the application the owner of the order: rewap stops
-writing persistence in that case, and stops assuming it can change the order on its
-own. If you would rather keep the order internal and only be told about changes,
-use `defaultItems` and read `onChange` without writing back.
+`items` plus `onChange` makes the application the owner of the order: rewap
+stops writing persistence in that case, and stops assuming it can change the
+order on its own. If you'd rather keep the order internal and only be told
+about changes, use `defaultItems` and read `onChange` without writing back.
 
 ## Remembering the order
 
@@ -54,9 +57,11 @@ use `defaultItems` and read `onChange` without writing back.
 <Layout mode="reorder" persistence={{ key: "dashboard", storage: "localStorage" }}>
 ```
 
-There is no sync service and no account. The adapter is `localStorage`,
-`sessionStorage`, or any object with `getItem`/`setItem`/`removeItem` — so a test or
-a desktop shell can supply its own.
+There's no sync service and no account. The adapter is `localStorage`,
+`sessionStorage`, or any object with `getItem`/`setItem`/`removeItem` — so a
+test or a desktop shell can supply its own. Persistence is ignored while the
+order is controlled (`items` + `onChange`): a development warning says as
+much if you combine the two.
 
 ## Using a grip
 
@@ -69,8 +74,11 @@ a desktop shell can supply its own.
 </Item>
 ```
 
-`handleOnly` restricts dragging to the grip, and the rest of the item keeps its
-normal behaviour: text stays selectable, inputs stay typeable, links stay clickable.
+`handleOnly` restricts dragging to the grip, and the rest of the item keeps
+its normal behaviour: text stays selectable, inputs stay typeable, links
+stay clickable. `<Item.Handle />` is a real `<button type="button">`,
+deliberately out of the tab order — a keyboard user grabs the whole row with
+Space rather than tabbing to a grip first.
 
 ## Programmatic moves
 
@@ -82,5 +90,6 @@ api.undo(); // one step back
 api.canRedo; // boolean
 ```
 
-The hook is meant for event handlers and effects; it re-reads the layout on every
-render, so it does not need memoising.
+The hook is meant for event handlers and effects; it re-reads the layout on
+every render, so it doesn't need memoising. See
+[API and layout modes](/docs/api-and-layout-modes) for the full member list.

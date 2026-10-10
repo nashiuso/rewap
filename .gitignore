@@ -23,6 +23,12 @@ blob-report/
 .astro/
 .turbo/
 
+# Fumadocs' generated source index (regenerated from docs/content on every
+# `next dev`/`next build`) and the docs site's static export output.
+docs/.source/
+docs/out/
+docs/next-env.d.ts
+
 # Editor/OS noise
 .DS_Store
 *.log

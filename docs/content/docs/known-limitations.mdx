@@ -1,0 +1,76 @@
+---
+title: Known limitations
+description: What rewap doesn't do, on purpose or because the platform doesn't let it.
+---
+
+Written here instead of discovered in an issue.
+
+## Interaction
+
+- **No cross-`<Layout>` dragging.** An item can't be picked up from one
+  `<Layout>` and dropped into another. Doing that well needs a shared
+  session, a shared measurement pass, and a decision about which layout owns
+  the order mid-drag — worth designing on purpose, not bolting on. Nest a
+  `grid` or use one `<Layout>` with sections if items need to move between
+  groups today.
+- **No free-form (absolute position) dragging.** Every mode resolves to a
+  slot; there's no mode where an item can be dropped at an arbitrary `x, y`
+  and stay there.
+- **`columnSpan` / `rowSpan` only apply in `grid` mode.** They're ignored,
+  not errored on, in `swap` and `reorder`, since neither has a second axis
+  to span.
+
+## Platform APIs
+
+These live in `@nashiuso/rewap/utilities` and follow one rule: if the
+browser can't answer, the hook says so rather than inventing a plausible
+value.
+
+- **`useKeyboardLayout().layout` is always `null`.** The Web Keyboard API
+  only exposes `getLayoutMap()` inside a keyboard-locked element, which a
+  normal page is never in. The hook reports platform, modifiers, and
+  language — genuinely readable — and reports `layout: null` instead of
+  guessing the rest.
+- **`usePerformance().cpuTemperature` is always `{ supported: false, reason }`.**
+  No browser exposes this to a web page.
+- **`useBattery()` only works in Chromium, on some origins.** The Battery
+  Status API was removed from Firefox and Safari. Elsewhere the hook reports
+  `{ supported: false }`.
+- **`useNetworkInfo()`'s `effectiveType` / `downlink` / `rtt` need
+  `navigator.connection`.** Safari doesn't implement the Network Information
+  API at all; `online` still works everywhere since it comes from a
+  different event.
+
+## Rendering and scale
+
+- **Server rendering paints the authored order, not the persisted one**, for
+  one frame — see [Accessibility and SSR](/docs/accessibility-and-ssr).
+- **No React Native target.** `core/` doesn't depend on the DOM for its
+  maths, but the gesture handling, measurement, and accessibility work are
+  web APIs (`PointerEvent`, `ResizeObserver`, ARIA). A native binding would
+  be a separate project, not a flag here.
+- **Not benchmarked past a few hundred items.** Measurement and collision
+  are `O(n)` per frame in the item count — fine for a dashboard or a board,
+  untested for a list with thousands of rows. Virtualizing a draggable list
+  is its own problem and out of scope for 1.x; `geometry` exists so a
+  virtualized list can supply its own measurement.
+- **No momentum or coupling between items.** Two items exchanging places
+  each animate to a known slot independently; neither inherits the other's
+  velocity, and nothing pushes a neighbour out of the way physically. See
+  [Motion and customization](/docs/motion-and-customization).
+
+## This documentation site
+
+- **Search is a static index, not a live service.** The Orama index is
+  generated at build time and searched entirely in the browser — there's no
+  server behind it, which is also why this site deploys as plain files to
+  GitHub Pages.
+- **The playground hosted alongside these docs is small on purpose** — six
+  local, deterministic tiles, no network calls. It's there to let you feel
+  the difference between modes and motion presets quickly, not to be a
+  gallery of worked examples.
+
+If something you hit isn't on this page, it's probably a bug rather than a
+limitation — see
+[CONTRIBUTING.md](https://github.com/nashiuso/rewap/blob/main/CONTRIBUTING.md)
+for how to report it.

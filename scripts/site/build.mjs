@@ -35,11 +35,13 @@ console.log("== site:build ==");
 console.log("1/4 syncing brand assets");
 run("npm", ["run", "banner"]);
 
-console.log("2/4 building docs (static HTML, docs/dist)");
-run("npm", ["run", "build", "--workspace", "docs"]);
+console.log("2/4 installing + building docs (static export, docs/out, base /rewap/)");
+run("npm", ["install", "--prefix", "docs"]);
+run("npm", ["run", "build", "--prefix", "docs"], { env: { GH_PAGES: "1" } });
 
-console.log("3/4 building playground (base = /rewap/playground/)");
-run("npm", ["run", "build", "--workspace", "@nashiuso/rewap-playground"], {
+console.log("3/4 installing + building playground (base = /rewap/playground/)");
+run("npm", ["install", "--prefix", "examples/playground"]);
+run("npm", ["run", "build", "--prefix", "examples/playground"], {
   env: { GH_PAGES: "1" },
 });
 
@@ -47,7 +49,7 @@ console.log("4/4 assembling site-dist/");
 rmSync(siteDist, { recursive: true, force: true });
 mkdirSync(siteDist, { recursive: true });
 
-const docsDist = join(root, "docs", "dist");
+const docsDist = join(root, "docs", "out");
 const playgroundDist = join(root, "examples", "playground", "dist");
 
 if (!existsSync(docsDist)) {
@@ -72,7 +74,7 @@ cpSync(playgroundDist, join(siteDist, "playground"), { recursive: true });
 writeFileSync(join(siteDist, ".nojekyll"), "");
 
 console.log(`\nsite:build done -> ${siteDist.replace(root + "/", "")}`);
-console.log("  /              -> docs (from docs/dist)");
+console.log("  /              -> docs (from docs/out)");
 console.log(
   "  /playground/   -> playground (from examples/playground/dist, base /rewap/playground/)",
 );

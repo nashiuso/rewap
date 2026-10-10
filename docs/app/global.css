@@ -1,0 +1,83 @@
+@import "tailwindcss";
+@import "fumadocs-ui/css/preset.css";
+
+/* path of `fumadocs-ui` relative to this file, so Tailwind scans its classes */
+@source "../node_modules/fumadocs-ui/dist/**/*.js";
+
+/*
+ * rewap's three brand colors, reused here instead of one of Fumadocs' bundled
+ * themes: near-black background, a single cool accent, a light neutral
+ * foreground. Dark is the primary mode (it's what the playground and the
+ * library's own default tokens use); light inverts background/foreground and
+ * keeps the same accent.
+ */
+@theme {
+  --color-fd-background: #ffffff;
+  --color-fd-foreground: #020204;
+  --color-fd-muted: #eceef0;
+  --color-fd-muted-foreground: #4b5059;
+  --color-fd-popover: #ffffff;
+  --color-fd-popover-foreground: #020204;
+  --color-fd-card: #f4f5f6;
+  --color-fd-card-foreground: #020204;
+  --color-fd-border: rgba(2, 2, 4, 0.12);
+  --color-fd-primary: #3a8288;
+  --color-fd-primary-foreground: #ffffff;
+  --color-fd-secondary: #eceef0;
+  --color-fd-secondary-foreground: #020204;
+  --color-fd-accent: rgba(73, 161, 168, 0.12);
+  --color-fd-accent-foreground: #3a8288;
+  --color-fd-ring: #49a1a8;
+  --color-fd-overlay: rgba(2, 2, 4, 0.3);
+}
+
+/* Fumadocs UI's own components (callouts, diffs, code blocks) reference
+   these regardless of theme — carried over from the default palette since
+   the brand's three colors don't cover status/diff states. */
+@theme static {
+  --color-fd-info: oklch(62.3% 0.214 259.815);
+  --color-fd-warning: oklch(76.9% 0.188 70.08);
+  --color-fd-error: oklch(63.7% 0.237 25.331);
+  --color-fd-success: oklch(72.3% 0.219 149.579);
+  --color-fd-idea: oklch(70.5% 0.209 60.849);
+  --color-fd-diff-remove: rgba(200, 10, 100, 0.12);
+  --color-fd-diff-remove-symbol: rgb(230, 10, 100);
+  --color-fd-diff-add: rgba(14, 180, 100, 0.1);
+  --color-fd-diff-add-symbol: rgb(10, 200, 100);
+}
+
+.dark {
+  --color-fd-background: #020204;
+  --color-fd-foreground: #d9dbdf;
+  --color-fd-muted: #0b0c0f;
+  --color-fd-muted-foreground: #9196a0;
+  --color-fd-popover: #09090c;
+  --color-fd-popover-foreground: #d9dbdf;
+  --color-fd-card: #0a0b0e;
+  --color-fd-card-foreground: #d9dbdf;
+  --color-fd-border: rgba(217, 219, 223, 0.12);
+  --color-fd-primary: #49a1a8;
+  --color-fd-primary-foreground: #020204;
+  --color-fd-secondary: #0f1013;
+  --color-fd-secondary-foreground: #d9dbdf;
+  --color-fd-accent: rgba(73, 161, 168, 0.15);
+  --color-fd-accent-foreground: #6fb9bf;
+  --color-fd-ring: #49a1a8;
+  --color-fd-overlay: rgba(0, 0, 0, 0.5);
+}
+
+body {
+  font-family:
+    "Montserrat",
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+}
+
+code,
+pre {
+  font-family:
+    "Roboto Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
