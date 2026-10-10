@@ -1,6 +1,7 @@
 {
   "name": "@nashiuso/rewap",
   "version": "1.1.1",
+  "private": true,
   "description": "A React interaction library for draggable, swappable, reorderable and animated layouts. Local-first, dependency-light, TypeScript-native.",
   "license": "MIT",
   "author": "nashiuso (https://github.com/nashiuso)",
@@ -147,12 +148,9 @@
     "CHANGELOG.md",
     "LICENSE"
   ],
-  "workspaces": [
-    "docs",
-    "examples/playground"
-  ],
   "scripts": {
     "build": "tsup && npm run build:types && node scripts/build-css.mjs",
+    "prepare": "node scripts/prepare.mjs",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "typecheck:examples": "tsc --noEmit -p examples/playground/tsconfig.json",
     "lint": "eslint . --max-warnings=0",
@@ -161,13 +159,16 @@
     "test:coverage": "vitest run --coverage",
     "test:types": "tsc --noEmit -p tests/types/tsconfig.json",
     "verify:package": "node scripts/verify-package.mjs",
+    "verify:github-install": "node scripts/verify-github-install.mjs",
     "size": "node scripts/size.mjs",
     "banner": "node scripts/banner.mjs",
-    "docs:build": "npm run banner && npm run build --workspace docs",
-    "docs:dev": "npm run dev --workspace docs",
-    "examples:dev": "npm run banner && npm run dev --workspace @nashiuso/rewap-playground",
-    "examples:build": "npm run banner && npm run build --workspace @nashiuso/rewap-playground",
-    "examples:preview": "npm run preview --workspace @nashiuso/rewap-playground",
+    "docs:install": "npm install --prefix docs",
+    "docs:build": "npm run banner && npm run docs:install && npm run build --prefix docs",
+    "docs:dev": "npm run docs:install && npm run dev --prefix docs",
+    "examples:install": "npm install --prefix examples/playground",
+    "examples:dev": "npm run banner && npm run examples:install && npm run dev --prefix examples/playground",
+    "examples:build": "npm run banner && npm run examples:install && npm run build --prefix examples/playground",
+    "examples:preview": "npm run preview --prefix examples/playground",
     "test:e2e": "playwright test",
     "ci": "npm run format:check && npm run typecheck && npm run typecheck:examples && npm run lint && npm test && npm run build && npm run lint:package && npm run verify:package && npm run test:types",
     "format": "prettier . --write",
@@ -175,7 +176,6 @@
     "lint:package": "npm run build && publint --strict",
     "site:build": "node scripts/site/build.mjs",
     "site:preview": "node scripts/site/preview.mjs",
-    "verify:release": "npm run ci && npm run examples:build && npm run docs:build && npm run test:e2e && npm pack --dry-run",
     "build:types": "tsc -p tsconfig.build.json && node scripts/build-types.mjs"
   },
   "peerDependencies": {
@@ -215,9 +215,6 @@
   },
   "engines": {
     "node": ">=18.18.0"
-  },
-  "publishConfig": {
-    "access": "public"
   },
   "bin": {
     "rewap": "./dist/cli/index.js"
