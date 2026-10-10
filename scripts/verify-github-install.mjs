@@ -47,10 +47,15 @@ try {
   const headCommit = runCapture("git", ["rev-parse", "HEAD"], { cwd: root });
   console.log(`\n→ packaging HEAD (${headCommit.slice(0, 8)}) as a bare repo`);
   mkdirSync(bareRepo, { recursive: true });
-  run("git", ["init", "--bare", bareRepo]);
+  run("git", ["init", "--bare", "--initial-branch=main", bareRepo]);
   run("git", ["push", bareRepo, `${headCommit}:refs/heads/main`], {
     cwd: root,
   });
+  // Make sure the bare repo's HEAD actually points at `main` — npm's git
+  // dependency resolution reads the remote's symbolic HEAD (the same thing
+  // `git clone` without a ref uses), and a bare repo created without this
+  // defaults to `master`, which was never pushed here.
+  run("git", ["symbolic-ref", "HEAD", "refs/heads/main"], { cwd: bareRepo });
 
   console.log("\n→ creating a scratch consumer project");
   mkdirSync(consumer, { recursive: true });
@@ -103,12 +108,14 @@ try {
     "./providers",
   ];
   const checkFile = join(consumer, "check-imports.mjs");
-  writeFileSync(
-    checkFile,
-    subpaths
-      .map((p) => `await import(${JSON.stringify(`@nashiuso/rewap${p === "." ? "" : p}`)});`)
-      .join("\n") + `\nconsole.log("all ${subpaths.length} subpath(s) imported cleanly");\n`,
+  const specifiers = subpaths.map((p) =>
+    p === "." ? "@nashiuso/rewap" : `@nashiuso/rewap${p.slice(1)}`,
   );
+  const checkScript = specifiers
+    .map((spec) => `await import(${JSON.stringify(spec)});`)
+    .concat([`console.log("all ${specifiers.length} subpath(s) imported cleanly");`])
+    .join("\n");
+  writeFileSync(checkFile, checkScript);
   run("node", [checkFile], { cwd: consumer });
 
   console.log("\n→ resolving CSS entry points");
