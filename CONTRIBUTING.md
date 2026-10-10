@@ -36,7 +36,7 @@ The `useBattery`/`useNetworkInfo`/`usePerformance`/`useKeyboardLayout` family
 follows one shape: feature-detect before touching an API, return
 `{ supported: false, reason }` when it's missing instead of inventing a value,
 and add a test for the missing-API case before the happy path. See
-`docs/content/known-limitations.mdx` for what this currently applies to.
+`docs/content/docs/known-limitations.mdx` for what this currently applies to.
 
 ## Code style
 
