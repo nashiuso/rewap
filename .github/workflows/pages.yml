@@ -37,7 +37,7 @@ jobs:
       - name: Build site (docs + playground -> site-dist/)
         run: npm run site:build
 
-      - uses: actions/configure-pages@v5
+      - uses: actions/configure-pages@v6
 
       - uses: actions/upload-pages-artifact@v3
         with:
