@@ -1,24 +1,10 @@
 import { useMemo, useState } from "react";
 import { Item, Layout, type LayoutMode } from "@nashiuso/rewap";
 import "@nashiuso/rewap/styles.css";
-import "@nashiuso/rewap/widgets.css";
-import {
-  StatsWidget,
-  NetworkWidget,
-  WeatherWidget,
-  ClockWidget,
-  ViewportWidget,
-} from "@nashiuso/rewap/widgets";
-import {
-  activityLog,
-  barcelonaWeather,
-  createFixtureWeatherProvider,
-  latencySeries,
-} from "./fixtures";
 import { CodePanel } from "./CodePanel";
 import "./app.css";
 
-type MotionName = "smooth" | "snappy" | "soft" | "instant";
+type MotionName = "smooth" | "snappy";
 
 const MODES: { value: LayoutMode; label: string; hint: string }[] = [
   {
@@ -30,22 +16,21 @@ const MODES: { value: LayoutMode; label: string; hint: string }[] = [
   { value: "grid", label: "Grid", hint: "tiles can span multiple columns" },
 ];
 
-const MOTIONS: MotionName[] = ["smooth", "snappy", "soft", "instant"];
+const MOTIONS: MotionName[] = ["smooth", "snappy"];
 
-const weatherProvider = createFixtureWeatherProvider(barcelonaWeather);
-
-const PANELS = [
-  "weather",
-  "stats",
-  "activity",
-  "network",
-  "clock",
-  "viewport",
+// Local, deterministic data — no fetches, no timers tied to the real clock.
+const TILES = [
+  { id: "one", label: "One" },
+  { id: "two", label: "Two" },
+  { id: "three", label: "Three" },
+  { id: "four", label: "Four" },
+  { id: "five", label: "Five" },
+  { id: "six", label: "Six" },
 ] as const;
-type PanelId = (typeof PANELS)[number];
 
-const PANEL_SPAN: Partial<Record<PanelId, number>> = {
-  activity: 2,
+// Grid mode is the only one with a second axis, so only it uses this.
+const GRID_SPAN: Partial<Record<(typeof TILES)[number]["id"], number>> = {
+  one: 2,
 };
 
 export default function App() {
@@ -54,8 +39,7 @@ export default function App() {
   const [lastSwap, setLastSwap] = useState<string | null>(null);
 
   const code = useMemo(
-    () =>
-      `<Layout\n  mode="${mode}"\n  motion="${motion}"\n  placeholder="outline"\n>`,
+    () => `<Layout mode="${mode}" motion="${motion}">`,
     [mode, motion],
   );
 
@@ -63,10 +47,10 @@ export default function App() {
     <div className="pg rw-scope">
       <header className="pg-header">
         <div>
-          <p className="pg-eyebrow">Rewap · playground</p>
+          <p className="pg-eyebrow">rewap · playground</p>
           <h1>Drag anything below.</h1>
           <p className="pg-sub">
-            Local fixture data, no network calls. Built from the package in this
+            Local data, no network calls. Built from the package in this
             repository, not a published release.
           </p>
         </div>
@@ -109,21 +93,19 @@ export default function App() {
         mode={mode}
         motion={motion}
         placeholder="outline"
-        label="Playground panels"
-        minColumnWidth={260}
+        label="Playground tiles"
+        minColumnWidth={160}
         gap={14}
-        onSwap={(event) =>
-          setLastSwap(`${event.item} -> slot ${event.nextSlot}`)
-        }
+        onSwap={(event) => setLastSwap(event.item)}
         className="pg-board"
       >
-        {PANELS.map((id) => (
+        {TILES.map((tile) => (
           <Item
-            key={id}
-            id={id}
-            columnSpan={mode === "grid" ? PANEL_SPAN[id] : undefined}
+            key={tile.id}
+            id={tile.id}
+            columnSpan={mode === "grid" ? GRID_SPAN[tile.id] : undefined}
           >
-            {renderPanel(id)}
+            <div className="pg-tile">{tile.label}</div>
           </Item>
         ))}
       </Layout>
@@ -131,57 +113,9 @@ export default function App() {
       <div className="pg-footer">
         <CodePanel code={code} />
         <p className="pg-status">
-          {lastSwap
-            ? `last swap: ${lastSwap}`
-            : "drag a tile to see the swap event here"}
+          {lastSwap ? `last swap: ${lastSwap}` : "drag a tile to see the swap event here"}
         </p>
       </div>
     </div>
   );
-}
-
-function renderPanel(id: PanelId) {
-  switch (id) {
-    case "weather":
-      return (
-        <WeatherWidget
-          provider={weatherProvider}
-          coordinates={{ latitude: 41.39, longitude: 2.17 }}
-        />
-      );
-    case "stats":
-      return (
-        <StatsWidget
-          title="Request latency"
-          values={latencySeries}
-          unit="ms"
-          precision={0}
-        />
-      );
-    case "activity":
-      return (
-        <section className="rw-widget pg-activity">
-          <header className="rw-widget__header">
-            <h3 className="rw-widget__title">Activity</h3>
-          </header>
-          <ul className="pg-activity__list">
-            {activityLog.map((entry) => (
-              <li key={entry.id}>
-                <span className="pg-activity__label">{entry.label}</span>
-                <span className="pg-activity__detail">{entry.detail}</span>
-                <span className="pg-activity__time">{entry.time}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
-      );
-    case "network":
-      return <NetworkWidget />;
-    case "clock":
-      return <ClockWidget />;
-    case "viewport":
-      return <ViewportWidget />;
-    default:
-      return null;
-  }
 }

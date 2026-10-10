@@ -13,25 +13,25 @@ test.describe("pointer drag · swap mode", () => {
     page,
   }) => {
     const before = await itemOrder(page);
-    expect(before).toContain("weather");
-    expect(before).toContain("network");
+    expect(before).toContain("one");
+    expect(before).toContain("three");
 
-    await dragItem(page, "weather", "network");
+    await dragItem(page, "one", "three");
 
     const after = await itemOrder(page);
-    const weatherIndex = after.indexOf("weather");
-    const networkIndex = after.indexOf("network");
-    const beforeWeather = before.indexOf("weather");
-    const beforeNetwork = before.indexOf("network");
+    const oneIndex = after.indexOf("one");
+    const threeIndex = after.indexOf("three");
+    const beforeOne = before.indexOf("one");
+    const beforeThree = before.indexOf("three");
 
     // In swap mode exactly two slots change: the dragged item lands where the
     // target was, and the target lands where the drag started.
-    expect(weatherIndex).toBe(beforeNetwork);
-    expect(networkIndex).toBe(beforeWeather);
+    expect(oneIndex).toBe(beforeThree);
+    expect(threeIndex).toBe(beforeOne);
   });
 
   test("reports the swap through onSwap", async ({ page }) => {
-    await dragItem(page, "stats", "clock");
-    await expect(page.getByText(/last swap: stats/)).toBeVisible();
+    await dragItem(page, "two", "four");
+    await expect(page.getByText(/last swap: two/)).toBeVisible();
   });
 });
