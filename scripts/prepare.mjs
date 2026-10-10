@@ -35,11 +35,20 @@ function currentFingerprint() {
 
 const fingerprint = currentFingerprint();
 
+// Everything this script prints — including the build it runs below — goes
+// to stderr, not stdout. `prepare` runs as part of `npm pack`/`npm install`
+// lifecycle hooks, whose stdout callers sometimes capture and parse as JSON
+// (`npm pack --json`, scripted consumers); mixing a log line into that
+// stream breaks the parse. stderr is still visible in any normal terminal.
 if (existsSync(marker) && readFileSync(marker, "utf8").trim() === fingerprint) {
-  console.log("rewap: dist/ already built for this commit, skipping.");
+  console.error("rewap: dist/ already built for this commit, skipping.");
   process.exit(0);
 }
 
-console.log("rewap: building dist/ (first install, or source changed)...");
-execFileSync("npm", ["run", "build"], { cwd: root, stdio: "inherit" });
+console.error("rewap: building dist/ (first install, or source changed)...");
+// stdio[1] (the build's stdout) is redirected to fd 2 (this process's
+// stderr) for the same reason — `npm run build`'s own progress output would
+// otherwise inherit all the way up to whatever invoked `npm pack`/`npm
+// install` and land back in a stdout a caller is trying to parse.
+execFileSync("npm", ["run", "build"], { cwd: root, stdio: ["ignore", 2, 2] });
 writeFileSync(marker, fingerprint);

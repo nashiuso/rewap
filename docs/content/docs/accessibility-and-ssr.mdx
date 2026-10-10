@@ -10,18 +10,18 @@ reorder produces the same `onSwap` payloads a mouse drag would.
 
 ## Keyboard
 
-| Key                      | Action                                           |
-| -------------------------- | --------------------------------------------------- |
-| `Tab`                      | Move focus between items                             |
-| `Space` / `Enter`          | Grab the focused item, or drop a grabbed one         |
-| Arrow keys                 | Move a grabbed item; without a grab, move focus       |
-| `Shift` + Arrow            | Move three slots at once (`largeStep`)               |
-| `Home` / `End`             | Jump to the first or last slot                        |
-| `Escape`                   | Cancel and return the item                            |
-| `Cmd/Ctrl + Z`             | Undo                                                  |
-| `Cmd/Ctrl + Shift + Z`     | Redo                                                  |
+| Key                    | Action                                          |
+| ---------------------- | ----------------------------------------------- |
+| `Tab`                  | Move focus between items                        |
+| `Space` / `Enter`      | Grab the focused item, or drop a grabbed one    |
+| Arrow keys             | Move a grabbed item; without a grab, move focus |
+| `Shift` + Arrow        | Move three slots at once (`largeStep`)          |
+| `Home` / `End`         | Jump to the first or last slot                  |
+| `Escape`               | Cancel and return the item                      |
+| `Cmd/Ctrl + Z`         | Undo                                            |
+| `Cmd/Ctrl + Shift + Z` | Redo                                            |
 
-What an arrow press *does* depends on the mode, same as a pointer drop: in
+What an arrow press _does_ depends on the mode, same as a pointer drop: in
 `reorder` it shifts the item one slot (three with `Shift`) and everything in
 between moves with it; in `swap` it exchanges the item with its neighbour.
 These aren't the same gesture in different clothing — worth testing
@@ -34,22 +34,22 @@ explicitly if you're shipping a keyboard-first screen.
 
 ## What an item exposes
 
-| Attribute               | Value                                                        |
-| -------------------------- | ---------------------------------------------------------------- |
-| `role`                     | `listitem` (the layout itself is `role="list"`)                    |
-| `aria-roledescription`     | `draggable item`                                                   |
-| `aria-keyshortcuts`        | `Space Enter Escape ArrowUp … Home End Control+Z Meta+Z`            |
-| `tabindex`                 | `0` for draggable items, absent for disabled or static ones          |
-| `aria-label`               | your `label`, or the item's own text as a fallback                  |
+| Attribute              | Value                                                       |
+| ---------------------- | ----------------------------------------------------------- |
+| `role`                 | `listitem` (the layout itself is `role="list"`)             |
+| `aria-roledescription` | `draggable item`                                            |
+| `aria-keyshortcuts`    | `Space Enter Escape ArrowUp … Home End Control+Z Meta+Z`    |
+| `tabindex`             | `0` for draggable items, absent for disabled or static ones |
+| `aria-label`           | your `label`, or the item's own text as a fallback          |
 
 ## Announcements
 
 | Event              | Priority  | Message                                                                     |
-| -------------------- | ----------- | -------------------------------------------------------------------------------- |
-| Grab                 | assertive   | "Weather grabbed. Use arrow keys to move, Enter to drop, Escape to cancel." |
-| Destination change   | polite      | "Weather moved to position 2"                                                |
-| Cancel               | polite      | "Drag cancelled"                                                            |
-| Undo / redo          | polite      | "Undo. 4 items."                                                            |
+| ------------------ | --------- | --------------------------------------------------------------------------- |
+| Grab               | assertive | "Weather grabbed. Use arrow keys to move, Enter to drop, Escape to cancel." |
+| Destination change | polite    | "Weather moved to position 2"                                               |
+| Cancel             | polite    | "Drag cancelled"                                                            |
+| Undo / redo        | polite    | "Undo. 4 items."                                                            |
 
 Two live regions, one per priority, created lazily on first use and removed
 when the layout unmounts — a page that never drags anything doesn't grow an

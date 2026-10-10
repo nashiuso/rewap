@@ -19,11 +19,11 @@ button, a command palette, or a test.
 Switching `mode` at runtime doesn't remount anything, but it does change
 what a drop produces:
 
-| Mode      | Default collision | A drop does this                                                |
-| --------- | ------------------ | ----------------------------------------------------------------- |
-| `swap`    | `pointer`            | Exchanges the dragged item with the item in the target slot        |
-| `reorder` | `projection`         | Removes the dragged item and inserts it at the target position     |
-| `grid`    | `intersection`       | Places it in the target cell and reorders the rest                 |
+| Mode      | Default collision | A drop does this                                               |
+| --------- | ----------------- | -------------------------------------------------------------- |
+| `swap`    | `pointer`         | Exchanges the dragged item with the item in the target slot    |
+| `reorder` | `projection`      | Removes the dragged item and inserts it at the target position |
+| `grid`    | `intersection`    | Places it in the target cell and reorders the rest             |
 
 Dragging `a` from index `0` to index `2` in a four-item list:
 
@@ -33,8 +33,8 @@ reorder:   b c a d   (b and c each shift back one slot)
 grid:      b c a d   (same shift, placed by cell)
 ```
 
-Mode affects the *result*; the collision strategy affects *which slot gets
-chosen while dragging*. They're separate settings on purpose — a kanban
+Mode affects the _result_; the collision strategy affects _which slot gets
+chosen while dragging_. They're separate settings on purpose — a kanban
 board is usually `reorder` with an `intersection` strategy, not the
 `reorder` default.
 
@@ -47,21 +47,21 @@ want an unconditional exchange regardless of mode.
 
 ## Collision strategies
 
-A collision strategy answers one question: *where does this land?*
+A collision strategy answers one question: _where does this land?_
 
-| Strategy       | Answers with                          | Good for                               |
-| -------------- | --------------------------------------- | ----------------------------------------- |
-| `pointer`      | the slot under the pointer               | `swap` — "what am I over?"                 |
-| `center`       | the slot under the item's centre         | dragging by an offset, or large items      |
-| `intersection` | the slot that overlaps the most          | grids and dense dashboards                 |
-| `nearest`      | the closest slot by centre distance      | sparse layouts, short drags                 |
-| `projection`   | an insertion position along one axis     | lists, kanban columns, `reorder`           |
+| Strategy       | Answers with                         | Good for                              |
+| -------------- | ------------------------------------ | ------------------------------------- |
+| `pointer`      | the slot under the pointer           | `swap` — "what am I over?"            |
+| `center`       | the slot under the item's centre     | dragging by an offset, or large items |
+| `intersection` | the slot that overlaps the most      | grids and dense dashboards            |
+| `nearest`      | the closest slot by centre distance  | sparse layouts, short drags           |
+| `projection`   | an insertion position along one axis | lists, kanban columns, `reorder`      |
 
 `projection` is the odd one out: the other four treat a slot as a place
 ("the slot that matches best"); `projection` treats the axis as a line and
 answers with a position in the resulting order, which is what a vertical
 list actually means by "drop it here." It works by counting the boundaries
-*between* slots that the pointer has passed, not by counting slot centres —
+_between_ slots that the pointer has passed, not by counting slot centres —
 counting centres double-counts the dragged item's own centre and makes
 every insertion land one short, which shows up as the placeholder flickering
 to the neighbour the instant a drag starts.
@@ -84,19 +84,19 @@ restoring it.
 
 ## Layout props (the ones you'll actually reach for)
 
-| Prop                                         | Type                                          | Default        | Notes                                                 |
-| --------------------------------------------- | ------------------------------------------------ | ---------------- | --------------------------------------------------------- |
-| `mode`                                        | `"swap" \| "reorder" \| "grid"`                   | `"swap"`           | See above                                                  |
-| `items` / `defaultItems`                      | `LayoutItemInput[]`                               | —               | Controlled vs. uncontrolled order                          |
-| `onChange`                                    | `(items, event) => void`                          | —               | Fires once per committed order change                      |
-| `onSwap`                                      | `(event) => void`                                 | —               | Fires on every destination change during a drag            |
-| `collision` / `minCollisionScore`             | `CollisionStrategy` / `number`                     | mode default      | See above                                                  |
-| `motion` / `placeholder`                      | `MotionValue` / `"auto" \| "outline" \| "ghost" \| "none"` | `"smooth"` / `"auto"` | See [Motion and customization](/docs/motion-and-customization) |
-| `persistence`                                 | `boolean \| { key, storage? }`                     | off               | Local storage only                                          |
-| `keyboard`                                    | `boolean \| { step?, largeStep? }`                 | enabled           | See [Accessibility and SSR](/docs/accessibility-and-ssr)    |
-| `columns`, `minColumnWidth`, `gap`            | `number \| string`                                 | —               | Written to `--rw-columns` / `--rw-min-column` / `--rw-gap`  |
-| `disabled`                                    | `boolean`                                         | `false`           | Turns the whole layout read-only                            |
-| `geometry`                                    | `GeometryProvider`                                 | DOM measurement   | For tests and virtualised lists                             |
+| Prop                               | Type                                                       | Default               | Notes                                                          |
+| ---------------------------------- | ---------------------------------------------------------- | --------------------- | -------------------------------------------------------------- |
+| `mode`                             | `"swap" \| "reorder" \| "grid"`                            | `"swap"`              | See above                                                      |
+| `items` / `defaultItems`           | `LayoutItemInput[]`                                        | —                     | Controlled vs. uncontrolled order                              |
+| `onChange`                         | `(items, event) => void`                                   | —                     | Fires once per committed order change                          |
+| `onSwap`                           | `(event) => void`                                          | —                     | Fires on every destination change during a drag                |
+| `collision` / `minCollisionScore`  | `CollisionStrategy` / `number`                             | mode default          | See above                                                      |
+| `motion` / `placeholder`           | `MotionValue` / `"auto" \| "outline" \| "ghost" \| "none"` | `"smooth"` / `"auto"` | See [Motion and customization](/docs/motion-and-customization) |
+| `persistence`                      | `boolean \| { key, storage? }`                             | off                   | Local storage only                                             |
+| `keyboard`                         | `boolean \| { step?, largeStep? }`                         | enabled               | See [Accessibility and SSR](/docs/accessibility-and-ssr)       |
+| `columns`, `minColumnWidth`, `gap` | `number \| string`                                         | —                     | Written to `--rw-columns` / `--rw-min-column` / `--rw-gap`     |
+| `disabled`                         | `boolean`                                                  | `false`               | Turns the whole layout read-only                               |
+| `geometry`                         | `GeometryProvider`                                         | DOM measurement       | For tests and virtualised lists                                |
 
 There's no `breakpoint` prop, on purpose: breakpoints are a CSS concern, and
 duplicating them in JavaScript is how the two drift apart. If you need the
@@ -105,23 +105,23 @@ the same numbers.
 
 ## Item props
 
-| Prop                     | Type           | Notes                                                                 |
-| ------------------------ | ---------------- | ------------------------------------------------------------------------ |
-| `id`                     | `string`         | Required, unique within the layout                                       |
-| `label`                  | `string`         | Accessible name and what announcements say; falls back to the item's own text, trimmed |
-| `handleOnly`             | `boolean`        | Only drag from an `<Item.Handle />`; inferred when one is present          |
-| `columnSpan` / `rowSpan` | `number`         | `grid` mode only — ignored, not errored on, in `swap`/`reorder`            |
-| `disabled` / `draggable` | `boolean`        | Static or fully inert                                                     |
+| Prop                     | Type      | Notes                                                                                  |
+| ------------------------ | --------- | -------------------------------------------------------------------------------------- |
+| `id`                     | `string`  | Required, unique within the layout                                                     |
+| `label`                  | `string`  | Accessible name and what announcements say; falls back to the item's own text, trimmed |
+| `handleOnly`             | `boolean` | Only drag from an `<Item.Handle />`; inferred when one is present                      |
+| `columnSpan` / `rowSpan` | `number`  | `grid` mode only — ignored, not errored on, in `swap`/`reorder`                        |
+| `disabled` / `draggable` | `boolean` | Static or fully inert                                                                  |
 
 ## useLayout()
 
-| Member                           | Notes                                                        |
-| --------------------------------- | ----------------------------------------------------------------- |
-| `ids` / `renderIds`               | Committed order / live DOM order including an in-flight preview    |
-| `move(id, index)` / `swap(a, b)`  | Programmatic moves — see above                                     |
-| `grab(id)` / `release()` / `cancel()` | Start, commit, or abandon a keyboard-style drag without synthesising key events |
-| `undo()` / `redo()` / `canUndo` / `canRedo` | History                                                 |
-| `announce(message, priority?)`    | Writes to the same live region a real drag uses                    |
+| Member                                      | Notes                                                                           |
+| ------------------------------------------- | ------------------------------------------------------------------------------- |
+| `ids` / `renderIds`                         | Committed order / live DOM order including an in-flight preview                 |
+| `move(id, index)` / `swap(a, b)`            | Programmatic moves — see above                                                  |
+| `grab(id)` / `release()` / `cancel()`       | Start, commit, or abandon a keyboard-style drag without synthesising key events |
+| `undo()` / `redo()` / `canUndo` / `canRedo` | History                                                                         |
+| `announce(message, priority?)`              | Writes to the same live region a real drag uses                                 |
 
 ## The onSwap event
 

@@ -35,7 +35,9 @@ console.log("== site:build ==");
 console.log("1/4 syncing brand assets");
 run("npm", ["run", "banner"]);
 
-console.log("2/4 installing + building docs (static export, docs/out, base /rewap/)");
+console.log(
+  "2/4 installing + building docs (static export, docs/out, base /rewap/)",
+);
 run("npm", ["install", "--prefix", "docs"]);
 run("npm", ["run", "build", "--prefix", "docs"], { env: { GH_PAGES: "1" } });
 

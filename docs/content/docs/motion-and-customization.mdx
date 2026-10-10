@@ -15,12 +15,12 @@ to make movement predictable.
 <Layout motion="instant">  {/* no animation at all */}
 ```
 
-| Preset    | Kind                           | Character                                             |
-| --------- | --------------------------------- | -------------------------------------------------------- |
-| `smooth`  | spring, `320 / 32 / mass 1`        | short, slightly damped settle                              |
-| `snappy`  | spring, `520 / 38 / mass 0.9`      | fast and decisive, good for swap previews                  |
-| `soft`    | spring, `180 / 26 / mass 1.1`      | gentle; long travel and ghost placeholders                 |
-| `instant` | zero-length tween                  | the item is where it should be, now                        |
+| Preset    | Kind                          | Character                                  |
+| --------- | ----------------------------- | ------------------------------------------ |
+| `smooth`  | spring, `320 / 32 / mass 1`   | short, slightly damped settle              |
+| `snappy`  | spring, `520 / 38 / mass 0.9` | fast and decisive, good for swap previews  |
+| `soft`    | spring, `180 / 26 / mass 1.1` | gentle; long travel and ghost placeholders |
+| `instant` | zero-length tween             | the item is where it should be, now        |
 
 Custom springs and tweens both work directly:
 
@@ -31,7 +31,7 @@ Custom springs and tweens both work directly:
 
 `criticalDamping(stiffness, mass)` (from `@nashiuso/rewap/motion`) returns
 the damping value that removes overshoot exactly, for a fast spring without
-the bounce. A spring *without* critical damping is allowed to overshoot on
+the bounce. A spring _without_ critical damping is allowed to overshoot on
 purpose — a drop that never overshoots can look like a jump cut on a large
 movement.
 
@@ -44,7 +44,7 @@ doesn't change with the display's refresh rate, so a drag on a 120 Hz
 screen and the same drag on a 60 Hz screen produce the same path and the
 test suite can assert on actual numbers instead of approximate ones.
 
-A spring is at rest when both the distance to its target *and* the velocity
+A spring is at rest when both the distance to its target _and_ the velocity
 are below their thresholds — not when it merely looks close. Without the
 velocity half of that, a spring passing through its target at speed would
 stop there instead of continuing; without the distance half, it would keep

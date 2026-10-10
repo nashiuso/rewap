@@ -76,11 +76,9 @@ try {
   console.log(
     "\n→ npm install git+file://<bare repo> (same code path as github:nashiuso/rewap)",
   );
-  run(
-    "npm",
-    ["install", `git+file://${bareRepo}`, "--no-audit", "--no-fund"],
-    { cwd: consumer },
-  );
+  run("npm", ["install", `git+file://${bareRepo}`, "--no-audit", "--no-fund"], {
+    cwd: consumer,
+  });
 
   const installedDist = join(
     consumer,
@@ -96,7 +94,9 @@ try {
   }
   console.log(`  dist/ was built on install: ${installedDist}`);
 
-  console.log("\n→ importing documented entry points from the installed package");
+  console.log(
+    "\n→ importing documented entry points from the installed package",
+  );
   const subpaths = [
     ".",
     "./react",
@@ -113,7 +113,9 @@ try {
   );
   const checkScript = specifiers
     .map((spec) => `await import(${JSON.stringify(spec)});`)
-    .concat([`console.log("all ${specifiers.length} subpath(s) imported cleanly");`])
+    .concat([
+      `console.log("all ${specifiers.length} subpath(s) imported cleanly");`,
+    ])
     .join("\n");
   writeFileSync(checkFile, checkScript);
   run("node", [checkFile], { cwd: consumer });
@@ -129,7 +131,9 @@ try {
     console.log(`  ./${css} -> ${resolved.replace(consumer + "/", "")}`);
   }
 
-  console.log("\n✓ installing @nashiuso/rewap straight from git works end to end");
+  console.log(
+    "\n✓ installing @nashiuso/rewap straight from git works end to end",
+  );
 } finally {
   rmSync(work, { recursive: true, force: true });
 }

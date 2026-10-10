@@ -39,11 +39,11 @@ you.
 
 ## The three layers
 
-| Layer               | Contains                                                         | Depends on |
-| -------------------- | ----------------------------------------------------------------- | ---------- |
-| `react/`              | `Layout`, `Item`, the engine hook, element state                   | React      |
-| `core/`               | order, collision, drag session, history, persistence, keyboard     | nothing    |
-| `math/` / `motion/`   | rectangles, grids, interpolation, statistics, springs              | nothing    |
+| Layer               | Contains                                                       | Depends on |
+| ------------------- | -------------------------------------------------------------- | ---------- |
+| `react/`            | `Layout`, `Item`, the engine hook, element state               | React      |
+| `core/`             | order, collision, drag session, history, persistence, keyboard | nothing    |
+| `math/` / `motion/` | rectangles, grids, interpolation, statistics, springs          | nothing    |
 
 `core/` doesn't import React. That's what makes the interaction model
 testable without a renderer, and it's why pointer, touch, keyboard, and

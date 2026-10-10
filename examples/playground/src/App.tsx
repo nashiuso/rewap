@@ -113,7 +113,9 @@ export default function App() {
       <div className="pg-footer">
         <CodePanel code={code} />
         <p className="pg-status">
-          {lastSwap ? `last swap: ${lastSwap}` : "drag a tile to see the swap event here"}
+          {lastSwap
+            ? `last swap: ${lastSwap}`
+            : "drag a tile to see the swap event here"}
         </p>
       </div>
     </div>
