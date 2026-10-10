@@ -1,0 +1,158 @@
+---
+title: API and layout modes
+description: Layout, Item, useLayout — the three things the public API is made of, and the three modes that decide what a drop does.
+---
+
+The whole public surface is two components and one hook:
+
+```tsx
+import { Layout, Item, useLayout } from "@nashiuso/rewap";
+```
+
+`<Layout>` owns the order, the drag session, history, persistence, and
+measurement. `<Item>` is one draggable unit. `useLayout()` reads the current
+state and exposes the same moves a drag gesture would make, for a toolbar
+button, a command palette, or a test.
+
+## The three modes
+
+Switching `mode` at runtime doesn't remount anything, but it does change
+what a drop produces:
+
+| Mode      | Default collision | A drop does this                                               |
+| --------- | ----------------- | -------------------------------------------------------------- |
+| `swap`    | `pointer`         | Exchanges the dragged item with the item in the target slot    |
+| `reorder` | `projection`      | Removes the dragged item and inserts it at the target position |
+| `grid`    | `intersection`    | Places it in the target cell and reorders the rest             |
+
+Dragging `a` from index `0` to index `2` in a four-item list:
+
+```text
+swap:      c b a d   (a and c trade places, b and d don't move)
+reorder:   b c a d   (b and c each shift back one slot)
+grid:      b c a d   (same shift, placed by cell)
+```
+
+Mode affects the _result_; the collision strategy affects _which slot gets
+chosen while dragging_. They're separate settings on purpose — a kanban
+board is usually `reorder` with an `intersection` strategy, not the
+`reorder` default.
+
+`move(id, index)` on `useLayout()` follows whichever mode is active: it
+exchanges in `swap`, inserts in `reorder`. That surprises people the first
+time (it surprised the person writing the tests for it, too), but the
+alternative — two functions that behave differently from the gesture they're
+meant to imitate — is worse. `swap(a, b)` is available separately if you
+want an unconditional exchange regardless of mode.
+
+## Collision strategies
+
+A collision strategy answers one question: _where does this land?_
+
+| Strategy       | Answers with                         | Good for                              |
+| -------------- | ------------------------------------ | ------------------------------------- |
+| `pointer`      | the slot under the pointer           | `swap` — "what am I over?"            |
+| `center`       | the slot under the item's centre     | dragging by an offset, or large items |
+| `intersection` | the slot that overlaps the most      | grids and dense dashboards            |
+| `nearest`      | the closest slot by centre distance  | sparse layouts, short drags           |
+| `projection`   | an insertion position along one axis | lists, kanban columns, `reorder`      |
+
+`projection` is the odd one out: the other four treat a slot as a place
+("the slot that matches best"); `projection` treats the axis as a line and
+answers with a position in the resulting order, which is what a vertical
+list actually means by "drop it here." It works by counting the boundaries
+_between_ slots that the pointer has passed, not by counting slot centres —
+counting centres double-counts the dragged item's own centre and makes
+every insertion land one short, which shows up as the placeholder flickering
+to the neighbour the instant a drag starts.
+
+```tsx
+<Layout collision="intersection">                             {/* override the mode's default */}
+<Layout collision="projection" minCollisionScore={0.4}>       {/* reject weak matches */}
+```
+
+## Committed order vs. render order
+
+Internally the layout tracks two lists: `ids`, the committed order (only
+changes on gesture-end, a programmatic move, undo/redo, or persistence), and
+`renderIds`, what the DOM shows right now, including an in-flight drag
+preview. `useLayout().ids` and `.renderIds` expose both. History only
+records committed orders — not every intermediate position during a drag —
+and the undo stack is seeded from the layout's first known real order, which
+is what keeps the very first undo from clearing the board instead of
+restoring it.
+
+## Layout props (the ones you'll actually reach for)
+
+| Prop                               | Type                                                       | Default               | Notes                                                          |
+| ---------------------------------- | ---------------------------------------------------------- | --------------------- | -------------------------------------------------------------- |
+| `mode`                             | `"swap" \| "reorder" \| "grid"`                            | `"swap"`              | See above                                                      |
+| `items` / `defaultItems`           | `LayoutItemInput[]`                                        | —                     | Controlled vs. uncontrolled order                              |
+| `onChange`                         | `(items, event) => void`                                   | —                     | Fires once per committed order change                          |
+| `onSwap`                           | `(event) => void`                                          | —                     | Fires on every destination change during a drag                |
+| `collision` / `minCollisionScore`  | `CollisionStrategy` / `number`                             | mode default          | See above                                                      |
+| `motion` / `placeholder`           | `MotionValue` / `"auto" \| "outline" \| "ghost" \| "none"` | `"smooth"` / `"auto"` | See [Motion and customization](/docs/motion-and-customization) |
+| `persistence`                      | `boolean \| { key, storage? }`                             | off                   | Local storage only                                             |
+| `keyboard`                         | `boolean \| { step?, largeStep? }`                         | enabled               | See [Accessibility and SSR](/docs/accessibility-and-ssr)       |
+| `columns`, `minColumnWidth`, `gap` | `number \| string`                                         | —                     | Written to `--rw-columns` / `--rw-min-column` / `--rw-gap`     |
+| `disabled`                         | `boolean`                                                  | `false`               | Turns the whole layout read-only                               |
+| `geometry`                         | `GeometryProvider`                                         | DOM measurement       | For tests and virtualised lists                                |
+
+There's no `breakpoint` prop, on purpose: breakpoints are a CSS concern, and
+duplicating them in JavaScript is how the two drift apart. If you need the
+current one in code, `useViewport()` (`@nashiuso/rewap/utilities`) reports
+the same numbers.
+
+## Item props
+
+| Prop                     | Type      | Notes                                                                                  |
+| ------------------------ | --------- | -------------------------------------------------------------------------------------- |
+| `id`                     | `string`  | Required, unique within the layout                                                     |
+| `label`                  | `string`  | Accessible name and what announcements say; falls back to the item's own text, trimmed |
+| `handleOnly`             | `boolean` | Only drag from an `<Item.Handle />`; inferred when one is present                      |
+| `columnSpan` / `rowSpan` | `number`  | `grid` mode only — ignored, not errored on, in `swap`/`reorder`                        |
+| `disabled` / `draggable` | `boolean` | Static or fully inert                                                                  |
+
+## useLayout()
+
+| Member                                      | Notes                                                                           |
+| ------------------------------------------- | ------------------------------------------------------------------------------- |
+| `ids` / `renderIds`                         | Committed order / live DOM order including an in-flight preview                 |
+| `move(id, index)` / `swap(a, b)`            | Programmatic moves — see above                                                  |
+| `grab(id)` / `release()` / `cancel()`       | Start, commit, or abandon a keyboard-style drag without synthesising key events |
+| `undo()` / `redo()` / `canUndo` / `canRedo` | History                                                                         |
+| `announce(message, priority?)`              | Writes to the same live region a real drag uses                                 |
+
+## The onSwap event
+
+`onSwap` fires on every destination change — more than once per drag.
+`onChange` fires once, when the order actually commits.
+
+```ts
+{
+  item: "notes",
+  previousSlot: { index: 1, column: 0, row: 1, rect: { x: 0, y: 232, width: 320, height: 132 } },
+  nextSlot:     { index: 0, column: 0, row: 0, rect: { x: 0, y: 88,  width: 320, height: 132 } },
+  position: { x: 160, y: 154 },    // pointer, or the item's centre for a keyboard drag
+  velocity: { x: 0.42, y: -1.9 },  // pixels per millisecond
+  mode: "reorder",
+  source: "pointer",               // "pointer" | "mouse" | "touch" | "keyboard" | "programmatic"
+}
+```
+
+Slots carry a rectangle rather than just an index, because placing a custom
+preview or logging an analytics event usually needs the geometry, not just
+the position.
+
+## What's deliberately not here
+
+- **No `theme` prop.** Theming is CSS custom properties
+  (`--rw-accent`, `--rw-radius`, `--rw-gap`, …), which work with every
+  styling approach and don't require the library to know about your design
+  system.
+- **No `onBeforeSwap` veto hook.** A callback that can cancel a drop in
+  flight turns into a maze of edge cases (what happens to the placeholder,
+  the announcement, the history entry). If a real need for "don't allow this
+  drop" shows up, the right shape is a `canDrop` predicate evaluated before
+  the drag commits, not a veto after the fact — not implemented yet.
+- **No global CSS reset.** Rules are scoped to `rw-*` classes.

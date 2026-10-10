@@ -7,12 +7,30 @@
  * "no destination" instead of guessing when nothing is close enough.
  */
 
-import { distanceSquared, metrics, projectRatio, type Axis, type DistanceMetric } from "../math/geometry";
+import {
+  distanceSquared,
+  metrics,
+  projectRatio,
+  type Axis,
+  type DistanceMetric,
+} from "../math/geometry";
 import { clamp01 } from "../math/interpolate";
-import { rectCenter, rectContainsPoint, rectOverlapRatio, type Point, type Rect } from "../math/rect";
+import {
+  rectCenter,
+  rectContainsPoint,
+  rectOverlapRatio,
+  type Point,
+  type Rect,
+} from "../math/rect";
 import type { ItemId, Slot, SlotCandidate } from "./types";
 
-export const collisionStrategyNames = ["pointer", "center", "intersection", "nearest", "projection"] as const;
+export const collisionStrategyNames = [
+  "pointer",
+  "center",
+  "intersection",
+  "nearest",
+  "projection",
+] as const;
 
 export type CollisionStrategy = (typeof collisionStrategyNames)[number];
 
@@ -41,7 +59,11 @@ export interface CollisionResult {
 
 export type CollisionFn = (input: CollisionInput) => CollisionResult | null;
 
-const result = (candidate: SlotCandidate, strategy: CollisionStrategy, score: number): CollisionResult => ({
+const result = (
+  candidate: SlotCandidate,
+  strategy: CollisionStrategy,
+  score: number,
+): CollisionResult => ({
   id: candidate.id,
   index: candidate.index,
   slot: candidate.slot,
@@ -54,7 +76,8 @@ const axisOf = (input: CollisionInput): Axis => input.axis ?? "y";
 const axisDistance = (a: Point, b: Point, axis: Axis): number =>
   axis === "x" ? Math.abs(a.x - b.x) : Math.abs(a.y - b.y);
 
-const byIndex = (a: SlotCandidate, b: SlotCandidate): number => a.index - b.index;
+const byIndex = (a: SlotCandidate, b: SlotCandidate): number =>
+  a.index - b.index;
 
 /**
  * `pointer`: the slot under the pointer, falling back to the slot whose
@@ -75,7 +98,9 @@ export const pointerCollision: CollisionFn = (input) => {
   for (const candidate of candidates) {
     const center = rectCenter(candidate.rect);
     const along = axisDistance(pointer, center, axis);
-    const score = clamp01(1 - along / Math.max(1, candidate.rect.width + candidate.rect.height));
+    const score = clamp01(
+      1 - along / Math.max(1, candidate.rect.width + candidate.rect.height),
+    );
     if (score > bestScore) {
       bestScore = score;
       best = candidate;
@@ -91,7 +116,10 @@ export const centerCollision: CollisionFn = (input) => {
   let bestScore = 0;
   for (const candidate of input.candidates) {
     const candidateCenter = rectCenter(candidate.rect);
-    const distance = Math.hypot(activeCenter.x - candidateCenter.x, activeCenter.y - candidateCenter.y);
+    const distance = Math.hypot(
+      activeCenter.x - candidateCenter.x,
+      activeCenter.y - candidateCenter.y,
+    );
     const reach = Math.hypot(candidate.rect.width, candidate.rect.height);
     const score = reach === 0 ? 1 : clamp01(1 - distance / (reach * 1.5));
     if (score > bestScore) {
@@ -117,7 +145,11 @@ export const nearestCollision: CollisionFn = (input) => {
   if (!best) return null;
   const distance = Math.sqrt(bestSquared);
   const reach = Math.hypot(best.rect.width, best.rect.height) * 1.5;
-  return result(best, "nearest", reach === 0 ? 1 : clamp01(1 - distance / reach));
+  return result(
+    best,
+    "nearest",
+    reach === 0 ? 1 : clamp01(1 - distance / reach),
+  );
 };
 
 /**
@@ -146,15 +178,22 @@ export const intersectionCollision: CollisionFn = (input) => {
  * relative to each slot's center along one axis, which is what list reordering
  * needs: the answer is an insertion point, not an overlap.
  */
-const axisValueOf = (point: Point, axis: Axis): number => (axis === "x" ? point.x : point.y);
-const axisStart = (rect: Rect, axis: Axis): number => (axis === "x" ? rect.x : rect.y);
+const axisValueOf = (point: Point, axis: Axis): number =>
+  axis === "x" ? point.x : point.y;
+const axisStart = (rect: Rect, axis: Axis): number =>
+  axis === "x" ? rect.x : rect.y;
 const axisEnd = (rect: Rect, axis: Axis): number =>
   axis === "x" ? rect.x + rect.width : rect.y + rect.height;
 
 /** Candidates in physical order along the axis (reading order for `y`). */
-const sortByAxis = (candidates: readonly SlotCandidate[], axis: Axis): SlotCandidate[] =>
+const sortByAxis = (
+  candidates: readonly SlotCandidate[],
+  axis: Axis,
+): SlotCandidate[] =>
   [...candidates].sort((a, b) =>
-    axis === "x" ? a.rect.x - b.rect.x || a.rect.y - b.rect.y : a.rect.y - b.rect.y || a.rect.x - b.rect.x,
+    axis === "x"
+      ? a.rect.x - b.rect.x || a.rect.y - b.rect.y
+      : a.rect.y - b.rect.y || a.rect.x - b.rect.x,
   );
 
 /**
@@ -166,17 +205,23 @@ const sortByAxis = (candidates: readonly SlotCandidate[], axis: Axis): SlotCandi
  * "which slot would the item land in?" without ever having to look at the dragged
  * item itself — which is what keeps the answer stable while it is being held.
  */
-const slotBoundaries = (ordered: readonly SlotCandidate[], axis: Axis): number[] => {
+const slotBoundaries = (
+  ordered: readonly SlotCandidate[],
+  axis: Axis,
+): number[] => {
   const boundaries: number[] = [];
   for (let index = 1; index < ordered.length; index += 1) {
     const previous = ordered[index - 1];
     const current = ordered[index];
     if (!previous || !current) continue;
-    const separated = axisStart(current.rect, axis) >= axisEnd(previous.rect, axis);
+    const separated =
+      axisStart(current.rect, axis) >= axisEnd(previous.rect, axis);
     boundaries.push(
       separated
         ? (axisEnd(previous.rect, axis) + axisStart(current.rect, axis)) / 2
-        : (axisValueOf(rectCenter(previous.rect), axis) + axisValueOf(rectCenter(current.rect), axis)) / 2,
+        : (axisValueOf(rectCenter(previous.rect), axis) +
+            axisValueOf(rectCenter(current.rect), axis)) /
+            2,
     );
   }
   return boundaries;
@@ -184,7 +229,11 @@ const slotBoundaries = (ordered: readonly SlotCandidate[], axis: Axis): number[]
 
 /** How closely a position matches the slot it lands in, in `0..1`. */
 const insertionScore = (value: number, rect: Rect, axis: Axis): number =>
-  clamp01(1 - Math.abs(value - axisValueOf(rectCenter(rect), axis)) / Math.max(1, rect.width + rect.height));
+  clamp01(
+    1 -
+      Math.abs(value - axisValueOf(rectCenter(rect), axis)) /
+        Math.max(1, rect.width + rect.height),
+  );
 
 /**
  * `projection`: the slot the item lands in when it moves along one axis.
@@ -248,16 +297,26 @@ export interface ResolveOptions {
  * in?" by counting the boundaries it has crossed, and the slot the item is
  * currently held over is one of them.
  */
-export const resolveCollision = (input: CollisionInput, options: ResolveOptions): CollisionResult | null => {
+export const resolveCollision = (
+  input: CollisionInput,
+  options: ResolveOptions,
+): CollisionResult | null => {
   const strategy = strategies[options.strategy] ?? intersectionCollision;
   const candidates =
     options.exclude == null || strategy === projectionCollision
       ? input.candidates
-      : input.candidates.filter((candidate) => candidate.id !== options.exclude);
+      : input.candidates.filter(
+          (candidate) => candidate.id !== options.exclude,
+        );
 
-  const resolved = strategy({ ...input, candidates, axis: options.axis ?? input.axis });
+  const resolved = strategy({
+    ...input,
+    candidates,
+    axis: options.axis ?? input.axis,
+  });
   if (!resolved) return null;
-  if (options.minScore !== undefined && resolved.score < options.minScore) return null;
+  if (options.minScore !== undefined && resolved.score < options.minScore)
+    return null;
   return resolved;
 };
 
@@ -283,6 +342,7 @@ export const nearestSlot = (
     }
   }
   if (!best) return null;
-  if (options.maxDistance !== undefined && bestDistance > options.maxDistance) return null;
+  if (options.maxDistance !== undefined && bestDistance > options.maxDistance)
+    return null;
   return best;
 };

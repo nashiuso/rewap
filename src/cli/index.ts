@@ -22,11 +22,18 @@ import { join } from "node:path";
 import { doctor } from "./doctor";
 import { formatBytes, info } from "./info";
 import { scaffold } from "./scaffold";
-import { isTemplateName, packageRoot, templateNames, type TemplateName } from "./templates";
+import {
+  isTemplateName,
+  packageRoot,
+  templateNames,
+  type TemplateName,
+} from "./templates";
 
 const version = (): string => {
   try {
-    const manifest = JSON.parse(readFileSync(join(packageRoot, "package.json"), "utf8")) as {
+    const manifest = JSON.parse(
+      readFileSync(join(packageRoot, "package.json"), "utf8"),
+    ) as {
       version?: string;
     };
     return manifest.version ?? "0.0.0";
@@ -74,7 +81,11 @@ const parse = (argv: string[]): Parsed => {
       continue;
     }
     const next = argv[index + 1];
-    if (["template", "t"].includes(key as string) && next && !next.startsWith("-")) {
+    if (
+      ["template", "t"].includes(key as string) &&
+      next &&
+      !next.startsWith("-")
+    ) {
       flags.set("template", next);
       index += 1;
       continue;
@@ -93,12 +104,15 @@ const runInit = (parsed: Parsed): number => {
   const templateFlag = parsed.flags.get("template");
   const template = typeof templateFlag === "string" ? templateFlag : "react";
   if (!isTemplateName(template)) {
-    process.stderr.write(`Unknown template "${template}". Available: ${templateNames.join(", ")}.\n`);
+    process.stderr.write(
+      `Unknown template "${template}". Available: ${templateNames.join(", ")}.\n`,
+    );
     return 1;
   }
 
   const directory = parsed.positionals[0];
-  const install = parsed.flags.get("install") !== false && !parsed.flags.has("no-install");
+  const install =
+    parsed.flags.get("install") !== false && !parsed.flags.has("no-install");
 
   try {
     const result = scaffold({
@@ -113,25 +127,37 @@ const runInit = (parsed: Parsed): number => {
     print(`  ${result.written.length} file(s) written to ${result.directory}`);
     for (const file of result.written) print(`    + ${file}`);
     for (const file of result.overwritten) print(`    ! ${file} (replaced)`);
-    for (const file of result.skipped) print(`    = ${file} (kept, already there)`);
-    if (result.untouched.length > 0) print(`  left alone: ${result.untouched.join(", ")}`);
+    for (const file of result.skipped)
+      print(`    = ${file} (kept, already there)`);
+    if (result.untouched.length > 0)
+      print(`  left alone: ${result.untouched.join(", ")}`);
     for (const note of result.notes) print(`  ${note}`);
-    if (result.installed) print(`  dependencies installed with \`${result.installCommand}\``);
+    if (result.installed)
+      print(`  dependencies installed with \`${result.installCommand}\``);
     print();
     print("Next:");
     print(`  cd ${result.directory}`);
     if (!result.installed) print(`  ${result.installCommand}`);
     print("  npm run dev");
     print();
-    print("Drag something. Then run `npx rewap doctor` if the layout looks wrong.");
+    print(
+      "Drag something. Then run `npx rewap doctor` if the layout looks wrong.",
+    );
     return 0;
   } catch (error) {
-    process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n`);
+    process.stderr.write(
+      `${error instanceof Error ? error.message : String(error)}\n`,
+    );
     return 1;
   }
 };
 
-const symbols: Record<string, string> = { ok: "ok  ", warn: "warn", fail: "FAIL", skip: "--  " };
+const symbols: Record<string, string> = {
+  ok: "ok  ",
+  warn: "warn",
+  fail: "FAIL",
+  skip: "--  ",
+};
 
 const runDoctor = (parsed: Parsed): number => {
   const report = doctor(parsed.positionals[0] ?? process.cwd(), version());
@@ -139,7 +165,9 @@ const runDoctor = (parsed: Parsed): number => {
   print(`rewap doctor — ${report.directory}`);
   print();
   for (const check of report.checks) {
-    print(`  ${symbols[check.status] ?? check.status}  ${check.title}: ${check.detail}`);
+    print(
+      `  ${symbols[check.status] ?? check.status}  ${check.title}: ${check.detail}`,
+    );
     if (check.hint && check.status !== "ok") print(`         ${check.hint}`);
   }
   print();
@@ -165,7 +193,9 @@ const runInfo = (): number => {
   print();
 
   if (!report.built) {
-    print("The build is not present in this checkout. Run `npm run build` in the package.");
+    print(
+      "The build is not present in this checkout. Run `npm run build` in the package.",
+    );
     return 0;
   }
 
@@ -179,9 +209,12 @@ const runInfo = (): number => {
   }
   print();
   print("Stylesheets:");
-  for (const sheet of report.stylesheets) print(`  ${sheet.subpath.padEnd(26)} ${formatBytes(sheet.bytes)}`);
+  for (const sheet of report.stylesheets)
+    print(`  ${sheet.subpath.padEnd(26)} ${formatBytes(sheet.bytes)}`);
   print();
-  print("The root entry stays small on purpose. Import a subpath only when you use it.");
+  print(
+    "The root entry stays small on purpose. Import a subpath only when you use it.",
+  );
   return 0;
 };
 

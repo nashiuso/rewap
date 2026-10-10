@@ -1,6 +1,6 @@
 # **NAME**
 
-An Astro project with [`@nashiuso/rewap`](https://github.com/nashisuso/rewap).
+An Astro project with [`@nashiuso/rewap`](https://github.com/nashiuso/rewap).
 
 ```bash
 npm run dev

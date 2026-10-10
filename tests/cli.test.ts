@@ -7,7 +7,14 @@
  * directory is removed afterwards.
  */
 
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync, mkdirSync } from "node:fs";
+import {
+  existsSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+  mkdirSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -32,7 +39,10 @@ afterEach(() => {
 });
 
 /** Everything a test may override; the helper supplies the rest. */
-type ScaffoldOverrides = Pick<ScaffoldOptions, "template" | "install" | "force" | "cwd">;
+type ScaffoldOverrides = Pick<
+  ScaffoldOptions,
+  "template" | "install" | "force" | "cwd"
+>;
 
 const scaffoldInto = (name: string, options: ScaffoldOverrides = {}) =>
   scaffold({
@@ -75,7 +85,9 @@ describe("rewap init", () => {
     expect(result.installed).toBe(true);
     expect(installs).toHaveLength(1);
 
-    const manifest = JSON.parse(readFileSync(join(result.directory, "package.json"), "utf8")) as {
+    const manifest = JSON.parse(
+      readFileSync(join(result.directory, "package.json"), "utf8"),
+    ) as {
       name: string;
       dependencies: Record<string, string>;
     };
@@ -92,11 +104,16 @@ describe("rewap init", () => {
     expect(result.written).toContain("src/pages/index.astro");
     expect(result.written).toContain("src/components/Dashboard.tsx");
 
-    const page = readFileSync(join(result.directory, "src/pages/index.astro"), "utf8");
+    const page = readFileSync(
+      join(result.directory, "src/pages/index.astro"),
+      "utf8",
+    );
     expect(page).toContain("client:visible");
     expect(page).toContain("client:load");
 
-    const manifest = JSON.parse(readFileSync(join(result.directory, "package.json"), "utf8")) as {
+    const manifest = JSON.parse(
+      readFileSync(join(result.directory, "package.json"), "utf8"),
+    ) as {
       name: string;
       dependencies: Record<string, string>;
     };
@@ -116,8 +133,12 @@ describe("rewap init", () => {
     mkdirSync(directory, { recursive: true });
     writeFileSync(join(directory, "notes.md"), "hello", "utf8");
 
-    expect(() => scaffold({ directory, version, install: false })).toThrow(/not empty/);
-    expect(() => scaffold({ directory, version, install: false, force: true })).not.toThrow();
+    expect(() => scaffold({ directory, version, install: false })).toThrow(
+      /not empty/,
+    );
+    expect(() =>
+      scaffold({ directory, version, install: false, force: true }),
+    ).not.toThrow();
   });
 
   it("keeps files it did not write, and replaces the ones it does", () => {
@@ -126,13 +147,20 @@ describe("rewap init", () => {
     writeFileSync(join(directory, "package.json"), '{"name":"mine"}', "utf8");
     writeFileSync(join(directory, "notes.md"), "keep me", "utf8");
 
-    const result = scaffold({ directory, version, install: false, force: true });
+    const result = scaffold({
+      directory,
+      version,
+      install: false,
+      force: true,
+    });
     expect(result.overwritten).toContain("package.json");
     expect(result.written).not.toContain("package.json");
     expect(result.untouched).toContain("notes.md");
     // `--force` replaces the files the template defines; everything else stays.
     expect(readFileSync(join(directory, "notes.md"), "utf8")).toBe("keep me");
-    expect(JSON.parse(readFileSync(join(directory, "package.json"), "utf8"))).toMatchObject({
+    expect(
+      JSON.parse(readFileSync(join(directory, "package.json"), "utf8")),
+    ).toMatchObject({
       name: "partial",
     });
   });
@@ -149,20 +177,31 @@ describe("rewap init", () => {
   });
 
   it("rejects an unknown template", () => {
-    expect(() => scaffold({ directory: join(workspace, "x"), version, template: "svelte" as never })).toThrow(
-      /Unknown template/,
-    );
+    expect(() =>
+      scaffold({
+        directory: join(workspace, "x"),
+        version,
+        template: "svelte" as never,
+      }),
+    ).toThrow(/Unknown template/);
   });
 });
 
 describe("rewap doctor", () => {
-  const project = (manifest: Record<string, unknown>, files: Record<string, string> = {}) => {
+  const project = (
+    manifest: Record<string, unknown>,
+    files: Record<string, string> = {},
+  ) => {
     const directory = join(
       workspace,
       `project-${Object.keys(files).length}-${Math.random().toString(36).slice(2, 7)}`,
     );
     mkdirSync(directory, { recursive: true });
-    writeFileSync(join(directory, "package.json"), JSON.stringify(manifest, null, 2), "utf8");
+    writeFileSync(
+      join(directory, "package.json"),
+      JSON.stringify(manifest, null, 2),
+      "utf8",
+    );
     for (const [path, contents] of Object.entries(files)) {
       mkdirSync(join(directory, path, ".."), { recursive: true });
       writeFileSync(join(directory, path), contents, "utf8");
@@ -173,12 +212,17 @@ describe("rewap doctor", () => {
   it("fails when there is no package.json", () => {
     const report = doctor(workspace, version);
     expect(report.failures).toBe(1);
-    expect(report.checks.find((check) => check.id === "package")?.status).toBe("fail");
+    expect(report.checks.find((check) => check.id === "package")?.status).toBe(
+      "fail",
+    );
   });
 
   it("passes a project that has everything it needs", () => {
     const directory = project(
-      { name: "app", dependencies: { "@nashiuso/rewap": "1.1.1", react: "18.3.1" } },
+      {
+        name: "app",
+        dependencies: { "@nashiuso/rewap": "1.1.1", react: "18.3.1" },
+      },
       { "src/main.tsx": 'import "@nashiuso/rewap/styles.css";\n' },
     );
     // A fake installed tree: the doctor reads versions from node_modules.
@@ -186,7 +230,9 @@ describe("rewap doctor", () => {
       ["@nashiuso/rewap", "1.1.1"],
       ["react", "18.3.1"],
     ]) {
-      mkdirSync(join(directory, "node_modules", name as string), { recursive: true });
+      mkdirSync(join(directory, "node_modules", name as string), {
+        recursive: true,
+      });
       writeFileSync(
         join(directory, "node_modules", name as string, "package.json"),
         JSON.stringify({ version: pkgVersion }),
@@ -198,23 +244,37 @@ describe("rewap doctor", () => {
     const report = doctor(directory, version);
     expect(report.failures).toBe(0);
     expect(report.warnings).toBe(0);
-    expect(report.checks.find((check) => check.id === "stylesheet")?.status).toBe("ok");
-    expect(report.checks.find((check) => check.id === "cdn")?.status).toBe("ok");
+    expect(
+      report.checks.find((check) => check.id === "stylesheet")?.status,
+    ).toBe("ok");
+    expect(report.checks.find((check) => check.id === "cdn")?.status).toBe(
+      "ok",
+    );
   });
 
   it("warns about a CDN reference and a missing stylesheet", () => {
     const directory = project(
       { name: "app", dependencies: { "@nashiuso/rewap": "1.1.1" } },
-      { "src/main.tsx": 'import "https://cdn.jsdelivr.net/npm/@nashiuso/rewap/dist/index.js";\n' },
+      {
+        "src/main.tsx":
+          'import "https://cdn.jsdelivr.net/npm/@nashiuso/rewap/dist/index.js";\n',
+      },
     );
 
     const report = doctor(directory, version);
-    expect(report.checks.find((check) => check.id === "cdn")?.status).toBe("warn");
-    expect(report.checks.find((check) => check.id === "stylesheet")?.status).toBe("warn");
+    expect(report.checks.find((check) => check.id === "cdn")?.status).toBe(
+      "warn",
+    );
+    expect(
+      report.checks.find((check) => check.id === "stylesheet")?.status,
+    ).toBe("warn");
   });
 
   it("warns when React is too old", () => {
-    const directory = project({ name: "app", dependencies: { react: "17.0.2" } });
+    const directory = project({
+      name: "app",
+      dependencies: { react: "17.0.2" },
+    });
     mkdirSync(join(directory, "node_modules", "react"), { recursive: true });
     writeFileSync(
       join(directory, "node_modules", "react", "package.json"),
@@ -222,14 +282,20 @@ describe("rewap doctor", () => {
       "utf8",
     );
 
-    expect(doctor(directory, version).checks.find((check) => check.id === "react")?.status).toBe("fail");
+    expect(
+      doctor(directory, version).checks.find((check) => check.id === "react")
+        ?.status,
+    ).toBe("fail");
   });
 
   it("does not touch the network or the project it inspects", () => {
     const fetchSpy = vi.spyOn(globalThis, "fetch").mockImplementation(() => {
       throw new Error("the doctor must not fetch anything");
     });
-    const directory = project({ name: "app" }, { "src/main.tsx": "export {};\n" });
+    const directory = project(
+      { name: "app" },
+      { "src/main.tsx": "export {};\n" },
+    );
     const before = readFileSync(join(directory, "package.json"), "utf8");
 
     doctor(directory, version);
@@ -264,6 +330,8 @@ describe("rewap info", () => {
     for (const entry of report.entries) {
       expect(entry.bytes).toBeGreaterThan(0);
     }
-    expect(report.stylesheets.map((sheet) => sheet.subpath)).toContain("./styles.css");
+    expect(report.stylesheets.map((sheet) => sheet.subpath)).toContain(
+      "./styles.css",
+    );
   });
 });

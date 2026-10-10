@@ -34,7 +34,9 @@ export const Widget = ({
   >
     <header className="rw-widget__header">
       <h3 className="rw-widget__title">{title}</h3>
-      {meta !== undefined ? <span className="rw-widget__meta">{meta}</span> : null}
+      {meta !== undefined ? (
+        <span className="rw-widget__meta">{meta}</span>
+      ) : null}
     </header>
     {children}
   </Component>
@@ -48,7 +50,11 @@ export interface WidgetValueProps {
 }
 
 export const WidgetValue = ({ children, unit, muted }: WidgetValueProps) => (
-  <div className={muted ? "rw-widget__value rw-widget__value--muted" : "rw-widget__value"}>
+  <div
+    className={
+      muted ? "rw-widget__value rw-widget__value--muted" : "rw-widget__value"
+    }
+  >
     {children}
     {unit ? <span className="rw-widget__unit">{unit}</span> : null}
   </div>
@@ -75,7 +81,8 @@ export const WidgetRows = ({ children }: WidgetRowsProps) => (
   <div className="rw-widget__rows">{children}</div>
 );
 
-export type WidgetTone = "accent" | "positive" | "caution" | "negative" | "neutral";
+export type WidgetTone =
+  "accent" | "positive" | "caution" | "negative" | "neutral";
 
 export interface WidgetStateProps {
   tone?: WidgetTone;
@@ -83,7 +90,10 @@ export interface WidgetStateProps {
 }
 
 /** A dot plus a short status phrase, for loading/unsupported/error states. */
-export const WidgetState = ({ tone = "neutral", children }: WidgetStateProps) => (
+export const WidgetState = ({
+  tone = "neutral",
+  children,
+}: WidgetStateProps) => (
   <span className="rw-widget__state">
     <span className="rw-widget__dot" data-state={tone} />
     {children}
@@ -97,7 +107,11 @@ export interface WidgetBarProps {
   label?: string;
 }
 
-export const WidgetBar = ({ value, tone = "accent", label }: WidgetBarProps) => {
+export const WidgetBar = ({
+  value,
+  tone = "accent",
+  label,
+}: WidgetBarProps) => {
   const clamped = Math.min(1, Math.max(0, value));
   return (
     <div

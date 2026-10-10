@@ -9,7 +9,12 @@
 import { act, fireEvent, render, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { DragEndEvent, DragMoveEvent, DragStartEvent, LayoutChangeEvent } from "../src/core/types";
+import type {
+  DragEndEvent,
+  DragMoveEvent,
+  DragStartEvent,
+  LayoutChangeEvent,
+} from "../src/core/types";
 import { Item } from "../src/react/Item";
 import { Layout } from "../src/react/Layout";
 import {
@@ -32,7 +37,9 @@ const idsInDom = (container: HTMLElement): string[] =>
   );
 
 const itemOf = (container: HTMLElement, id: string): HTMLElement =>
-  container.querySelector<HTMLElement>(`[data-rewap-item="${id}"]`) as HTMLElement;
+  container.querySelector<HTMLElement>(
+    `[data-rewap-item="${id}"]`,
+  ) as HTMLElement;
 
 const rootOf = (container: HTMLElement): HTMLElement =>
   container.querySelector<HTMLElement>("[data-rewap-layout]") as HTMLElement;
@@ -41,7 +48,10 @@ const placeholderOf = (container: HTMLElement): HTMLElement | null =>
   container.querySelector<HTMLElement>("[data-rewap-placeholder]");
 
 /** `slotCenter` returns `{ x, y }`; pointer events want `clientX`/`clientY`. */
-const at = (point: { x: number; y: number }, extra: Record<string, unknown> = {}) => ({
+const at = (
+  point: { x: number; y: number },
+  extra: Record<string, unknown> = {},
+) => ({
   clientX: point.x,
   clientY: point.y,
   ...extra,
@@ -98,7 +108,11 @@ describe("<Layout> pointer dragging", () => {
     expect(rootOf(container).hasAttribute("data-rewap-dragging")).toBe(true);
     expect(itemOf(container, "a").hasAttribute("data-rewap-active")).toBe(true);
     expect(onDragStart).toHaveBeenCalledTimes(1);
-    expect(onDragStart.mock.calls[0]?.[0]).toMatchObject({ item: "a", index: 0, source: "mouse" });
+    expect(onDragStart.mock.calls[0]?.[0]).toMatchObject({
+      item: "a",
+      index: 0,
+      source: "mouse",
+    });
 
     await act(async () => {
       firePointer(window, "pointercancel", at(start));
@@ -153,7 +167,8 @@ describe("<Layout> pointer dragging", () => {
 
     // The element follows the pointer through a transform, not through layout.
     const transform = itemOf(container, "a").style.transform;
-    const [, rawX, rawY] = /translate3d\((-?[\d.]+)px, (-?[\d.]+)px/.exec(transform) ?? [];
+    const [, rawX, rawY] =
+      /translate3d\((-?[\d.]+)px, (-?[\d.]+)px/.exec(transform) ?? [];
     expect(transform).toMatch(/translate3d\(-?[\d.]+px, -?[\d.]+px, 0\)/);
     expect(Number(rawY)).toBeCloseTo(40, 0);
     expect(Number(rawX)).toBeCloseTo(0, 0);
@@ -165,8 +180,14 @@ describe("<Layout> pointer dragging", () => {
     expect(placeholder?.dataset.style).toBe("auto");
     expect(Number.parseFloat(placeholder?.style.left ?? "")).toBeCloseTo(10, 5);
     expect(Number.parseFloat(placeholder?.style.top ?? "")).toBeCloseTo(10, 5);
-    expect(Number.parseFloat(placeholder?.style.width ?? "")).toBeCloseTo(200, 5);
-    expect(Number.parseFloat(placeholder?.style.height ?? "")).toBeCloseTo(120, 5);
+    expect(Number.parseFloat(placeholder?.style.width ?? "")).toBeCloseTo(
+      200,
+      5,
+    );
+    expect(Number.parseFloat(placeholder?.style.height ?? "")).toBeCloseTo(
+      120,
+      5,
+    );
 
     await act(async () => {
       firePointer(window, "pointercancel", at(start));
@@ -191,7 +212,9 @@ describe("<Layout> pointer dragging", () => {
       firePointer(window, "pointermove", at({ x: start.x, y: start.y + 40 }));
     });
     await advanceFrame(2);
-    const ownSlotTop = Number.parseFloat(placeholderOf(container)?.style.top ?? "");
+    const ownSlotTop = Number.parseFloat(
+      placeholderOf(container)?.style.top ?? "",
+    );
 
     await act(async () => {
       firePointer(window, "pointermove", at(target));
@@ -199,7 +222,9 @@ describe("<Layout> pointer dragging", () => {
     await advanceFrame(4);
 
     // Slot 2 sits at y 360 in the synthetic grid, 260 px below the first one.
-    const movedTop = Number.parseFloat(placeholderOf(container)?.style.top ?? "");
+    const movedTop = Number.parseFloat(
+      placeholderOf(container)?.style.top ?? "",
+    );
     expect(movedTop).toBeCloseTo(ownSlotTop + 260, 0);
 
     await act(async () => {
@@ -209,7 +234,8 @@ describe("<Layout> pointer dragging", () => {
   });
 
   it("commits the previewed order on drop and reports it once", async () => {
-    const onChange = vi.fn<(items: unknown[], event: LayoutChangeEvent) => void>();
+    const onChange =
+      vi.fn<(items: unknown[], event: LayoutChangeEvent) => void>();
     const onDragEnd = vi.fn<(event: DragEndEvent) => void>();
     const { container } = render(
       <Layout onChange={onChange} onDragEnd={onDragEnd}>
@@ -238,16 +264,26 @@ describe("<Layout> pointer dragging", () => {
     expect(idsInDom(container)).toEqual(preview);
     expect(onChange).toHaveBeenCalledTimes(1);
     expect(onChange.mock.calls[0]?.[0]).toEqual(preview);
-    expect(onChange.mock.calls[0]?.[1]).toMatchObject({ source: "mouse", ids: preview });
+    expect(onChange.mock.calls[0]?.[1]).toMatchObject({
+      source: "mouse",
+      ids: preview,
+    });
 
     expect(onDragEnd).toHaveBeenCalledTimes(1);
     const end = onDragEnd.mock.calls[0]?.[0];
-    expect(end).toMatchObject({ item: "a", cancelled: false, reason: "drop", source: "mouse" });
+    expect(end).toMatchObject({
+      item: "a",
+      cancelled: false,
+      reason: "drop",
+      source: "mouse",
+    });
     expect(end?.from.index).toBe(0);
     expect(end?.to.index).toBe(2);
 
     await waitFor(() => expect(placeholderOf(container)).toBeNull());
-    expect(itemOf(container, "a").hasAttribute("data-rewap-active")).toBe(false);
+    expect(itemOf(container, "a").hasAttribute("data-rewap-active")).toBe(
+      false,
+    );
   });
 
   it("keeps the order when the pointer returns to the original slot", async () => {
@@ -262,7 +298,10 @@ describe("<Layout> pointer dragging", () => {
     await dragPointer({
       from: itemOf(container, "a"),
       fromPoint: slotCenter(0, CELLS),
-      toPoint: { x: slotCenter(0, CELLS).x + 30, y: slotCenter(0, CELLS).y + 20 },
+      toPoint: {
+        x: slotCenter(0, CELLS).x + 30,
+        y: slotCenter(0, CELLS).y + 20,
+      },
     });
 
     expect(idsInDom(container)).toEqual(["a", "b"]);
@@ -294,9 +333,14 @@ describe("<Layout> pointer dragging", () => {
 
     expect(idsInDom(container)).toEqual(["a", "b"]);
     expect(onChange).not.toHaveBeenCalled();
-    expect(onDragEnd.mock.calls[0]?.[0]).toMatchObject({ cancelled: true, reason: "cancel" });
+    expect(onDragEnd.mock.calls[0]?.[0]).toMatchObject({
+      cancelled: true,
+      reason: "cancel",
+    });
     // Settled back to its resting state, with the element state cleared.
-    expect(itemOf(container, "a").style.transform).toBe("translate3d(0px, 0px, 0)");
+    expect(itemOf(container, "a").style.transform).toBe(
+      "translate3d(0px, 0px, 0)",
+    );
   });
 
   it("cancels with Escape while the pointer is down", async () => {
@@ -316,12 +360,17 @@ describe("<Layout> pointer dragging", () => {
     });
 
     await act(async () => {
-      window.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+      window.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "Escape", bubbles: true }),
+      );
     });
     await settle(container);
 
     expect(idsInDom(container)).toEqual(["a", "b"]);
-    expect(onDragEnd.mock.calls[0]?.[0]).toMatchObject({ cancelled: true, reason: "escape" });
+    expect(onDragEnd.mock.calls[0]?.[0]).toMatchObject({
+      cancelled: true,
+      reason: "escape",
+    });
   });
 
   it("drags from a handle but not from the item body of a handle-only item", async () => {
@@ -342,7 +391,9 @@ describe("<Layout> pointer dragging", () => {
     });
     expect(onDragStart).not.toHaveBeenCalled();
 
-    const handle = container.querySelector<HTMLElement>("[data-rewap-handle]") as HTMLElement;
+    const handle = container.querySelector<HTMLElement>(
+      "[data-rewap-handle]",
+    ) as HTMLElement;
     await act(async () => {
       firePointer(handle, "pointerdown", at(slotCenter(0, CELLS)));
       firePointer(window, "pointermove", at({ x: 100, y: 240 }));
@@ -395,7 +446,11 @@ describe("<Layout> pointer dragging", () => {
 
     for (const id of ["a", "b"]) {
       await act(async () => {
-        firePointer(itemOf(container, id), "pointerdown", at(slotCenter(0, CELLS)));
+        firePointer(
+          itemOf(container, id),
+          "pointerdown",
+          at(slotCenter(0, CELLS)),
+        );
         firePointer(window, "pointermove", at({ x: 100, y: 300 }));
       });
     }
@@ -468,7 +523,8 @@ describe("<Layout> pointer dragging", () => {
     });
 
     const transform = itemOf(container, "a").style.transform;
-    const [, rawX, rawY] = /translate3d\((-?[\d.]+)px, (-?[\d.]+)px/.exec(transform) ?? [];
+    const [, rawX, rawY] =
+      /translate3d\((-?[\d.]+)px, (-?[\d.]+)px/.exec(transform) ?? [];
     expect(Math.abs(Number(rawY ?? 0))).toBeLessThan(1000);
     expect(Number.isFinite(Number(rawX ?? Number.NaN))).toBe(true);
 

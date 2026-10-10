@@ -39,7 +39,8 @@ import {
   type Point,
 } from "./scales";
 
-export type ChartType = "line" | "area" | "bar" | "scatter" | "histogram" | "sparkline";
+export type ChartType =
+  "line" | "area" | "bar" | "scatter" | "histogram" | "sparkline";
 
 export interface ChartSeries {
   id?: string;
@@ -81,7 +82,12 @@ export interface ChartProps {
   ariaLabel?: string;
   /** Render the hidden data table for screen readers. Defaults to `true`. */
   accessibleTable?: boolean;
-  padding?: Partial<{ top: number; right: number; bottom: number; left: number }>;
+  padding?: Partial<{
+    top: number;
+    right: number;
+    bottom: number;
+    left: number;
+  }>;
   className?: string;
   style?: CSSProperties;
   children?: ReactNode;
@@ -91,7 +97,8 @@ const defaultPadding = { top: 10, right: 10, bottom: 22, left: 36 };
 
 const formatNumber = (value: number): string => {
   if (!Number.isFinite(value)) return "—";
-  if (Math.abs(value) >= 1000) return value.toLocaleString(undefined, { maximumFractionDigits: 0 });
+  if (Math.abs(value) >= 1000)
+    return value.toLocaleString(undefined, { maximumFractionDigits: 0 });
   if (Number.isInteger(value)) return String(value);
   return value.toFixed(Math.abs(value) < 1 ? 2 : 1);
 };
@@ -109,9 +116,13 @@ const polylineLength = (points: readonly Point[]): number => {
   return total;
 };
 
-const isBandChart = (type: ChartType): boolean => type === "bar" || type === "histogram";
+const isBandChart = (type: ChartType): boolean =>
+  type === "bar" || type === "histogram";
 
-const ChartImpl = (props: ChartProps, forwardedRef: ForwardedRef<HTMLDivElement>) => {
+const ChartImpl = (
+  props: ChartProps,
+  forwardedRef: ForwardedRef<HTMLDivElement>,
+) => {
   const {
     type,
     data,
@@ -155,18 +166,23 @@ const ChartImpl = (props: ChartProps, forwardedRef: ForwardedRef<HTMLDivElement>
   }, [bins, series, type]);
 
   const drawnSeries = useMemo(() => {
-    if (type === "histogram") return [{ id: "histogram", points: histogramPoints ?? [] }];
+    if (type === "histogram")
+      return [{ id: "histogram", points: histogramPoints ?? [] }];
     if (band || sparkline) return series.slice(0, 1);
     return series;
   }, [band, histogramPoints, series, sparkline, type]);
 
-  const allPoints = useMemo(() => drawnSeries.flatMap((entry) => entry.points), [drawnSeries]);
+  const allPoints = useMemo(
+    () => drawnSeries.flatMap((entry) => entry.points),
+    [drawnSeries],
+  );
 
   const resolvedPadding = useMemo(
     () => ({
       top: padding?.top ?? (sparkline ? 2 : defaultPadding.top),
       right: padding?.right ?? (sparkline ? 2 : defaultPadding.right),
-      bottom: padding?.bottom ?? (sparkline || !showAxis ? 2 : defaultPadding.bottom),
+      bottom:
+        padding?.bottom ?? (sparkline || !showAxis ? 2 : defaultPadding.bottom),
       left: padding?.left ?? (sparkline || !showAxis ? 2 : defaultPadding.left),
     }),
     [padding, showAxis, sparkline],
@@ -191,7 +207,11 @@ const ChartImpl = (props: ChartProps, forwardedRef: ForwardedRef<HTMLDivElement>
     const y1 = Math.max(y0 + 1, h - resolvedPadding.bottom);
 
     const domain = domainOf(allPoints, band);
-    const yMin = yDomain ? yDomain[0] : band ? Math.min(0, domain.y[0]) : domain.y[0];
+    const yMin = yDomain
+      ? yDomain[0]
+      : band
+        ? Math.min(0, domain.y[0])
+        : domain.y[0];
     const yMax = yDomain ? yDomain[1] : domain.y[1];
     const nice = niceDomain([yMin, yMax], tickCount);
     const yScale = linearScale(nice, [y1, y0]);
@@ -199,8 +219,12 @@ const ChartImpl = (props: ChartProps, forwardedRef: ForwardedRef<HTMLDivElement>
 
     const xScale = linearScale(domain.x, [x0, x1]);
     // The drawn series, not the input: a histogram draws bins, not raw values.
-    const bandScaleForPrimary = bandScale(drawnSeries[0]?.points.length ?? 0, [x0, x1]);
-    const xAt = (index: number): number => (band ? bandScaleForPrimary.center(index) : xScale(index));
+    const bandScaleForPrimary = bandScale(drawnSeries[0]?.points.length ?? 0, [
+      x0,
+      x1,
+    ]);
+    const xAt = (index: number): number =>
+      band ? bandScaleForPrimary.center(index) : xScale(index);
 
     const perSeries = drawnSeries.map((entry, seriesIndex) => ({
       id: entry.id,
@@ -256,7 +280,10 @@ const ChartImpl = (props: ChartProps, forwardedRef: ForwardedRef<HTMLDivElement>
   const pointRefs = useRef<(SVGCircleElement | null)[]>([]);
   const animationRef = useRef<AnimationHandle | null>(null);
 
-  const plan = useMemo(() => resolveMotion(motion, { prefersReducedMotion }), [motion, prefersReducedMotion]);
+  const plan = useMemo(
+    () => resolveMotion(motion, { prefersReducedMotion }),
+    [motion, prefersReducedMotion],
+  );
   const layoutRef = useRef(layout);
   layoutRef.current = layout;
   const typeRef = useRef(type);
@@ -273,7 +300,9 @@ const ChartImpl = (props: ChartProps, forwardedRef: ForwardedRef<HTMLDivElement>
       if (path && !isBandChart(currentType)) {
         const length = Math.max(
           1,
-          typeof path.getTotalLength === "function" ? path.getTotalLength() : polylineLength(entry.rounded),
+          typeof path.getTotalLength === "function"
+            ? path.getTotalLength()
+            : polylineLength(entry.rounded),
         );
         path.style.strokeDasharray = `${length}`;
         path.style.strokeDashoffset = `${length * (1 - progress)}`;
@@ -292,7 +321,10 @@ const ChartImpl = (props: ChartProps, forwardedRef: ForwardedRef<HTMLDivElement>
         if (!rect || !point) continue;
         const fullHeight = Math.abs(point.y - current.zeroY);
         const height = fullHeight * progress;
-        rect.setAttribute("y", String(value >= 0 ? current.zeroY - height : current.zeroY));
+        rect.setAttribute(
+          "y",
+          String(value >= 0 ? current.zeroY - height : current.zeroY),
+        );
         rect.setAttribute("height", String(height));
       }
       for (let index = 0; index < pointRefs.current.length; index += 1) {
@@ -332,7 +364,8 @@ const ChartImpl = (props: ChartProps, forwardedRef: ForwardedRef<HTMLDivElement>
   useEffect(() => {
     const element = containerRef.current;
     if (!element) return;
-    const measure = () => setMeasuredWidth(element.getBoundingClientRect().width);
+    const measure = () =>
+      setMeasuredWidth(element.getBoundingClientRect().width);
     measure();
     if (typeof ResizeObserver === "function") {
       const observer = new ResizeObserver(measure);
@@ -347,12 +380,16 @@ const ChartImpl = (props: ChartProps, forwardedRef: ForwardedRef<HTMLDivElement>
     (node: HTMLDivElement | null) => {
       containerRef.current = node;
       if (typeof forwardedRef === "function") forwardedRef(node);
-      else if (forwardedRef) (forwardedRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
+      else if (forwardedRef)
+        (
+          forwardedRef as React.MutableRefObject<HTMLDivElement | null>
+        ).current = node;
     },
     [forwardedRef],
   );
 
-  const description = ariaLabel ?? describe(type, series[0]?.points.length ?? 0, series.length);
+  const description =
+    ariaLabel ?? describe(type, series[0]?.points.length ?? 0, series.length);
   const hasData = allPoints.length > 0;
   const primaryPoints = series[0]?.points ?? [];
 
@@ -416,7 +453,13 @@ const ChartImpl = (props: ChartProps, forwardedRef: ForwardedRef<HTMLDivElement>
         })}
 
         {layout.yTicks.length > 0 ? (
-          <line className="rw-chart__axis" x1={layout.x0} x2={layout.x1} y1={layout.y1} y2={layout.y1} />
+          <line
+            className="rw-chart__axis"
+            x1={layout.x0}
+            x2={layout.x1}
+            y1={layout.y1}
+            y2={layout.y1}
+          />
         ) : null}
 
         {band && hasData
@@ -469,8 +512,14 @@ const ChartImpl = (props: ChartProps, forwardedRef: ForwardedRef<HTMLDivElement>
                 }}
                 className={sparkline ? "rw-chart__sparkline" : "rw-chart__line"}
                 data-series={index}
-                style={{ stroke: `var(--rw-chart-series-${index}, var(--rw-accent))` }}
-                d={smooth ? smoothLinePath(entry.rounded, tension) : linePath(entry.rounded)}
+                style={{
+                  stroke: `var(--rw-chart-series-${index}, var(--rw-accent))`,
+                }}
+                d={
+                  smooth
+                    ? smoothLinePath(entry.rounded, tension)
+                    : linePath(entry.rounded)
+                }
               />
             ))
           : null}
@@ -496,7 +545,8 @@ const ChartImpl = (props: ChartProps, forwardedRef: ForwardedRef<HTMLDivElement>
             )
           : null}
 
-        {highlightIndex !== null && layout.perSeries[0]?.rounded[highlightIndex] ? (
+        {highlightIndex !== null &&
+        layout.perSeries[0]?.rounded[highlightIndex] ? (
           <>
             <line
               className="rw-chart__marker"
@@ -515,7 +565,12 @@ const ChartImpl = (props: ChartProps, forwardedRef: ForwardedRef<HTMLDivElement>
         ) : null}
 
         {!hasData ? (
-          <text className="rw-chart__empty" x={layout.w / 2} y={layout.h / 2} textAnchor="middle">
+          <text
+            className="rw-chart__empty"
+            x={layout.w / 2}
+            y={layout.h / 2}
+            textAnchor="middle"
+          >
             No data
           </text>
         ) : null}

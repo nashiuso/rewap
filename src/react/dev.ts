@@ -45,7 +45,10 @@ export const warnDuplicateIds = (ids: readonly string[]): void => {
   }
 };
 
-export const warnItemsWithoutChildren = (hasItems: boolean, idCount: number): void => {
+export const warnItemsWithoutChildren = (
+  hasItems: boolean,
+  idCount: number,
+): void => {
   if (hasItems && idCount === 0) {
     warnOnce(
       "The `items` prop was provided without matching <Item id> children, so there is nothing to order.",
@@ -53,7 +56,10 @@ export const warnItemsWithoutChildren = (hasItems: boolean, idCount: number): vo
   }
 };
 
-export const warnPersistenceControlled = (enabled: boolean, controlled: boolean): void => {
+export const warnPersistenceControlled = (
+  enabled: boolean,
+  controlled: boolean,
+): void => {
   if (enabled && controlled) {
     warnOnce(
       "Persistence is ignored while `items` is controlled: store the order yourself or use `defaultItems`.",

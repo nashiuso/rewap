@@ -6,14 +6,25 @@
  * roles, descriptions and what happens when the user asked for less motion.
  */
 
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { Item } from "../src/react/Item";
 import { Layout } from "../src/react/Layout";
 import { usePrefersReducedMotion } from "../src/utilities/usePrefersReducedMotion";
 import { ariaKeyShortcuts } from "../src/accessibility";
-import { dragPointer, installGeometry, slotCenter, type InstalledGeometry } from "./helpers";
+import {
+  dragPointer,
+  installGeometry,
+  slotCenter,
+  type InstalledGeometry,
+} from "./helpers";
 
 const idsInDom = (): string[] =>
   [...document.querySelectorAll<HTMLElement>("[data-rewap-item]")].map(
@@ -22,7 +33,13 @@ const idsInDom = (): string[] =>
 
 // Item ids differ from test to test here, so the geometry follows the DOM order
 // the way a browser would lay it out.
-const CELLS = { ids: idsInDom, columns: 1, cellWidth: 200, cellHeight: 120, gap: 10 };
+const CELLS = {
+  ids: idsInDom,
+  columns: 1,
+  cellWidth: 200,
+  cellHeight: 120,
+  gap: 10,
+};
 let geometry: InstalledGeometry;
 
 /** Replaces the matchMedia stub from `setup.ts` with a controllable one. */
@@ -32,12 +49,18 @@ const installMediaQuery = (matches: boolean) => {
     matches,
     media: "(prefers-reduced-motion: reduce)",
     onchange: null,
-    addEventListener: (_type: string, listener: (event: { matches: boolean }) => void) =>
+    addEventListener: (
+      _type: string,
+      listener: (event: { matches: boolean }) => void,
+    ) => listeners.add(listener),
+    removeEventListener: (
+      _type: string,
+      listener: (event: { matches: boolean }) => void,
+    ) => listeners.delete(listener),
+    addListener: (listener: (event: { matches: boolean }) => void) =>
       listeners.add(listener),
-    removeEventListener: (_type: string, listener: (event: { matches: boolean }) => void) =>
+    removeListener: (listener: (event: { matches: boolean }) => void) =>
       listeners.delete(listener),
-    addListener: (listener: (event: { matches: boolean }) => void) => listeners.add(listener),
-    removeListener: (listener: (event: { matches: boolean }) => void) => listeners.delete(listener),
     dispatchEvent: () => false,
   } as unknown as MediaQueryList;
 
@@ -80,7 +103,9 @@ describe("item markup", () => {
 
     const description = weather.getAttribute("aria-describedby") as string;
     expect(description).toContain("-rw-help");
-    expect(document.getElementById(description)?.textContent).toContain("Press Space or Enter");
+    expect(document.getElementById(description)?.textContent).toContain(
+      "Press Space or Enter",
+    );
 
     // `listitem` does not take its accessible name from its content, so an item
     // without a label has no name in the accessibility tree. The text is still
@@ -94,9 +119,10 @@ describe("item markup", () => {
       fireEvent.keyDown(notes, { key: " " });
     });
     await waitFor(() =>
-      expect(document.querySelector('[data-rewap-announcer="assertive"]')?.textContent).toContain(
-        "Unlabelled",
-      ),
+      expect(
+        document.querySelector('[data-rewap-announcer="assertive"]')
+          ?.textContent,
+      ).toContain("Unlabelled"),
     );
   });
 
@@ -110,7 +136,9 @@ describe("item markup", () => {
     );
 
     const item = screen.getByRole("listitem");
-    const described = (item.getAttribute("aria-describedby") as string).split(" ");
+    const described = (item.getAttribute("aria-describedby") as string).split(
+      " ",
+    );
     expect(described).toHaveLength(2);
     expect(described[0]).toBe("external-hint");
     expect(described[1]).toMatch(/-rw-help$/);
@@ -152,7 +180,11 @@ describe("item markup", () => {
       release: false,
     });
 
-    expect(container.querySelector("[data-rewap-item='a']")?.hasAttribute("data-rewap-active")).toBe(true);
+    expect(
+      container
+        .querySelector("[data-rewap-item='a']")
+        ?.hasAttribute("data-rewap-active"),
+    ).toBe(true);
   });
 
   it("labels a handle button without stealing the item's name", () => {
@@ -216,10 +248,13 @@ describe("prefers-reduced-motion", () => {
         ).toEqual(["b", "a"]),
       );
 
-      for (const element of container.querySelectorAll<HTMLElement>("[data-rewap-item]")) {
-        expect(element.style.transform === "" || element.style.transform === "translate3d(0px, 0px, 0)").toBe(
-          true,
-        );
+      for (const element of container.querySelectorAll<HTMLElement>(
+        "[data-rewap-item]",
+      )) {
+        expect(
+          element.style.transform === "" ||
+            element.style.transform === "translate3d(0px, 0px, 0)",
+        ).toBe(true);
       }
     } finally {
       media.restore();
@@ -284,7 +319,11 @@ describe("Item.Handle naming", () => {
       </Layout>,
     );
 
-    expect(container.querySelector<HTMLElement>("[data-rewap-handle]")?.tabIndex).toBe(-1);
-    expect(container.querySelector<HTMLElement>('[data-rewap-item="a"]')?.tabIndex).toBe(0);
+    expect(
+      container.querySelector<HTMLElement>("[data-rewap-handle]")?.tabIndex,
+    ).toBe(-1);
+    expect(
+      container.querySelector<HTMLElement>('[data-rewap-item="a"]')?.tabIndex,
+    ).toBe(0);
   });
 });

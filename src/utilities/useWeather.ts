@@ -23,9 +23,14 @@ import {
   type WeatherData,
   type WeatherProvider,
 } from "../providers/contracts";
-import { resolveStorage, type StorageKind, type StorageLike } from "../core/persistence";
+import {
+  resolveStorage,
+  type StorageKind,
+  type StorageLike,
+} from "../core/persistence";
 
-export type WeatherStatus = "idle" | "unsupported" | "locating" | "loading" | "success" | "error";
+export type WeatherStatus =
+  "idle" | "unsupported" | "locating" | "loading" | "success" | "error";
 
 export interface WeatherCacheOptions {
   /** Time to live in milliseconds. Defaults to 10 minutes. */
@@ -84,17 +89,29 @@ const cacheKeyFor = (
   unit: TemperatureUnit,
   location: ResolvedLocation,
 ): string =>
-  [keyPrefix, provider.name, location.latitude.toFixed(3), location.longitude.toFixed(3), unit].join(":");
+  [
+    keyPrefix,
+    provider.name,
+    location.latitude.toFixed(3),
+    location.longitude.toFixed(3),
+    unit,
+  ].join(":");
 
-const readCache = (key: string, storage: StorageLike | null, ttlMs: number): CacheRecord | null => {
+const readCache = (
+  key: string,
+  storage: StorageLike | null,
+  ttlMs: number,
+): CacheRecord | null => {
   const fromMemory = memoryCache.get(key);
-  if (fromMemory && Date.now() - fromMemory.fetchedAt < ttlMs) return fromMemory;
+  if (fromMemory && Date.now() - fromMemory.fetchedAt < ttlMs)
+    return fromMemory;
   if (!storage) return null;
   try {
     const raw = storage.getItem(key);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as CacheRecord;
-    if (!parsed?.fetchedAt || Date.now() - parsed.fetchedAt >= ttlMs) return null;
+    if (!parsed?.fetchedAt || Date.now() - parsed.fetchedAt >= ttlMs)
+      return null;
     memoryCache.set(key, parsed);
     return parsed;
   } catch {
@@ -102,7 +119,11 @@ const readCache = (key: string, storage: StorageLike | null, ttlMs: number): Cac
   }
 };
 
-const writeCache = (key: string, record: CacheRecord, storage: StorageLike | null): void => {
+const writeCache = (
+  key: string,
+  record: CacheRecord,
+  storage: StorageLike | null,
+): void => {
   memoryCache.set(key, record);
   if (!storage) return;
   try {
@@ -113,9 +134,12 @@ const writeCache = (key: string, record: CacheRecord, storage: StorageLike | nul
 };
 
 const readPermission = async (): Promise<WeatherState["permission"]> => {
-  if (typeof navigator === "undefined" || !navigator.permissions?.query) return "unknown";
+  if (typeof navigator === "undefined" || !navigator.permissions?.query)
+    return "unknown";
   try {
-    const status = await navigator.permissions.query({ name: "geolocation" as PermissionName });
+    const status = await navigator.permissions.query({
+      name: "geolocation" as PermissionName,
+    });
     return status.state as WeatherState["permission"];
   } catch {
     return "unknown";
@@ -141,8 +165,13 @@ export const useWeather = (options: UseWeatherOptions = {}): WeatherState => {
   // which re-ran the fetch effect through its `storage` dependency and kept the
   // component rendering until the tab ran out of memory. Found the hard way.
   const cacheEnabled = cache !== false;
-  const storageOption = cacheEnabled ? ((cache as WeatherCacheOptions).storage ?? "sessionStorage") : null;
-  const customStorage = storageOption !== null && typeof storageOption === "object" ? storageOption : null;
+  const storageOption = cacheEnabled
+    ? ((cache as WeatherCacheOptions).storage ?? "sessionStorage")
+    : null;
+  const customStorage =
+    storageOption !== null && typeof storageOption === "object"
+      ? storageOption
+      : null;
   const storageKind: StorageKind = customStorage
     ? "sessionStorage"
     : ((storageOption as StorageKind | null) ?? "sessionStorage");
@@ -154,7 +183,8 @@ export const useWeather = (options: UseWeatherOptions = {}): WeatherState => {
   }, [cacheEnabled, customStorage, storageKind]);
 
   const ttlMs = cache === false ? 0 : (cache.ttlMs ?? 10 * 60 * 1000);
-  const cacheKeyPrefix = cache === false ? "rewap:weather" : (cache.key ?? "rewap:weather");
+  const cacheKeyPrefix =
+    cache === false ? "rewap:weather" : (cache.key ?? "rewap:weather");
 
   const [state, setState] = useState<WeatherState>(() => ({
     status: enabled ? "idle" : "idle",
@@ -199,7 +229,8 @@ export const useWeather = (options: UseWeatherOptions = {}): WeatherState => {
       setState((previous) => ({
         ...previous,
         status: "unsupported",
-        unsupportedReason: 'source: "coordinates" requires a coordinates object.',
+        unsupportedReason:
+          'source: "coordinates" requires a coordinates object.',
       }));
       return;
     }
@@ -222,7 +253,11 @@ export const useWeather = (options: UseWeatherOptions = {}): WeatherState => {
           source: "coordinates",
         };
       } else {
-        setState((previous) => ({ ...previous, status: "locating", unsupportedReason: null }));
+        setState((previous) => ({
+          ...previous,
+          status: "locating",
+          unsupportedReason: null,
+        }));
         setState((previous) => ({
           ...previous,
           permission: previous.permission,
@@ -238,7 +273,8 @@ export const useWeather = (options: UseWeatherOptions = {}): WeatherState => {
             ...previous,
             status: outcome.status === "unsupported" ? "unsupported" : "error",
             error: outcome.status === "error" ? outcome.message : null,
-            unsupportedReason: outcome.status === "unsupported" ? outcome.reason : null,
+            unsupportedReason:
+              outcome.status === "unsupported" ? outcome.reason : null,
           }));
           return;
         }
@@ -301,7 +337,8 @@ export const useWeather = (options: UseWeatherOptions = {}): WeatherState => {
         ...previous,
         status: outcome.status === "unsupported" ? "unsupported" : "error",
         error: outcome.status === "error" ? outcome.message : null,
-        unsupportedReason: outcome.status === "unsupported" ? outcome.reason : null,
+        unsupportedReason:
+          outcome.status === "unsupported" ? outcome.reason : null,
       }));
     };
 

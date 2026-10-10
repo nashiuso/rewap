@@ -23,7 +23,9 @@ describe("math/statistics", () => {
   const values = [2, 4, 4, 4, 5, 5, 7, 9];
 
   it("filters non-finite values", () => {
-    expect(finite([1, Number.NaN, 2, Number.POSITIVE_INFINITY, 3])).toEqual([1, 2, 3]);
+    expect(finite([1, Number.NaN, 2, Number.POSITIVE_INFINITY, 3])).toEqual([
+      1, 2, 3,
+    ]);
     expect(mean([Number.NaN])).toBeNaN();
   });
 
@@ -40,7 +42,10 @@ describe("math/statistics", () => {
     // ddof = 1 by default, matching most statistics packages.
     expect(variance([2, 4, 4, 4, 5, 5, 7, 9])).toBeCloseTo(4.571428571, 6);
     expect(variance([2, 4, 4, 4, 5, 5, 7, 9], 0)).toBe(4);
-    expect(standardDeviation([2, 4, 4, 4, 5, 5, 7, 9])).toBeCloseTo(2.138089935, 6);
+    expect(standardDeviation([2, 4, 4, 4, 5, 5, 7, 9])).toBeCloseTo(
+      2.138089935,
+      6,
+    );
     expect(extent([3, -1, 9])).toEqual({ min: -1, max: 9, span: 10 });
     expect(extent([]).min).toBeNaN();
     expect(interquartileRange([1, 2, 3, 4, 5])).toBe(2);

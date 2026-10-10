@@ -6,7 +6,12 @@
  * the animator can execute, taking `prefers-reduced-motion` into account.
  */
 
-import { easeOutCubic, easeOutQuint, type Easing, resolveEasing } from "./easing";
+import {
+  easeOutCubic,
+  easeOutQuint,
+  type Easing,
+  resolveEasing,
+} from "./easing";
 import { defaultSpring, springDuration, type SpringConfig } from "./spring";
 
 export type MotionName = "smooth" | "snappy" | "soft" | "instant";
@@ -77,7 +82,10 @@ export interface MotionEnvironment {
  * Reduced motion is respected unless the configuration opts out explicitly with
  * `respectReducedMotion: false`.
  */
-export const resolveMotion = (motion: MotionValue, environment: MotionEnvironment = {}): MotionPlan => {
+export const resolveMotion = (
+  motion: MotionValue,
+  environment: MotionEnvironment = {},
+): MotionPlan => {
   if (motion === null || motion === false) return instantPlan;
 
   if (typeof motion === "string") {
@@ -87,13 +95,19 @@ export const resolveMotion = (motion: MotionValue, environment: MotionEnvironmen
 
   if (motion === undefined) {
     const respectReduced = environment.prefersReducedMotion !== true;
-    return respectReduced ? resolveMotion(motionPresets.smooth, environment) : instantPlan;
+    return respectReduced
+      ? resolveMotion(motionPresets.smooth, environment)
+      : instantPlan;
   }
 
   if (motion.type === "tween") {
     const duration = Math.max(0, motion.duration ?? 0.24);
     if (duration === 0) return instantPlan;
-    return { kind: "tween", duration, easing: motion.easing ? resolveEasing(motion.easing) : easeOutCubic };
+    return {
+      kind: "tween",
+      duration,
+      easing: motion.easing ? resolveEasing(motion.easing) : easeOutCubic,
+    };
   }
 
   const respectReduced = motion.respectReducedMotion !== false;
@@ -120,13 +134,23 @@ export const motionDuration = (plan: MotionPlan, distance = 1): number => {
 /** Human-readable label used by the docs and dev warnings. */
 export const describeMotion = (plan: MotionPlan): string => {
   if (plan.kind === "instant") return "instant";
-  if (plan.kind === "tween") return `tween(${Math.round(plan.duration * 1000)}ms)`;
+  if (plan.kind === "tween")
+    return `tween(${Math.round(plan.duration * 1000)}ms)`;
   const { stiffness, damping, mass } = plan.config;
   return `spring(stiffness: ${stiffness}, damping: ${damping}, mass: ${mass})`;
 };
 
 /** Presets in a stable order, for documentation and pickers. */
-export const motionNames: MotionName[] = ["smooth", "snappy", "soft", "instant"];
+export const motionNames: MotionName[] = [
+  "smooth",
+  "snappy",
+  "soft",
+  "instant",
+];
 
 /** A tween preset matching the `soft` spring's feel, for non-spring use cases. */
-export const softTween: MotionTweenPlan = { kind: "tween", duration: 0.42, easing: easeOutQuint };
+export const softTween: MotionTweenPlan = {
+  kind: "tween",
+  duration: 0.42,
+  easing: easeOutQuint,
+};

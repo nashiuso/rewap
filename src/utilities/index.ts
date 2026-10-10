@@ -6,7 +6,10 @@
  * `@nashiuso/rewap/providers`; without one they report `unsupported`.
  */
 
-export { usePrefersReducedMotion, prefersReducedMotion } from "./usePrefersReducedMotion";
+export {
+  usePrefersReducedMotion,
+  prefersReducedMotion,
+} from "./usePrefersReducedMotion";
 export { useMediaQuery, mediaQueries } from "./useMediaQuery";
 export {
   useViewport,

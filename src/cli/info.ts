@@ -58,10 +58,13 @@ interface Manifest {
  * enough — reading `value.import` directly hands a file the *object* instead of a
  * path. Returns `null` when the target has no runtime file.
  */
-const runtimeFile = (value: ExportTarget | ConditionalTarget | undefined): string | null => {
+const runtimeFile = (
+  value: ExportTarget | ConditionalTarget | undefined,
+): string | null => {
   if (value === undefined) return null;
   if (typeof value === "string") return value;
-  if ("import" in value || "require" in value) return runtimeFile(value.import ?? value.require);
+  if ("import" in value || "require" in value)
+    return runtimeFile(value.import ?? value.require);
   return typeof value.default === "string" ? value.default : null;
 };
 
@@ -90,7 +93,9 @@ export const info = (): InfoReport => {
       subpath,
       file: relative,
       bytes,
-      gzipBytes: relative.endsWith(".js") ? gzipSync(readFileSync(file)).length : null,
+      gzipBytes: relative.endsWith(".js")
+        ? gzipSync(readFileSync(file)).length
+        : null,
     });
   }
 
@@ -98,7 +103,7 @@ export const info = (): InfoReport => {
     name: manifest.name ?? "@nashiuso/rewap",
     version: manifest.version ?? "0.0.0",
     license: manifest.license ?? "MIT",
-    homepage: manifest.homepage ?? "https://github.com/nashisuso/rewap#readme",
+    homepage: manifest.homepage ?? "https://github.com/nashiuso/rewap#readme",
     node: manifest.engines?.node ?? ">=18.18.0",
     peer: manifest.peerDependencies ?? {},
     entries: entries.sort((a, b) => a.subpath.localeCompare(b.subpath)),
@@ -108,4 +113,6 @@ export const info = (): InfoReport => {
 };
 
 export const formatBytes = (bytes: number): string =>
-  bytes >= 1024 * 1024 ? `${(bytes / 1024 / 1024).toFixed(1)} MB` : `${(bytes / 1024).toFixed(1)} kB`;
+  bytes >= 1024 * 1024
+    ? `${(bytes / 1024 / 1024).toFixed(1)} MB`
+    : `${(bytes / 1024).toFixed(1)} kB`;

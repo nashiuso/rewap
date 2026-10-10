@@ -1,10 +1,19 @@
 import { describe, expect, it } from "vitest";
 
-import { applyStoredOrder, createPersistence, memoryStorage, resolveStorage } from "../src/core/persistence";
+import {
+  applyStoredOrder,
+  createPersistence,
+  memoryStorage,
+  resolveStorage,
+} from "../src/core/persistence";
 
 describe("core/persistence", () => {
   it("round-trips an order through a storage implementation", () => {
-    const persistence = createPersistence({ key: "layout", storage: memoryStorage(), mode: "reorder" });
+    const persistence = createPersistence({
+      key: "layout",
+      storage: memoryStorage(),
+      mode: "reorder",
+    });
     expect(persistence.load()).toBeNull();
     persistence.save(["a", "b"]);
     const loaded = persistence.load();
@@ -57,8 +66,16 @@ describe("core/persistence", () => {
   });
 
   it("applies a stored order without hiding or duplicating items", () => {
-    expect(applyStoredOrder(["b", "a"], ["a", "b", "c"])).toEqual(["b", "a", "c"]);
-    expect(applyStoredOrder(["b", "gone"], ["a", "b", "c"])).toEqual(["b", "a", "c"]);
+    expect(applyStoredOrder(["b", "a"], ["a", "b", "c"])).toEqual([
+      "b",
+      "a",
+      "c",
+    ]);
+    expect(applyStoredOrder(["b", "gone"], ["a", "b", "c"])).toEqual([
+      "b",
+      "a",
+      "c",
+    ]);
     expect(applyStoredOrder([], ["a", "b"])).toEqual(["a", "b"]);
     expect(applyStoredOrder(["a", "a"], ["a", "b"])).toEqual(["a", "a", "b"]);
   });

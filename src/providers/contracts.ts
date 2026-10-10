@@ -36,9 +36,14 @@ export interface ProviderError {
   httpStatus?: number;
 }
 
-export type ProviderOutcome<T> = ProviderSuccess<T> | ProviderUnsupported | ProviderError;
+export type ProviderOutcome<T> =
+  ProviderSuccess<T> | ProviderUnsupported | ProviderError;
 
-export const providerSuccess = <T>(data: T, source: string, cached = false): ProviderSuccess<T> => ({
+export const providerSuccess = <T>(
+  data: T,
+  source: string,
+  cached = false,
+): ProviderSuccess<T> => ({
   status: "success",
   data,
   source,
@@ -58,7 +63,9 @@ export const providerError = (
   status: "error",
   message,
   retryable: options.retryable ?? true,
-  ...(options.httpStatus !== undefined ? { httpStatus: options.httpStatus } : {}),
+  ...(options.httpStatus !== undefined
+    ? { httpStatus: options.httpStatus }
+    : {}),
 });
 
 // ------------------------------------------------------------------- weather
@@ -157,7 +164,9 @@ export interface EmailVerificationRequest {
 export interface EmailVerificationProvider {
   readonly name: string;
   readonly endpoint: string | null;
-  verify(request: EmailVerificationRequest): Promise<ProviderOutcome<EmailVerificationVerdict>>;
+  verify(
+    request: EmailVerificationRequest,
+  ): Promise<ProviderOutcome<EmailVerificationVerdict>>;
 }
 
 /** Narrow helper: fetch with a timeout and JSON parsing, shared by providers. */

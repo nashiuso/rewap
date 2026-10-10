@@ -30,7 +30,12 @@ const makeGrid = (): SlotCandidate[] => {
       id: `item-${index}`,
       index,
       rect: cell,
-      slot: { index, column: index % 2, row: Math.floor(index / 2), rect: cell },
+      slot: {
+        index,
+        column: index % 2,
+        row: Math.floor(index / 2),
+        rect: cell,
+      },
     };
   });
 };
@@ -39,8 +44,16 @@ const candidates = makeGrid();
 
 describe("core/collision", () => {
   it("exposes the documented strategies", () => {
-    expect(collisionStrategyNames).toEqual(["pointer", "center", "intersection", "nearest", "projection"]);
-    expect(Object.keys(strategies).sort()).toEqual([...collisionStrategyNames].sort());
+    expect(collisionStrategyNames).toEqual([
+      "pointer",
+      "center",
+      "intersection",
+      "nearest",
+      "projection",
+    ]);
+    expect(Object.keys(strategies).sort()).toEqual(
+      [...collisionStrategyNames].sort(),
+    );
   });
 
   it("pointer: prefers the slot under the pointer and falls back to the closest band", () => {
@@ -64,11 +77,16 @@ describe("core/collision", () => {
     expect(outside?.index).toBe(1);
     expect(outside?.score).toBeGreaterThan(0);
 
-    expect(pointerCollision({ activeRect: rect(0, 0, 10, 10), candidates })).toBeNull();
+    expect(
+      pointerCollision({ activeRect: rect(0, 0, 10, 10), candidates }),
+    ).toBeNull();
   });
 
   it("center: matches the slot whose centre is closest to the dragged rect", () => {
-    const result = centerCollision({ activeRect: rect(20, 220, 60, 60), candidates });
+    const result = centerCollision({
+      activeRect: rect(20, 220, 60, 60),
+      candidates,
+    });
     expect(result?.index).toBe(2);
     expect(result?.score).toBeGreaterThan(0);
   });
@@ -83,14 +101,19 @@ describe("core/collision", () => {
   });
 
   it("intersection: needs real overlap and picks the largest ratio", () => {
-    const result = intersectionCollision({ activeRect: rect(60, 150, 100, 100), candidates });
+    const result = intersectionCollision({
+      activeRect: rect(60, 150, 100, 100),
+      candidates,
+    });
     // The dragged rect overlaps slot 0 by 2000 px² and slot 1 by 2500 px²; since
     // every overlap is measured against the smaller rectangle the ratio decides,
     // so slot 1 (0.25) beats slot 0 (0.2).
     expect(result?.index).toBe(1);
 
     // Touching but not overlapping produces nothing.
-    expect(intersectionCollision({ activeRect: rect(100, 100, 10, 10), candidates })).toBeNull();
+    expect(
+      intersectionCollision({ activeRect: rect(100, 100, 10, 10), candidates }),
+    ).toBeNull();
   });
 
   it("projection: returns a reading-order insertion along the axis", () => {
@@ -128,24 +151,46 @@ describe("core/collision", () => {
     };
     expect(resolveCollision(input, { strategy: "pointer" })?.index).toBe(0);
     // Excluding the slot under the pointer falls back to the next best match.
-    expect(resolveCollision(input, { strategy: "pointer", exclude: "item-0" })?.index).toBe(1);
-    expect(resolveCollision(input, { strategy: "pointer", minScore: 2 })).toBeNull();
-    expect(resolveCollision(input, { strategy: "nope" as never })).not.toBeNull();
+    expect(
+      resolveCollision(input, { strategy: "pointer", exclude: "item-0" })
+        ?.index,
+    ).toBe(1);
+    expect(
+      resolveCollision(input, { strategy: "pointer", minScore: 2 }),
+    ).toBeNull();
+    expect(
+      resolveCollision(input, { strategy: "nope" as never }),
+    ).not.toBeNull();
   });
 
   it("falls back to the first slot when a requested axis has no candidates", () => {
-    expect(projectionCollision({ activeRect: rect(0, 0, 10, 10), candidates: [] })).toBeNull();
     expect(
-      pointerCollision({ activeRect: rect(0, 0, 10, 10), candidates: [], pointer: { x: 1, y: 1 } }),
+      projectionCollision({ activeRect: rect(0, 0, 10, 10), candidates: [] }),
     ).toBeNull();
-    expect(centerCollision({ activeRect: rect(0, 0, 10, 10), candidates: [] })).toBeNull();
-    expect(nearestCollision({ activeRect: rect(0, 0, 10, 10), candidates: [] })).toBeNull();
+    expect(
+      pointerCollision({
+        activeRect: rect(0, 0, 10, 10),
+        candidates: [],
+        pointer: { x: 1, y: 1 },
+      }),
+    ).toBeNull();
+    expect(
+      centerCollision({ activeRect: rect(0, 0, 10, 10), candidates: [] }),
+    ).toBeNull();
+    expect(
+      nearestCollision({ activeRect: rect(0, 0, 10, 10), candidates: [] }),
+    ).toBeNull();
   });
 
   it("nearestSlot exposes the metric helpers", () => {
     // Slot 1 spans x 110–210, so (150, 150) is 10 px from its centre.
-    expect(nearestSlot(candidates, { x: 150, y: 150 }, { metric: metrics.center })?.index).toBe(1);
-    expect(nearestSlot(candidates, { x: 5000, y: 5000 }, { maxDistance: 10 })).toBeNull();
+    expect(
+      nearestSlot(candidates, { x: 150, y: 150 }, { metric: metrics.center })
+        ?.index,
+    ).toBe(1);
+    expect(
+      nearestSlot(candidates, { x: 5000, y: 5000 }, { maxDistance: 10 }),
+    ).toBeNull();
     expect(nearestSlot([], { x: 0, y: 0 })).toBeNull();
   });
 

@@ -45,7 +45,9 @@ describe("widget primitives", () => {
       </Widget>,
     );
 
-    const section = container.querySelector("[data-rewap-widget]") as HTMLElement;
+    const section = container.querySelector(
+      "[data-rewap-widget]",
+    ) as HTMLElement;
     expect(section.tagName).toBe("SECTION");
     expect(screen.getByRole("heading", { name: "Weather" })).toBeTruthy();
     expect(screen.getByText("12:04")).toBeTruthy();
@@ -58,7 +60,9 @@ describe("widget primitives", () => {
         <span>body</span>
       </Widget>,
     );
-    expect((container.querySelector("[data-rewap-widget]") as HTMLElement).tagName).toBe("ARTICLE");
+    expect(
+      (container.querySelector("[data-rewap-widget]") as HTMLElement).tagName,
+    ).toBe("ARTICLE");
   });
 
   it("exposes a bar as a progressbar", () => {
@@ -76,35 +80,61 @@ describe("widget primitives", () => {
         <WidgetBar value={-1} label="under" />
       </>,
     );
-    expect(screen.getByRole("progressbar", { name: "over" }).getAttribute("aria-valuenow")).toBe("100");
-    expect(screen.getByRole("progressbar", { name: "under" }).getAttribute("aria-valuenow")).toBe("0");
+    expect(
+      screen
+        .getByRole("progressbar", { name: "over" })
+        .getAttribute("aria-valuenow"),
+    ).toBe("100");
+    expect(
+      screen
+        .getByRole("progressbar", { name: "under" })
+        .getAttribute("aria-valuenow"),
+    ).toBe("0");
   });
 
   it("lays out rows with labels and values", () => {
     const { container } = render(
       <WidgetRows>
-        <WidgetRow label="Median" value="12.0" title="Half the values are below this" />
+        <WidgetRow
+          label="Median"
+          value="12.0"
+          title="Half the values are below this"
+        />
       </WidgetRows>,
     );
     const row = container.querySelector(".rw-widget__row") as HTMLElement;
     expect(row.title).toBe("Half the values are below this");
-    expect(row.querySelector(".rw-widget__row-label")?.textContent).toBe("Median");
-    expect(row.querySelector(".rw-widget__row-value")?.textContent).toBe("12.0");
+    expect(row.querySelector(".rw-widget__row-label")?.textContent).toBe(
+      "Median",
+    );
+    expect(row.querySelector(".rw-widget__row-value")?.textContent).toBe(
+      "12.0",
+    );
   });
 
   it("marks a state with a tone", () => {
-    const { container } = render(<WidgetState tone="caution">Not available</WidgetState>);
-    expect(container.querySelector(".rw-widget__dot")?.getAttribute("data-state")).toBe("caution");
+    const { container } = render(
+      <WidgetState tone="caution">Not available</WidgetState>,
+    );
+    expect(
+      container.querySelector(".rw-widget__dot")?.getAttribute("data-state"),
+    ).toBe("caution");
     expect(container.textContent).toContain("Not available");
   });
 });
 
 describe("<StatsWidget>", () => {
   it("summarises the values it was given", () => {
-    const { container } = render(<StatsWidget values={[2, 4, 4, 4, 5, 5, 7, 9]} unit="ms" />);
+    const { container } = render(
+      <StatsWidget values={[2, 4, 4, 4, 5, 5, 7, 9]} unit="ms" />,
+    );
 
-    expect(container.querySelector(".rw-widget__value")?.textContent).toBe("5.00ms");
-    expect(container.querySelector(".rw-widget__meta")?.textContent).toBe("n = 8");
+    expect(container.querySelector(".rw-widget__value")?.textContent).toBe(
+      "5.00ms",
+    );
+    expect(container.querySelector(".rw-widget__meta")?.textContent).toBe(
+      "n = 8",
+    );
     expect(container.textContent).toContain("4.50"); // median
     expect(container.textContent).toContain("± 2.14"); // sample deviation
     expect(container.textContent).toContain("2.00 … 9.00");
@@ -113,22 +143,37 @@ describe("<StatsWidget>", () => {
 
   it("ignores non-finite values and says so when there is nothing left", () => {
     const { container } = render(
-      <StatsWidget values={[Number.NaN, Number.POSITIVE_INFINITY]} sparkline={false} />,
+      <StatsWidget
+        values={[Number.NaN, Number.POSITIVE_INFINITY]}
+        sparkline={false}
+      />,
     );
-    expect(container.querySelector(".rw-widget__meta")?.textContent).toBe("n = 0");
+    expect(container.querySelector(".rw-widget__meta")?.textContent).toBe(
+      "n = 0",
+    );
     expect(container.textContent).toContain("No finite values were provided.");
     expect(container.querySelector(".rw-chart__sparkline")).toBeNull();
   });
 
   it("uses a moving average for the sparkline when asked", () => {
-    render(<StatsWidget values={[1, 2, 3, 4, 5]} movingAverageWindow={3} precision={0} />);
+    render(
+      <StatsWidget
+        values={[1, 2, 3, 4, 5]}
+        movingAverageWindow={3}
+        precision={0}
+      />,
+    );
     expect(screen.getByText(/ma 3/)).toBeTruthy();
   });
 });
 
 describe("<NetworkWidget>", () => {
   it("reports what the browser exposes", () => {
-    const connection = Object.assign(new EventTarget(), { effectiveType: "3g", rtt: 250, downlink: 1.2 });
+    const connection = Object.assign(new EventTarget(), {
+      effectiveType: "3g",
+      rtt: 250,
+      downlink: 1.2,
+    });
     vi.stubGlobal("navigator", { ...navigator, onLine: true, connection });
 
     const { container } = render(<NetworkWidget />);
@@ -138,11 +183,17 @@ describe("<NetworkWidget>", () => {
   });
 
   it("explains a missing Network Information API", () => {
-    vi.stubGlobal("navigator", { ...navigator, onLine: true, connection: undefined });
+    vi.stubGlobal("navigator", {
+      ...navigator,
+      onLine: true,
+      connection: undefined,
+    });
     const { container } = render(<NetworkWidget />);
 
     expect(container.textContent).toContain("unknown connection");
-    expect(container.textContent).toMatch(/Network Information API is not implemented/i);
+    expect(container.textContent).toMatch(
+      /Network Information API is not implemented/i,
+    );
     // Every unavailable row says so instead of rendering an empty value.
     expect(container.textContent).toContain("not available in this browser");
   });
@@ -190,11 +241,19 @@ describe("<ClockWidget>", () => {
 
 describe("<ViewportWidget>", () => {
   it("reports the current viewport", () => {
-    Object.defineProperty(window, "innerWidth", { configurable: true, value: 390 });
-    Object.defineProperty(window, "innerHeight", { configurable: true, value: 844 });
+    Object.defineProperty(window, "innerWidth", {
+      configurable: true,
+      value: 390,
+    });
+    Object.defineProperty(window, "innerHeight", {
+      configurable: true,
+      value: 844,
+    });
 
     const { container } = render(<ViewportWidget />);
-    expect(container.querySelector(".rw-widget__value")?.textContent).toBe("390px");
+    expect(container.querySelector(".rw-widget__value")?.textContent).toBe(
+      "390px",
+    );
     expect(container.querySelector(".rw-widget__meta")?.textContent).toBe("xs");
     expect(container.textContent).toContain("portrait");
   });
@@ -213,7 +272,9 @@ describe("<BatteryWidget>", () => {
     vi.stubGlobal("navigator", { ...navigator, getBattery: undefined });
     const { container } = render(<BatteryWidget />);
 
-    expect(container.querySelector(".rw-widget__meta")?.textContent).toBe("unsupported");
+    expect(container.querySelector(".rw-widget__meta")?.textContent).toBe(
+      "unsupported",
+    );
     expect(container.textContent).toContain("Not available");
   });
 
@@ -224,9 +285,16 @@ describe("<BatteryWidget>", () => {
       chargingTime: Infinity,
       dischargingTime: 5400,
     });
-    vi.stubGlobal("navigator", { ...navigator, getBattery: async () => manager });
+    vi.stubGlobal("navigator", {
+      ...navigator,
+      getBattery: async () => manager,
+    });
 
     render(<BatteryWidget />);
-    await waitFor(() => expect(screen.getByRole("progressbar").getAttribute("aria-valuenow")).toBe("31"));
+    await waitFor(() =>
+      expect(
+        screen.getByRole("progressbar").getAttribute("aria-valuenow"),
+      ).toBe("31"),
+    );
   });
 });

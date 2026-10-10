@@ -82,7 +82,14 @@ void notPreset;
 // ----------------------------------------------------------------------- Item
 
 const item = (
-  <Item id="two" draggable label="Two" columnSpan={2} rowSpan={1} effects={{ drag: "tilt" }}>
+  <Item
+    id="two"
+    draggable
+    label="Two"
+    columnSpan={2}
+    rowSpan={1}
+    effects={{ drag: "tilt" }}
+  >
     <Item.Handle aria-label="Move" />
     Two
   </Item>
@@ -114,7 +121,11 @@ void useApi;
 
 // ------------------------------------------------------------------ createRewap
 
-const headless = createRewap({ ids: ["a", "b"], mode: "reorder", history: { limit: 10 } });
+const headless = createRewap({
+  ids: ["a", "b"],
+  mode: "reorder",
+  history: { limit: 10 },
+});
 const order: string[] = headless.ids();
 const unsubscribe: () => void = headless.subscribe(() => {});
 unsubscribe();
@@ -126,7 +137,12 @@ headless.element("a");
 // ------------------------------------------------------------ subpath surfaces
 
 const collision = resolveCollision(
-  { activeRect: rect(0, 0, 10, 10), pointer: { x: 5, y: 5 }, candidates: [], axis: "y" },
+  {
+    activeRect: rect(0, 0, 10, 10),
+    pointer: { x: 5, y: 5 },
+    candidates: [],
+    axis: "y",
+  },
   { strategy: "pointer", minScore: 0, exclude: "one" },
 );
 void collision;
@@ -160,7 +176,10 @@ void widget;
 void (<StatsWidget />);
 
 // Event payloads carry the fields the documentation promises.
-type SwapShape = Pick<SwapEvent, "item" | "previousSlot" | "nextSlot" | "position" | "velocity">;
+type SwapShape = Pick<
+  SwapEvent,
+  "item" | "previousSlot" | "nextSlot" | "position" | "velocity"
+>;
 const check: SwapShape = {
   item: "one",
   previousSlot: { index: 0, column: 0, row: 0, rect: rect(0, 0, 1, 1) },

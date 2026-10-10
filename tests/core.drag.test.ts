@@ -7,9 +7,19 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { createDragController, type DragController, type DragControllerOptions } from "../src/core/drag";
+import {
+  createDragController,
+  type DragController,
+  type DragControllerOptions,
+} from "../src/core/drag";
 import { measureSlots } from "../src/core/measure";
-import type { DragEndEvent, DragStartEvent, ItemId, SlotCandidate, SwapEvent } from "../src/core/types";
+import type {
+  DragEndEvent,
+  DragStartEvent,
+  ItemId,
+  SlotCandidate,
+  SwapEvent,
+} from "../src/core/types";
 import { createTicker, type Ticker } from "../src/motion/ticker";
 import { rect } from "../src/math/rect";
 import { installGeometry, type InstalledGeometry } from "./helpers";
@@ -51,16 +61,27 @@ const buildHarness = (options: {
     elements.set(id, element);
   }
 
-  const geometryState: InstalledGeometry = installGeometry({ ids: order, columns });
+  const geometryState: InstalledGeometry = installGeometry({
+    ids: order,
+    columns,
+  });
   const ticker = createTicker();
   let clock = 0;
 
-  const events: Harness["events"] = { start: [], destinations: [], drops: [], ends: [] };
+  const events: Harness["events"] = {
+    start: [],
+    destinations: [],
+    drops: [],
+    ends: [],
+  };
 
   const controllerOptions: DragControllerOptions = {
     mode: options.mode,
     strategy: options.strategy,
-    snap: options.snapEnabled === false ? { enabled: false } : { enabled: true, threshold: 24 },
+    snap:
+      options.snapEnabled === false
+        ? { enabled: false }
+        : { enabled: true, threshold: 24 },
     getSlots: () =>
       measureSlots(
         order.map((id) => ({ id, element: elements.get(id) ?? null })),
@@ -76,7 +97,11 @@ const buildHarness = (options: {
     onDestination: (event) => events.destinations.push(event),
     onEnd: (event) => events.ends.push(event),
     onDrop: (result) =>
-      events.drops.push({ ids: result.ids, fromIndex: result.fromIndex, toIndex: result.toIndex }),
+      events.drops.push({
+        ids: result.ids,
+        fromIndex: result.fromIndex,
+        toIndex: result.toIndex,
+      }),
     motion: () => ({ type: "tween", duration: 0.16, easing: "linear" }),
   };
   const controller = createDragController(controllerOptions);
@@ -127,7 +152,9 @@ describe("core/drag controller — pointer", () => {
     harness = h;
     const element = h.elements.get("a") as HTMLElement;
 
-    expect(h.controller.begin({ id: "a", element, pointer: { x: 100, y: 150 } })).toBe(true);
+    expect(
+      h.controller.begin({ id: "a", element, pointer: { x: 100, y: 150 } }),
+    ).toBe(true);
     expect(h.controller.getSnapshot().status).toBe("idle");
     expect(h.events.start).toHaveLength(0);
 
@@ -191,7 +218,11 @@ describe("core/drag controller — pointer", () => {
 
     h.controller.drop();
     expect(h.events.drops).toHaveLength(1);
-    expect(h.events.drops[0]).toEqual({ ids: ["b", "a", "c"], fromIndex: 0, toIndex: 1 });
+    expect(h.events.drops[0]).toEqual({
+      ids: ["b", "a", "c"],
+      fromIndex: 0,
+      toIndex: 1,
+    });
     expect(h.events.ends[0]?.cancelled).toBe(false);
     expect(h.events.ends[0]?.reason).toBe("drop");
     expect(h.controller.isActive()).toBe(false);
@@ -215,7 +246,12 @@ describe("core/drag controller — pointer", () => {
     const element = h.elements.get("a") as HTMLElement;
     // A keyboard grab places the virtual pointer at the item's own centre: the
     // destination has to stay put instead of flickering to the next slot.
-    h.controller.begin({ id: "a", element, source: "keyboard", immediate: true });
+    h.controller.begin({
+      id: "a",
+      element,
+      source: "keyboard",
+      immediate: true,
+    });
     h.tick(3);
     expect(h.controller.getSnapshot().destinationIndex).toBe(0);
     expect(h.events.destinations).toHaveLength(0);
@@ -309,8 +345,12 @@ describe("core/drag controller — pointer", () => {
     harness = h;
     const a = h.elements.get("a") as HTMLElement;
     const b = h.elements.get("b") as HTMLElement;
-    expect(h.controller.begin({ id: "a", element: a, pointer: { x: 100, y: 150 } })).toBe(true);
-    expect(h.controller.begin({ id: "b", element: b, pointer: { x: 100, y: 300 } })).toBe(false);
+    expect(
+      h.controller.begin({ id: "a", element: a, pointer: { x: 100, y: 150 } }),
+    ).toBe(true);
+    expect(
+      h.controller.begin({ id: "b", element: b, pointer: { x: 100, y: 300 } }),
+    ).toBe(false);
     h.controller.cancel("cancel");
   });
 
@@ -322,7 +362,12 @@ describe("core/drag controller — pointer", () => {
     const unmeasurable = document.createElement("div");
     expect(h.controller.begin({ id: "a", element: unmeasurable })).toBe(false);
     // An id that is not part of the order is refused too.
-    expect(h.controller.begin({ id: "zz", element: h.elements.get("a") as HTMLElement })).toBe(false);
+    expect(
+      h.controller.begin({
+        id: "zz",
+        element: h.elements.get("a") as HTMLElement,
+      }),
+    ).toBe(false);
     expect(h.controller.isActive()).toBe(false);
   });
 });
@@ -332,7 +377,12 @@ describe("core/drag controller — keyboard", () => {
     const h = buildHarness({ mode: "reorder" });
     harness = h;
     const element = h.elements.get("a") as HTMLElement;
-    h.controller.begin({ id: "a", element, source: "keyboard", immediate: true });
+    h.controller.begin({
+      id: "a",
+      element,
+      source: "keyboard",
+      immediate: true,
+    });
     expect(h.controller.getSnapshot().status).toBe("dragging");
     expect(h.events.start[0]?.source).toBe("keyboard");
 
@@ -351,10 +401,18 @@ describe("core/drag controller — keyboard", () => {
   });
 
   it("supports large steps and boundary jumps", () => {
-    const h = buildHarness({ mode: "reorder", order: ["a", "b", "c", "d", "e", "f"] });
+    const h = buildHarness({
+      mode: "reorder",
+      order: ["a", "b", "c", "d", "e", "f"],
+    });
     harness = h;
     const element = h.elements.get("a") as HTMLElement;
-    h.controller.begin({ id: "a", element, source: "keyboard", immediate: true });
+    h.controller.begin({
+      id: "a",
+      element,
+      source: "keyboard",
+      immediate: true,
+    });
 
     h.controller.moveInDirection("down", { large: true });
     expect(h.controller.getSnapshot().destinationIndex).toBe(3);
@@ -373,7 +431,12 @@ describe("core/drag controller — keyboard", () => {
     const h = buildHarness({ mode: "reorder" });
     harness = h;
     const element = h.elements.get("a") as HTMLElement;
-    h.controller.begin({ id: "a", element, source: "keyboard", immediate: true });
+    h.controller.begin({
+      id: "a",
+      element,
+      source: "keyboard",
+      immediate: true,
+    });
     h.controller.moveInDirection("down");
     const offset = h.controller.activeOffset();
     // Slot 1 starts 130 px below slot 0 in the synthetic layout.

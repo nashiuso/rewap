@@ -9,7 +9,8 @@
 
 import { useEffect, useState } from "react";
 
-export type Platform = "macos" | "windows" | "linux" | "ios" | "android" | "unknown";
+export type Platform =
+  "macos" | "windows" | "linux" | "ios" | "android" | "unknown";
 
 export interface ModifierState {
   shift: boolean;
@@ -50,8 +51,12 @@ export interface KeyboardLayoutInfo {
   layout: null;
 }
 
-const detectPlatform = (): { platform: Platform; confidence: KeyboardLayoutInfo["confidence"] } => {
-  if (typeof navigator === "undefined") return { platform: "unknown", confidence: "low" };
+const detectPlatform = (): {
+  platform: Platform;
+  confidence: KeyboardLayoutInfo["confidence"];
+} => {
+  if (typeof navigator === "undefined")
+    return { platform: "unknown", confidence: "low" };
 
   const userAgentData = (
     navigator as Navigator & {
@@ -71,7 +76,11 @@ const detectPlatform = (): { platform: Platform; confidence: KeyboardLayoutInfo[
       value.includes("ipad") ||
       value.includes("ipod")
     ) {
-      return value.includes("iphone") || value.includes("ipad") || value.includes("ipod") ? "ios" : "macos";
+      return value.includes("iphone") ||
+        value.includes("ipad") ||
+        value.includes("ipod")
+        ? "ios"
+        : "macos";
     }
     if (value.includes("win")) return "windows";
     if (value.includes("android")) return "android";
@@ -91,7 +100,12 @@ const detectPlatform = (): { platform: Platform; confidence: KeyboardLayoutInfo[
   return { platform: "unknown", confidence: "low" };
 };
 
-const emptyModifiers: ModifierState = { shift: false, control: false, alt: false, meta: false };
+const emptyModifiers: ModifierState = {
+  shift: false,
+  control: false,
+  alt: false,
+  meta: false,
+};
 
 export const useKeyboardLayout = (): KeyboardLayoutInfo => {
   const [{ platform, confidence }] = useState(detectPlatform);
@@ -121,7 +135,9 @@ export const useKeyboardLayout = (): KeyboardLayoutInfo => {
 
   const isMac = platform === "macos" || platform === "ios";
   const timeZone =
-    typeof Intl !== "undefined" ? (Intl.DateTimeFormat().resolvedOptions().timeZone ?? "UTC") : "UTC";
+    typeof Intl !== "undefined"
+      ? (Intl.DateTimeFormat().resolvedOptions().timeZone ?? "UTC")
+      : "UTC";
 
   return {
     platform,
@@ -133,7 +149,10 @@ export const useKeyboardLayout = (): KeyboardLayoutInfo => {
     modifierKey: isMac ? "Meta" : "Control",
     modifierSymbol: isMac ? "⌘" : "Ctrl",
     language: typeof navigator !== "undefined" ? navigator.language : "en",
-    languages: typeof navigator !== "undefined" && navigator.languages ? [...navigator.languages] : [],
+    languages:
+      typeof navigator !== "undefined" && navigator.languages
+        ? [...navigator.languages]
+        : [],
     timeZone,
     timeZoneOffset: -new Date().getTimezoneOffset() / 60,
     modifiers,

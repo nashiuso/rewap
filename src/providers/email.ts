@@ -28,22 +28,35 @@ export interface HttpEmailVerificationOptions {
   timeoutMs?: number;
 }
 
-const defaultParse = (body: unknown): Partial<EmailVerificationVerdict> | null => {
+const defaultParse = (
+  body: unknown,
+): Partial<EmailVerificationVerdict> | null => {
   if (typeof body !== "object" || body === null) return null;
   const record = body as Record<string, unknown>;
   const rawState = record.state ?? record.status ?? record.result;
-  if (typeof rawState !== "string" && typeof record.deliverable !== "boolean") return null;
+  if (typeof rawState !== "string" && typeof record.deliverable !== "boolean")
+    return null;
   const state =
-    typeof rawState === "string" ? rawState : record.deliverable ? "deliverable" : "undeliverable";
+    typeof rawState === "string"
+      ? rawState
+      : record.deliverable
+        ? "deliverable"
+        : "undeliverable";
   const deliverable =
     typeof record.deliverable === "boolean"
       ? record.deliverable
-      : ["deliverable", "valid", "ok", "accepted"].includes(state.toLowerCase());
+      : ["deliverable", "valid", "ok", "accepted"].includes(
+          state.toLowerCase(),
+        );
   return {
     deliverable,
     state,
-    domainHasMx: typeof record.domain_has_mx === "boolean" ? record.domain_has_mx : null,
-    mailboxConfirmed: typeof record.mailbox_confirmed === "boolean" ? record.mailbox_confirmed : null,
+    domainHasMx:
+      typeof record.domain_has_mx === "boolean" ? record.domain_has_mx : null,
+    mailboxConfirmed:
+      typeof record.mailbox_confirmed === "boolean"
+        ? record.mailbox_confirmed
+        : null,
     message: typeof record.message === "string" ? record.message : null,
   };
 };
@@ -72,7 +85,9 @@ export const createHttpEmailVerificationProvider = (
     endpoint: options.endpoint,
     async verify(request: EmailVerificationRequest) {
       if (!options.endpoint) {
-        return providerError("No verification endpoint was configured.", { retryable: false });
+        return providerError("No verification endpoint was configured.", {
+          retryable: false,
+        });
       }
       try {
         const url =
@@ -80,9 +95,14 @@ export const createHttpEmailVerificationProvider = (
             ? (() => {
                 const target = new URL(
                   options.endpoint,
-                  typeof location !== "undefined" ? location.href : "http://localhost",
+                  typeof location !== "undefined"
+                    ? location.href
+                    : "http://localhost",
                 );
-                target.searchParams.set(options.queryParam ?? "email", request.email);
+                target.searchParams.set(
+                  options.queryParam ?? "email",
+                  request.email,
+                );
                 return target.toString();
               })()
             : options.endpoint;
@@ -93,28 +113,38 @@ export const createHttpEmailVerificationProvider = (
             "content-type": "application/json",
             ...options.headers,
           },
-          ...(method === "POST" ? { body: JSON.stringify({ email: request.email }) } : {}),
+          ...(method === "POST"
+            ? { body: JSON.stringify({ email: request.email }) }
+            : {}),
           timeoutMs: options.timeoutMs ?? 10000,
           ...(request.signal ? { signal: request.signal } : {}),
         });
 
         if (!response.ok) {
-          return providerError(`The verification endpoint responded with HTTP ${response.status}.`, {
-            httpStatus: response.status,
-            retryable: response.status >= 500,
-          });
+          return providerError(
+            `The verification endpoint responded with HTTP ${response.status}.`,
+            {
+              httpStatus: response.status,
+              retryable: response.status >= 500,
+            },
+          );
         }
 
         const parsed = parse(response.data);
         if (!parsed || typeof parsed.deliverable !== "boolean") {
-          return providerError("The verification endpoint returned an unexpected payload.", {
-            retryable: false,
-          });
+          return providerError(
+            "The verification endpoint returned an unexpected payload.",
+            {
+              retryable: false,
+            },
+          );
         }
 
         const verdict: EmailVerificationVerdict = {
           deliverable: parsed.deliverable,
-          state: parsed.state ?? (parsed.deliverable ? "deliverable" : "undeliverable"),
+          state:
+            parsed.state ??
+            (parsed.deliverable ? "deliverable" : "undeliverable"),
           domainHasMx: parsed.domainHasMx ?? null,
           mailboxConfirmed: parsed.mailboxConfirmed ?? null,
           message: parsed.message ?? null,
@@ -122,9 +152,15 @@ export const createHttpEmailVerificationProvider = (
         return providerSuccess(verdict, "http");
       } catch (error) {
         if (error instanceof DOMException && error.name === "AbortError") {
-          return providerError("The verification request was aborted.", { retryable: false });
+          return providerError("The verification request was aborted.", {
+            retryable: false,
+          });
         }
-        return providerError(error instanceof Error ? error.message : "The verification request failed.");
+        return providerError(
+          error instanceof Error
+            ? error.message
+            : "The verification request failed.",
+        );
       }
     },
   };
@@ -137,20 +173,21 @@ export const createHttpEmailVerificationProvider = (
  * It is explicit about being limited, which makes it safe to use in tests and in
  * offline demos without ever pretending the mailbox exists.
  */
-export const createSyntaxOnlyVerificationProvider = (): EmailVerificationProvider => ({
-  name: "syntax-only",
-  endpoint: null,
-  async verify({ email }: EmailVerificationRequest) {
-    return providerSuccess(
-      {
-        deliverable: /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email),
-        state: "syntax-only",
-        domainHasMx: null,
-        mailboxConfirmed: null,
-        message:
-          "Syntax-only provider: the address format is valid, but nothing about the mailbox was checked.",
-      },
-      "syntax-only",
-    );
-  },
-});
+export const createSyntaxOnlyVerificationProvider =
+  (): EmailVerificationProvider => ({
+    name: "syntax-only",
+    endpoint: null,
+    async verify({ email }: EmailVerificationRequest) {
+      return providerSuccess(
+        {
+          deliverable: /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email),
+          state: "syntax-only",
+          domainHasMx: null,
+          mailboxConfirmed: null,
+          message:
+            "Syntax-only provider: the address format is valid, but nothing about the mailbox was checked.",
+        },
+        "syntax-only",
+      );
+    },
+  });

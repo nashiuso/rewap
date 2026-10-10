@@ -13,7 +13,11 @@ import type { ItemId } from "./types";
  * Exchanges the positions of two ids.
  * Returns a copy; the input is never mutated.
  */
-export const swapIds = (ids: readonly ItemId[], a: ItemId, b: ItemId): ItemId[] => {
+export const swapIds = (
+  ids: readonly ItemId[],
+  a: ItemId,
+  b: ItemId,
+): ItemId[] => {
   const next = [...ids];
   const indexA = next.indexOf(a);
   const indexB = next.indexOf(b);
@@ -28,7 +32,11 @@ const clampIndex = (index: number, length: number): number =>
   index < 0 ? 0 : index > length - 1 ? Math.max(0, length - 1) : index;
 
 /** Moves `id` to `to`, shifting the items in between. */
-export const moveId = (ids: readonly ItemId[], id: ItemId, to: number): ItemId[] => {
+export const moveId = (
+  ids: readonly ItemId[],
+  id: ItemId,
+  to: number,
+): ItemId[] => {
   const from = ids.indexOf(id);
   if (from === -1) return [...ids];
   const next = [...ids];
@@ -47,7 +55,11 @@ export const removeId = (ids: readonly ItemId[], id: ItemId): ItemId[] => {
 };
 
 /** Inserts `id` at `index` when it is not present yet. */
-export const insertId = (ids: readonly ItemId[], id: ItemId, index: number): ItemId[] => {
+export const insertId = (
+  ids: readonly ItemId[],
+  id: ItemId,
+  index: number,
+): ItemId[] => {
   if (ids.includes(id)) return moveId(ids, id, index);
   const next = [...ids];
   next.splice(clampIndex(index, next.length + 1), 0, id);
@@ -63,10 +75,17 @@ export const reconcileIds = (
   const kept = ids.filter((id) => availableSet.has(id));
   const keptSet = new Set(kept);
   const added = available.filter((id) => !keptSet.has(id));
-  return { ids: [...kept, ...added], added, removed: ids.filter((id) => !availableSet.has(id)) };
+  return {
+    ids: [...kept, ...added],
+    added,
+    removed: ids.filter((id) => !availableSet.has(id)),
+  };
 };
 
-export const idsEqual = (a: readonly ItemId[], b: readonly ItemId[]): boolean => {
+export const idsEqual = (
+  a: readonly ItemId[],
+  b: readonly ItemId[],
+): boolean => {
   if (a.length !== b.length) return false;
   for (let i = 0; i < a.length; i += 1) if (a[i] !== b[i]) return false;
   return true;
@@ -109,7 +128,10 @@ export const orderAfterDrop = (
  * not called anywhere in the library. It leaves in 1.2, where a deprecation
  * warning will be attached to it for one release before it goes.
  */
-export const insertionIndexFromProjection = (centers: readonly number[], value: number): number => {
+export const insertionIndexFromProjection = (
+  centers: readonly number[],
+  value: number,
+): number => {
   let index = 0;
   for (const center of centers) {
     if (value > center) index += 1;
@@ -119,8 +141,14 @@ export const insertionIndexFromProjection = (centers: readonly number[], value: 
 };
 
 /** Evenly spaced slot centers for `count` items with the given spacing. */
-export const projectedCenters = (count: number, origin: number, size: number, gap: number): number[] => {
+export const projectedCenters = (
+  count: number,
+  origin: number,
+  size: number,
+  gap: number,
+): number[] => {
   const centers: number[] = [];
-  for (let i = 0; i < count; i += 1) centers.push(origin + i * (size + gap) + size / 2);
+  for (let i = 0; i < count; i += 1)
+    centers.push(origin + i * (size + gap) + size / 2);
   return centers;
 };

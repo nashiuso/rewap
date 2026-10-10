@@ -14,9 +14,20 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { Item } from "../src/react/Item";
 import { Layout } from "../src/react/Layout";
 import { useLayout, type LayoutController } from "../src/react/useLayout";
-import { dragPointer, installGeometry, slotCenter, type InstalledGeometry } from "./helpers";
+import {
+  dragPointer,
+  installGeometry,
+  slotCenter,
+  type InstalledGeometry,
+} from "./helpers";
 
-const CELLS = { ids: ["a", "b", "c", "d"], columns: 1, cellWidth: 200, cellHeight: 120, gap: 10 };
+const CELLS = {
+  ids: ["a", "b", "c", "d"],
+  columns: 1,
+  cellWidth: 200,
+  cellHeight: 120,
+  gap: 10,
+};
 let geometry: InstalledGeometry;
 
 const idsInDom = (container: HTMLElement): string[] =>
@@ -40,7 +51,13 @@ afterEach(() => {
   apiRef.current = null;
 });
 
-const Board = ({ children, history }: { children?: ReactNode; history?: boolean | { limit?: number } }) => (
+const Board = ({
+  children,
+  history,
+}: {
+  children?: ReactNode;
+  history?: boolean | { limit?: number };
+}) => (
   <Layout {...(history !== undefined ? { history } : {})}>
     <Probe />
     {children ?? (
@@ -57,42 +74,56 @@ const Board = ({ children, history }: { children?: ReactNode; history?: boolean 
 describe("undo and redo", () => {
   it("walks back through several steps", async () => {
     const { container } = render(<Board />);
-    await waitFor(() => expect(apiRef.current?.ids).toEqual(["a", "b", "c", "d"]));
+    await waitFor(() =>
+      expect(apiRef.current?.ids).toEqual(["a", "b", "c", "d"]),
+    );
 
     // `move()` follows the layout mode: in `swap` it exchanges the two items
     // rather than shifting the range in between.
     await act(async () => {
       apiRef.current?.move("a", 3);
     });
-    await waitFor(() => expect(idsInDom(container)).toEqual(["d", "b", "c", "a"]));
+    await waitFor(() =>
+      expect(idsInDom(container)).toEqual(["d", "b", "c", "a"]),
+    );
 
     await act(async () => {
       apiRef.current?.move("b", 3);
     });
-    await waitFor(() => expect(idsInDom(container)).toEqual(["d", "a", "c", "b"]));
+    await waitFor(() =>
+      expect(idsInDom(container)).toEqual(["d", "a", "c", "b"]),
+    );
     expect(apiRef.current?.canRedo).toBe(false);
 
     await act(async () => {
       apiRef.current?.undo();
     });
-    await waitFor(() => expect(idsInDom(container)).toEqual(["d", "b", "c", "a"]));
+    await waitFor(() =>
+      expect(idsInDom(container)).toEqual(["d", "b", "c", "a"]),
+    );
 
     await act(async () => {
       apiRef.current?.undo();
     });
-    await waitFor(() => expect(idsInDom(container)).toEqual(["a", "b", "c", "d"]));
+    await waitFor(() =>
+      expect(idsInDom(container)).toEqual(["a", "b", "c", "d"]),
+    );
     expect(apiRef.current?.canUndo).toBe(false);
 
     await act(async () => {
       apiRef.current?.redo();
       apiRef.current?.redo();
     });
-    await waitFor(() => expect(idsInDom(container)).toEqual(["d", "a", "c", "b"]));
+    await waitFor(() =>
+      expect(idsInDom(container)).toEqual(["d", "a", "c", "b"]),
+    );
   });
 
   it("drops the redo trail when a new move arrives", async () => {
     const { container } = render(<Board />);
-    await waitFor(() => expect(apiRef.current?.ids).toEqual(["a", "b", "c", "d"]));
+    await waitFor(() =>
+      expect(apiRef.current?.ids).toEqual(["a", "b", "c", "d"]),
+    );
 
     await act(async () => {
       apiRef.current?.move("a", 2);
@@ -111,7 +142,9 @@ describe("undo and redo", () => {
 
   it("keeps at most `limit` steps", async () => {
     render(<Board history={{ limit: 2 }} />);
-    await waitFor(() => expect(apiRef.current?.ids).toEqual(["a", "b", "c", "d"]));
+    await waitFor(() =>
+      expect(apiRef.current?.ids).toEqual(["a", "b", "c", "d"]),
+    );
 
     for (const [id, index] of [
       ["a", 1],
@@ -173,7 +206,9 @@ describe("undo and redo", () => {
 
   it("counts undos and redos on the history depth", async () => {
     render(<Board />);
-    await waitFor(() => expect(apiRef.current?.ids).toEqual(["a", "b", "c", "d"]));
+    await waitFor(() =>
+      expect(apiRef.current?.ids).toEqual(["a", "b", "c", "d"]),
+    );
 
     await act(async () => {
       apiRef.current?.swap("a", "c");
@@ -196,12 +231,16 @@ describe("undo and redo", () => {
 
   it("does nothing when history is turned off", async () => {
     const { container } = render(<Board history={false} />);
-    await waitFor(() => expect(apiRef.current?.ids).toEqual(["a", "b", "c", "d"]));
+    await waitFor(() =>
+      expect(apiRef.current?.ids).toEqual(["a", "b", "c", "d"]),
+    );
 
     await act(async () => {
       apiRef.current?.move("a", 2);
     });
-    await waitFor(() => expect(idsInDom(container)).toEqual(["c", "b", "a", "d"]));
+    await waitFor(() =>
+      expect(idsInDom(container)).toEqual(["c", "b", "a", "d"]),
+    );
 
     await act(async () => {
       apiRef.current?.undo();
@@ -210,16 +249,21 @@ describe("undo and redo", () => {
     expect(apiRef.current?.canUndo).toBe(false);
 
     // `history={false}` also stops the keyboard shortcut, which shares the path.
-    fireEvent.keyDown(container.querySelector("[data-rewap-layout]") as HTMLElement, {
-      key: "z",
-      metaKey: true,
-    });
+    fireEvent.keyDown(
+      container.querySelector("[data-rewap-layout]") as HTMLElement,
+      {
+        key: "z",
+        metaKey: true,
+      },
+    );
     expect(idsInDom(container)).toEqual(["c", "b", "a", "d"]);
   });
 
   it("announces undo and redo through the live region", async () => {
     render(<Board />);
-    await waitFor(() => expect(apiRef.current?.ids).toEqual(["a", "b", "c", "d"]));
+    await waitFor(() =>
+      expect(apiRef.current?.ids).toEqual(["a", "b", "c", "d"]),
+    );
 
     await act(async () => {
       apiRef.current?.move("a", 1);
@@ -228,14 +272,18 @@ describe("undo and redo", () => {
       apiRef.current?.undo();
     });
     await waitFor(() =>
-      expect(document.querySelector('[data-rewap-announcer="polite"]')?.textContent).toContain("Undo"),
+      expect(
+        document.querySelector('[data-rewap-announcer="polite"]')?.textContent,
+      ).toContain("Undo"),
     );
 
     await act(async () => {
       apiRef.current?.redo();
     });
     await waitFor(() =>
-      expect(document.querySelector('[data-rewap-announcer="polite"]')?.textContent).toContain("Redo"),
+      expect(
+        document.querySelector('[data-rewap-announcer="polite"]')?.textContent,
+      ).toContain("Redo"),
     );
   });
 });

@@ -89,18 +89,46 @@ export interface KeyboardAction {
 }
 
 export const keyboardActions: KeyboardAction[] = [
-  { keys: ["Space", "Enter"], description: "Grab or release the focused item", group: "grab" },
+  {
+    keys: ["Space", "Enter"],
+    description: "Grab or release the focused item",
+    group: "grab",
+  },
   {
     keys: ["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"],
     description: "Move the grabbed item",
     group: "move",
   },
-  { keys: ["Shift", "+", "Arrow"], description: "Move several slots at once", group: "move" },
-  { keys: ["Home", "End"], description: "Move to the first or last slot", group: "move" },
-  { keys: ["Escape"], description: "Cancel the drag and return the item", group: "commit" },
-  { keys: ["Mod", "+", "Z"], description: "Undo the last layout change", group: "history" },
-  { keys: ["Mod", "+", "Shift", "+", "Z"], description: "Redo the last undone change", group: "history" },
-  { keys: ["Tab"], description: "Move focus between items", group: "navigation" },
+  {
+    keys: ["Shift", "+", "Arrow"],
+    description: "Move several slots at once",
+    group: "move",
+  },
+  {
+    keys: ["Home", "End"],
+    description: "Move to the first or last slot",
+    group: "move",
+  },
+  {
+    keys: ["Escape"],
+    description: "Cancel the drag and return the item",
+    group: "commit",
+  },
+  {
+    keys: ["Mod", "+", "Z"],
+    description: "Undo the last layout change",
+    group: "history",
+  },
+  {
+    keys: ["Mod", "+", "Shift", "+", "Z"],
+    description: "Redo the last undone change",
+    group: "history",
+  },
+  {
+    keys: ["Tab"],
+    description: "Move focus between items",
+    group: "navigation",
+  },
 ];
 
 /** `aria-keyshortcuts` value advertised on draggable items. */
@@ -126,9 +154,11 @@ export const directionFromKey = (key: string): Direction | null => {
   }
 };
 
-export const isGrabKey = (key: string): boolean => key === " " || key === "Spacebar" || key === "Enter";
+export const isGrabKey = (key: string): boolean =>
+  key === " " || key === "Spacebar" || key === "Enter";
 
-export const isCancelKey = (key: string): boolean => key === "Escape" || key === "Esc";
+export const isCancelKey = (key: string): boolean =>
+  key === "Escape" || key === "Esc";
 
 /**
  * The three facts an undo/redo shortcut needs. Both a native `KeyboardEvent` and
@@ -144,12 +174,17 @@ export interface KeyModifiers {
 
 /** True when the event carries the platform's undo/redo modifier. */
 export const isUndo = (event: KeyModifiers): boolean =>
-  Boolean((event.metaKey || event.ctrlKey) && !event.shiftKey && event.key.toLowerCase() === "z");
+  Boolean(
+    (event.metaKey || event.ctrlKey) &&
+    !event.shiftKey &&
+    event.key.toLowerCase() === "z",
+  );
 
 export const isRedo = (event: KeyModifiers): boolean =>
   Boolean(
     (event.metaKey || event.ctrlKey) &&
-    ((event.shiftKey && event.key.toLowerCase() === "z") || event.key.toLowerCase() === "y"),
+    ((event.shiftKey && event.key.toLowerCase() === "z") ||
+      event.key.toLowerCase() === "y"),
   );
 
 /** Wording used in the item's `aria-describedby` help text. */
@@ -167,9 +202,12 @@ export interface DragStateDescriptionOptions {
 }
 
 /** Sentence describing the current drag state, announced politely on changes. */
-export const describeDragState = (options: DragStateDescriptionOptions): string => {
+export const describeDragState = (
+  options: DragStateDescriptionOptions,
+): string => {
   const position = `position ${options.index + 1} of ${options.total}`;
   if (!options.grabbed) return `${options.label}, ${position}`;
-  if (options.source === "keyboard") return `${options.label} grabbed, ${position}`;
+  if (options.source === "keyboard")
+    return `${options.label} grabbed, ${position}`;
   return `${options.label} grabbed, ${position}`;
 };

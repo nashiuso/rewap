@@ -6,16 +6,39 @@
  * the announcements. `Layout` itself only deals with DOM events and markup.
  */
 
-import { useCallback, useEffect, useMemo, useReducer, useRef, useState, useSyncExternalStore } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useReducer,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import type { RefObject } from "react";
 
 import { createAnnouncer, type Announcer } from "../accessibility";
 import type { CollisionStrategy } from "../core/collision";
-import { createDragController, type DragController, type DragSnapshot, type DropResult } from "../core/drag";
+import {
+  createDragController,
+  type DragController,
+  type DragSnapshot,
+  type DropResult,
+} from "../core/drag";
 import type { KeyboardOptions } from "../core/keyboard";
-import { createStaticGeometry, domGeometry, measureSlots, type GeometryProvider } from "../core/measure";
+import {
+  createStaticGeometry,
+  domGeometry,
+  measureSlots,
+  type GeometryProvider,
+} from "../core/measure";
 import { idsEqual, orderAfterDrop, reconcileIds } from "../core/order";
-import { applyStoredOrder, createPersistence, type StorageKind, type StorageLike } from "../core/persistence";
+import {
+  applyStoredOrder,
+  createPersistence,
+  type StorageKind,
+  type StorageLike,
+} from "../core/persistence";
 import { createHistory, type History } from "../core/store";
 import type {
   DragEndEvent,
@@ -69,7 +92,13 @@ export interface PersistenceConfig {
 
 export interface LayoutBoundsConfig {
   /** `"container"` (default), `"viewport"`, an element, a ref or an explicit rect. */
-  value?: "container" | "viewport" | null | HTMLElement | RefObject<HTMLElement | null> | Rect;
+  value?:
+    | "container"
+    | "viewport"
+    | null
+    | HTMLElement
+    | RefObject<HTMLElement | null>
+    | Rect;
 }
 
 export interface EngineOptions<T> {
@@ -139,8 +168,17 @@ export interface Engine<T> {
 }
 
 export const useLayoutEngine = <T>(options: EngineOptions<T>): Engine<T> => {
-  const { mode, childIds, disabled, effects, motion, prefersReducedMotion, registry, nodes, containerRef } =
-    options;
+  const {
+    mode,
+    childIds,
+    disabled,
+    effects,
+    motion,
+    prefersReducedMotion,
+    registry,
+    nodes,
+    containerRef,
+  } = options;
 
   const geometry = options.geometry ?? domGeometry;
 
@@ -159,7 +197,9 @@ export const useLayoutEngine = <T>(options: EngineOptions<T>): Engine<T> => {
     [options.defaultItems],
   );
 
-  const [uncontrolledIds, setUncontrolledIds] = useState<ItemId[]>(() => normalizedDefaults?.ids ?? []);
+  const [uncontrolledIds, setUncontrolledIds] = useState<ItemId[]>(
+    () => normalizedDefaults?.ids ?? [],
+  );
 
   const reconcile = useCallback(() => {
     if (normalizedControlled) return;
@@ -180,7 +220,9 @@ export const useLayoutEngine = <T>(options: EngineOptions<T>): Engine<T> => {
 
   const itemsById = useMemo(() => {
     const map = new Map<ItemId, LayoutItem<T>>();
-    for (const item of normalizedControlled?.items ?? normalizedDefaults?.items ?? []) {
+    for (const item of normalizedControlled?.items ??
+      normalizedDefaults?.items ??
+      []) {
       map.set(item.id, item);
     }
     for (const id of childIds) if (!map.has(id)) map.set(id, { id });
@@ -195,14 +237,23 @@ export const useLayoutEngine = <T>(options: EngineOptions<T>): Engine<T> => {
   // session (and `reset()`) blank the layout. Reported on 1.0.2, fun one.
   const historyRef = useRef<History<ItemId[]> | null>(null);
   if (historyRef.current === null && ids.length > 0) {
-    historyRef.current = createHistory<ItemId[]>(ids, { limit: options.historyLimit, equals: idsEqual });
+    historyRef.current = createHistory<ItemId[]>(ids, {
+      limit: options.historyLimit,
+      equals: idsEqual,
+    });
   }
   const [, bumpHistory] = useReducer((value: number) => value + 1, 0);
   const history = historyRef.current;
 
   const persistenceRef = useRef(
-    options.persistence && options.persistence.enabled !== false && options.persistence.key
-      ? createPersistence({ key: options.persistence.key, storage: options.persistence.storage, mode })
+    options.persistence &&
+      options.persistence.enabled !== false &&
+      options.persistence.key
+      ? createPersistence({
+          key: options.persistence.key,
+          storage: options.persistence.storage,
+          mode,
+        })
       : null,
   );
   const hydratedRef = useRef(false);
@@ -214,7 +265,10 @@ export const useLayoutEngine = <T>(options: EngineOptions<T>): Engine<T> => {
     hydratedRef.current = true;
     const stored = store.load();
     if (!stored || normalizedControlled) return;
-    const next = applyStoredOrder(stored.ids, childIds.length > 0 ? childIds : idsRef.current);
+    const next = applyStoredOrder(
+      stored.ids,
+      childIds.length > 0 ? childIds : idsRef.current,
+    );
     if (next.length === 0) return;
     setUncontrolledIds(next);
     historyRef.current?.replace(next);
@@ -253,7 +307,10 @@ export const useLayoutEngine = <T>(options: EngineOptions<T>): Engine<T> => {
       const stored = persistenceRef.current.load();
       hydratedRef.current = true;
       if (stored && !normalizedControlled) {
-        const next = applyStoredOrder(stored.ids, childIds.length > 0 ? childIds : idsRef.current);
+        const next = applyStoredOrder(
+          stored.ids,
+          childIds.length > 0 ? childIds : idsRef.current,
+        );
         if (next.length > 0) {
           setUncontrolledIds(next);
           historyRef.current?.replace(next);
@@ -262,7 +319,11 @@ export const useLayoutEngine = <T>(options: EngineOptions<T>): Engine<T> => {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [persistenceConfig?.key, persistenceConfig?.storage, persistenceConfig?.enabled]);
+  }, [
+    persistenceConfig?.key,
+    persistenceConfig?.storage,
+    persistenceConfig?.enabled,
+  ]);
 
   // --------------------------------------------------------------- measuring
   const slotsRef = useRef<SlotCandidate[]>([]);
@@ -297,7 +358,8 @@ export const useLayoutEngine = <T>(options: EngineOptions<T>): Engine<T> => {
     rectsRef.current = rects;
 
     const container = containerRef.current;
-    containerRectRef.current = container && container.isConnected ? geometry.measure(container) : null;
+    containerRectRef.current =
+      container && container.isConnected ? geometry.measure(container) : null;
 
     // Slots are ordered by their rendered position, so `slots[index]` always
     // describes the box at that index — including while a preview is on screen.
@@ -327,7 +389,8 @@ export const useLayoutEngine = <T>(options: EngineOptions<T>): Engine<T> => {
       return container ? geometry.measure(container) : null;
     }
     if (value === "viewport") return geometry.viewport();
-    if (typeof value === "object" && "x" in value && "width" in value) return value as Rect;
+    if (typeof value === "object" && "x" in value && "width" in value)
+      return value as Rect;
     if (value instanceof HTMLElement) return geometry.measure(value);
     if (typeof value === "object" && value !== null && "current" in value) {
       const element = (value as RefObject<HTMLElement | null>).current;
@@ -348,20 +411,28 @@ export const useLayoutEngine = <T>(options: EngineOptions<T>): Engine<T> => {
     };
   }, []);
 
-  const announce = useCallback((message: string, priority: "polite" | "assertive" = "polite") => {
-    announcerRef.current?.announce(message, priority);
-  }, []);
+  const announce = useCallback(
+    (message: string, priority: "polite" | "assertive" = "polite") => {
+      announcerRef.current?.announce(message, priority);
+    },
+    [],
+  );
 
   // --------------------------------------------------------------- order ops
   const emitChange = useCallback((next: ItemId[], event: LayoutChangeEvent) => {
     const onChange = optionsRef.current.onChange;
     if (!onChange) return;
     const input = optionsRef.current.items;
-    const shapeIsObjects = input !== undefined && input.length > 0 && typeof input[0] !== "string";
+    const shapeIsObjects =
+      input !== undefined && input.length > 0 && typeof input[0] !== "string";
     if (shapeIsObjects) {
       const map = new Map<ItemId, LayoutItem<T>>();
-      for (const item of normalizeItems(input as readonly LayoutItemInput<T>[]).items) map.set(item.id, item);
-      const payload = next.map((id) => map.get(id) ?? { id }) as LayoutItemInput<T>[];
+      for (const item of normalizeItems(input as readonly LayoutItemInput<T>[])
+        .items)
+        map.set(item.id, item);
+      const payload = next.map(
+        (id) => map.get(id) ?? { id },
+      ) as LayoutItemInput<T>[];
       onChange(payload, event);
     } else {
       onChange(next as unknown as LayoutItemInput<T>[], event);
@@ -536,7 +607,11 @@ export const useLayoutEngine = <T>(options: EngineOptions<T>): Engine<T> => {
 
   useEffect(() => () => controller.destroy(), [controller]);
 
-  const snapshot = useSyncExternalStore(controller.subscribe, controller.getSnapshot, controller.getSnapshot);
+  const snapshot = useSyncExternalStore(
+    controller.subscribe,
+    controller.getSnapshot,
+    controller.getSnapshot,
+  );
 
   // ---------------------------------------------------------------- preview
   /**
@@ -550,7 +625,11 @@ export const useLayoutEngine = <T>(options: EngineOptions<T>): Engine<T> => {
   // Destructured out of the snapshot so the memo depends on the three values it
   // actually reads rather than on the snapshot object, which is a new object on
   // every store notification.
-  const { activeId: draggingId, destinationIndex: destination, startIndex: dragStartIndex } = snapshot;
+  const {
+    activeId: draggingId,
+    destinationIndex: destination,
+    startIndex: dragStartIndex,
+  } = snapshot;
 
   const renderIds = useMemo(() => {
     const activeId = draggingId;
@@ -560,7 +639,13 @@ export const useLayoutEngine = <T>(options: EngineOptions<T>): Engine<T> => {
     const next =
       !activeId || destinationIndex === null || destinationIndex === startIndex
         ? base
-        : orderAfterDrop(base, activeId, startIndex, destinationIndex, mode === "swap" ? "swap" : "reorder");
+        : orderAfterDrop(
+            base,
+            activeId,
+            startIndex,
+            destinationIndex,
+            mode === "swap" ? "swap" : "reorder",
+          );
     renderIdsRef.current = next;
     return next;
   }, [ids, mode, draggingId, destination, dragStartIndex]);
@@ -584,7 +669,12 @@ export const useLayoutEngine = <T>(options: EngineOptions<T>): Engine<T> => {
     (id: ItemId): boolean => {
       const element = registry.get(id)?.element ?? null;
       if (!element) return false;
-      const started = controller.begin({ id, element, source: "keyboard", immediate: true });
+      const started = controller.begin({
+        id,
+        element,
+        source: "keyboard",
+        immediate: true,
+      });
       if (started) {
         invalidateSlots();
         element.focus({ preventScroll: true });

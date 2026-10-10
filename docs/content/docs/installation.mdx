@@ -1,0 +1,110 @@
+---
+title: Installation
+description: Installing rewap from GitHub, what ships, and how the build happens.
+---
+
+rewap isn't published to the npm registry. Install it straight from GitHub:
+
+```bash
+npm install github:nashiuso/rewap
+```
+
+React 18 or newer is a peer dependency. That's the entire runtime
+requirement: no animation library, no utility belt, no icon package.
+
+## Pinning a version
+
+`main` moves. For anything beyond a quick try, pin a commit or a tag the same
+way you'd pin a registry version:
+
+```bash
+npm install github:nashiuso/rewap#v1.1.1
+npm install github:nashiuso/rewap#a1b2c3d
+```
+
+Both forms go in `package.json` as a normal dependency
+(`"rewap": "github:nashiuso/rewap#v1.1.1"`), so `npm ci` and lockfiles work
+the same way they do for a registry package.
+
+## Why GitHub instead of npm
+
+Mostly: there's no release process ready to stand behind yet. Shipping a
+build artifact doesn't require a registry — `dist/` is gitignored, and a
+`prepare` script in `package.json` builds it the moment npm installs the
+package, whether that's a fresh `npm install` in this repository or a
+consumer pulling it in as `github:nashiuso/rewap`. The build is skipped on a
+later install if nothing changed (it checks the installed commit against a
+marker left by the previous build), so repeat installs don't pay the cost
+twice.
+
+This is tested, not assumed: `npm run verify:github-install` in this
+repository pushes the current commit to a throwaway git remote, installs it
+into a scratch project the way a real consumer would, and checks that the
+build ran and every documented import resolves.
+
+## Imports
+
+Everything ships behind separate entry points, so an application that only
+needs drag and swap doesn't load a chart renderer or a statistics module it
+never asked for.
+
+```tsx
+import { Item, Layout, useLayout } from "@nashiuso/rewap";
+import { clampPoints, movingAverage } from "@nashiuso/rewap/math";
+import { stepSpring } from "@nashiuso/rewap/motion";
+import { useNetworkInfo } from "@nashiuso/rewap/utilities";
+import { createOpenMeteoProvider } from "@nashiuso/rewap/providers";
+import { Chart } from "@nashiuso/rewap/charts";
+import { StatsWidget } from "@nashiuso/rewap/widgets";
+
+import "@nashiuso/rewap/styles.css";
+```
+
+`math`, `motion`, `utilities`, `providers`, `charts`, and `widgets` are
+optional — this documentation focuses on the core (`Layout`/`Item`/
+`useLayout`), since that's what every application using rewap touches. The
+rest is real, tested code (see `tests/` in the repository) with inline
+types; reading the module directly is more reliable than a second copy of
+the same reference here.
+
+## Styles
+
+The stylesheet is optional. Without it, everything still works — items
+move, the placeholder exists, the drag preview is positioned — but the
+visual polish (cursor, touch handling, the outline placeholder) is missing.
+
+```tsx
+import "@nashiuso/rewap/styles.css"; // core: tokens + layout + placeholder
+import "@nashiuso/rewap/tokens.css"; // just the custom properties
+import "@nashiuso/rewap/charts.css"; // only if you use charts
+import "@nashiuso/rewap/widgets.css"; // only if you use widgets
+```
+
+There's no global reset. Rules are scoped to `rw-*` classes, tokens are
+custom properties on `:root`, and everything reads them with a fallback, so
+a page can override any of them without knowing the library's internals.
+
+## Frameworks and bundlers
+
+Anything that understands `exports` in `package.json` works: Vite, Next.js,
+Remix, Parcel, esbuild, webpack 5. Both ESM and CJS builds are shipped, with
+type declarations for each.
+
+```tsx
+// Next.js App Router: the layout needs a browser, so keep it in a client component.
+"use client";
+import { Item, Layout } from "@nashiuso/rewap";
+```
+
+Server rendering is supported — nothing touches the DOM during render,
+measurement happens in effects, and the first client render matches the
+server output. See [Accessibility and SSR](/docs/accessibility-and-ssr) for
+what that means in practice.
+
+## No network at runtime
+
+The library never fetches its own code, fonts, or configuration. Internal
+imports are relative, styles are plain CSS, and the default entry point has
+no dynamic `import()`. If a page using rewap talks to the network, it's
+because the application created a provider (`@nashiuso/rewap/providers`)
+and called it — the library itself never does.

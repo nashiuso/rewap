@@ -27,16 +27,24 @@ export interface IpLocationOptions {
   /** Endpoint to query. Required — the library never picks one for you. */
   endpoint: string;
   /** Maps the response body to a location. Defaults to a common flat shape. */
-  parse?: (
-    body: unknown,
-  ) => { latitude: number; longitude: number; city?: string | null; country?: string | null } | null;
+  parse?: (body: unknown) => {
+    latitude: number;
+    longitude: number;
+    city?: string | null;
+    country?: string | null;
+  } | null;
   headers?: Record<string, string>;
   timeoutMs?: number;
 }
 
 const defaultParse = (
   body: unknown,
-): { latitude: number; longitude: number; city: string | null; country: string | null } | null => {
+): {
+  latitude: number;
+  longitude: number;
+  city: string | null;
+  country: string | null;
+} | null => {
   if (typeof body !== "object" || body === null) return null;
   const record = body as Record<string, unknown>;
   const latitude = Number(record.latitude ?? record.lat);
@@ -64,14 +72,18 @@ const defaultParse = (
  * The default response parser understands a flat `{ latitude, longitude, city,
  * country }` shape. Pass `parse` for anything else.
  */
-export const createIpLocationProvider = (options: IpLocationOptions): IpLocationProvider => {
+export const createIpLocationProvider = (
+  options: IpLocationOptions,
+): IpLocationProvider => {
   const parse = options.parse ?? defaultParse;
   return {
     name: "ip",
     endpoint: options.endpoint,
     async locate(signal?: AbortSignal) {
       if (!options.endpoint) {
-        return providerUnsupported("No IP geolocation endpoint was configured.");
+        return providerUnsupported(
+          "No IP geolocation endpoint was configured.",
+        );
       }
       try {
         const response = await fetchJson(options.endpoint, {
@@ -80,16 +92,22 @@ export const createIpLocationProvider = (options: IpLocationOptions): IpLocation
           ...(signal ? { signal } : {}),
         });
         if (!response.ok) {
-          return providerError(`The location endpoint responded with HTTP ${response.status}.`, {
-            httpStatus: response.status,
-            retryable: response.status >= 500,
-          });
+          return providerError(
+            `The location endpoint responded with HTTP ${response.status}.`,
+            {
+              httpStatus: response.status,
+              retryable: response.status >= 500,
+            },
+          );
         }
         const parsed = parse(response.data);
         if (!parsed) {
-          return providerError("The location endpoint returned an unexpected payload.", {
-            retryable: false,
-          });
+          return providerError(
+            "The location endpoint returned an unexpected payload.",
+            {
+              retryable: false,
+            },
+          );
         }
         const location: ResolvedLocation = {
           latitude: parsed.latitude,
@@ -102,9 +120,15 @@ export const createIpLocationProvider = (options: IpLocationOptions): IpLocation
         return providerSuccess(location, "ip");
       } catch (error) {
         if (error instanceof DOMException && error.name === "AbortError") {
-          return providerError("The location request was aborted.", { retryable: false });
+          return providerError("The location request was aborted.", {
+            retryable: false,
+          });
         }
-        return providerError(error instanceof Error ? error.message : "The location request failed.");
+        return providerError(
+          error instanceof Error
+            ? error.message
+            : "The location request failed.",
+        );
       }
     },
   };
@@ -129,7 +153,9 @@ export const createBrowserGeolocationProvider = (
   name: "browser-geolocation",
   async locate(signal?: AbortSignal) {
     if (typeof navigator === "undefined" || !navigator.geolocation) {
-      return providerUnsupported("navigator.geolocation is not available (it requires a secure context).");
+      return providerUnsupported(
+        "navigator.geolocation is not available (it requires a secure context).",
+      );
     }
     const geolocation = navigator.geolocation;
     return new Promise((resolve) => {
@@ -146,7 +172,11 @@ export const createBrowserGeolocationProvider = (
         resolve(outcome);
       };
       const onAbort = () => {
-        finish(providerError("The location request was aborted.", { retryable: false }));
+        finish(
+          providerError("The location request was aborted.", {
+            retryable: false,
+          }),
+        );
       };
       signal?.addEventListener("abort", onAbort);
 
@@ -173,9 +203,12 @@ export const createBrowserGeolocationProvider = (
             3: "The location request timed out.",
           };
           finish(
-            providerError(messages[error.code] ?? "The location request failed.", {
-              retryable: error.code !== 1,
-            }),
+            providerError(
+              messages[error.code] ?? "The location request failed.",
+              {
+                retryable: error.code !== 1,
+              },
+            ),
           );
         },
         {

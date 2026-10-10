@@ -30,7 +30,12 @@ export interface Edges {
   left: number;
 }
 
-export const rect = (x: number, y: number, width: number, height: number): Rect => ({
+export const rect = (
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+): Rect => ({
   x,
   y,
   width,
@@ -45,7 +50,8 @@ export const rectCenter = (r: Rect): Point => ({
   y: r.y + r.height / 2,
 });
 
-export const rectArea = (r: Rect): number => Math.max(0, r.width) * Math.max(0, r.height);
+export const rectArea = (r: Rect): number =>
+  Math.max(0, r.width) * Math.max(0, r.height);
 
 /** Anything that can be read as a rectangle: a DOMRect, a DOMRectReadOnly or a plain `Rect`. */
 export interface DOMRectLike {
@@ -76,15 +82,26 @@ export const rectFromDOMRect = (r: DOMRectLike): Rect =>
  * is the honest answer for "not measurable", so it is applied at the boundary.
  */
 export const sanitizeRect = (r: Rect): Rect => {
-  if (Number.isFinite(r.x) && Number.isFinite(r.y) && Number.isFinite(r.width) && Number.isFinite(r.height)) {
+  if (
+    Number.isFinite(r.x) &&
+    Number.isFinite(r.y) &&
+    Number.isFinite(r.width) &&
+    Number.isFinite(r.height)
+  ) {
     return r;
   }
-  const finite = (value: number): number => (Number.isFinite(value) ? value : 0);
+  const finite = (value: number): number =>
+    Number.isFinite(value) ? value : 0;
   return rect(finite(r.x), finite(r.y), finite(r.width), finite(r.height));
 };
 
 export const rectFromPoints = (a: Point, b: Point): Rect =>
-  rect(Math.min(a.x, b.x), Math.min(a.y, b.y), Math.abs(b.x - a.x), Math.abs(b.y - a.y));
+  rect(
+    Math.min(a.x, b.x),
+    Math.min(a.y, b.y),
+    Math.abs(b.x - a.x),
+    Math.abs(b.y - a.y),
+  );
 
 export const translateRect = (r: Rect, dx: number, dy: number): Rect =>
   rect(r.x + dx, r.y + dy, r.width, r.height);
@@ -109,7 +126,12 @@ export const insetRect = (r: Rect, edges: Partial<Edges>): Rect => {
 export const clampRect = (bounds: Rect, r: Rect): Rect => {
   const maxX = Math.max(bounds.x, rectRight(bounds) - r.width);
   const maxY = Math.max(bounds.y, rectBottom(bounds) - r.height);
-  return rect(clamp01Number(r.x, bounds.x, maxX), clamp01Number(r.y, bounds.y, maxY), r.width, r.height);
+  return rect(
+    clamp01Number(r.x, bounds.x, maxX),
+    clamp01Number(r.y, bounds.y, maxY),
+    r.width,
+    r.height,
+  );
 };
 
 const clamp01Number = (value: number, min: number, max: number): number =>
@@ -125,7 +147,10 @@ export const rectContainsRect = (outer: Rect, inner: Rect): boolean =>
   rectBottom(inner) <= rectBottom(outer);
 
 export const rectIntersects = (a: Rect, b: Rect): boolean =>
-  a.x < rectRight(b) && rectRight(a) > b.x && a.y < rectBottom(b) && rectBottom(a) > b.y;
+  a.x < rectRight(b) &&
+  rectRight(a) > b.x &&
+  a.y < rectBottom(b) &&
+  rectBottom(a) > b.y;
 
 /** Area of the intersection, or `0` when the rectangles do not overlap. */
 export const rectOverlapArea = (a: Rect, b: Rect): number => {

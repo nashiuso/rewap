@@ -91,8 +91,18 @@ describe("core/order", () => {
   });
 
   it("computes the order after a drop in both modes", () => {
-    expect(orderAfterDrop(ids, "a", 0, 2, "swap")).toEqual(["c", "b", "a", "d"]);
-    expect(orderAfterDrop(ids, "a", 0, 2, "reorder")).toEqual(["b", "c", "a", "d"]);
+    expect(orderAfterDrop(ids, "a", 0, 2, "swap")).toEqual([
+      "c",
+      "b",
+      "a",
+      "d",
+    ]);
+    expect(orderAfterDrop(ids, "a", 0, 2, "reorder")).toEqual([
+      "b",
+      "c",
+      "a",
+      "d",
+    ]);
     expect(orderAfterDrop(ids, "a", 0, 0, "swap")).toEqual(ids);
     expect(orderAfterDrop(ids, "a", 0, 9, "swap")).toEqual(ids);
   });
@@ -111,11 +121,17 @@ describe("core/order", () => {
 describe("core/keyboard", () => {
   it("finds neighbours in a direction", () => {
     // Every slot to the right on the same row, nearest first.
-    expect(candidatesInDirection(candidates, 0, "right").map((entry) => entry.index)).toEqual([1, 2]);
+    expect(
+      candidatesInDirection(candidates, 0, "right").map((entry) => entry.index),
+    ).toEqual([1, 2]);
     // Everything to the left on the same row, nearest first.
-    expect(candidatesInDirection(candidates, 2, "left").map((entry) => entry.index)).toEqual([1, 0]);
+    expect(
+      candidatesInDirection(candidates, 2, "left").map((entry) => entry.index),
+    ).toEqual([1, 0]);
     expect(candidatesInDirection(candidates, 0, "up")).toEqual([]);
-    expect(candidatesInDirection(candidates, 0, "down").map((entry) => entry.index)).toEqual([3]);
+    expect(
+      candidatesInDirection(candidates, 0, "down").map((entry) => entry.index),
+    ).toEqual([3]);
     expect(candidatesInDirection(candidates, 99, "right")).toEqual([]);
   });
 
@@ -133,7 +149,9 @@ describe("core/keyboard", () => {
     expect(resolveTargetIndex(candidates, 1, "last")).toBe(3);
     expect(resolveTargetIndex(candidates, 3, "first")).toBe(0);
     expect(defaultKeyboardOptions.step).toBe(1);
-    expect(describeMove("Weather", 2, 4)).toBe("Weather moved to position 3 of 4");
+    expect(describeMove("Weather", 2, 4)).toBe(
+      "Weather moved to position 3 of 4",
+    );
   });
 });
 

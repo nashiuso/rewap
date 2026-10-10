@@ -2,14 +2,42 @@
 
 Versions follow [semver](https://semver.org/). Dates are the day the tag was cut.
 
-## 1.1.1
+## 1.1.1 (unreleased, alpha)
 
 Mostly cleanup, packaging and the things you only find once people use a library
-in an actual application.
+in an actual application. Not tagged or published yet — see
+`docs/maintainers/final-audit.md` for exactly what has and hasn't been verified.
 
 The interaction model did not need another redesign, so this release is about
 correctness in the corners:
 
+- **Fixed: a mouse or touch drag never used the live pointer position.** The
+  internal check that picks between "follow the cursor" and "follow the
+  dragged box" compared the session's input source against the literal string
+  `"pointer"`, but real sessions are tagged `"mouse"` or `"touch"` — that
+  string is only used for pen input. So every ordinary drag quietly fell back
+  to the dragged element's own (reconstructed) center instead of where the
+  finger or cursor actually was, and that reconstruction drifts whenever the
+  live DOM reorder nudges the element's resting position mid-drag. The result
+  looked like flaky collision detection — a `reorder` drag would sometimes
+  travel two slots, then drop back to one, depending on exactly when the
+  pointer let go. It wasn't the collision math; the input to it was wrong.
+  Fixed by checking for any source that actually has a pointer to track
+  (`mouse`, `touch`, `pointer`) and only falling back for `keyboard` /
+  `programmatic` moves, which don't have one.
+- **Fixed: `drop()` could commit a stale destination.** Destination resolution
+  runs once per animation frame; letting go of the mouse between two frames —
+  easy to do by hand, close to guaranteed from a script — used to commit
+  whatever the previous frame had resolved. `drop()` now resolves once more,
+  synchronously, against the pointer's actual position at release.
+- **Fixed: grid layouts collapsed into a single column.** The base layout CSS
+  built its `grid-template-columns` as `repeat(var(--rw-columns, auto-fit), …)`.
+  Chromium does not treat a custom property that resolves to the keyword
+  `auto-fit` the same as writing `auto-fit` directly in `repeat()` — the track
+  list it produced was wrong, and every grid rendered as one wide column
+  regardless of `minColumnWidth`. The auto-fit case is hardcoded now; the
+  explicit-column-count case (an integer, not a keyword) still goes through
+  the custom property because that one works fine.
 - **Fixed: projection off by one.** `reorder` and `grid` layouts dropped items one
   slot short of where the pointer was, and the placeholder flickered as soon as a
   drag started. The projection strategy now measures the boundaries a slot has to
@@ -51,6 +79,34 @@ correctness in the corners:
   utilities, providers, charts, widgets and server rendering.
 - `README`, `NOTES.md`, `MAINTAINERS.md`, the docs site and the limitations page
   are new in this version. Documentation had been living in my notes app.
+- The docs site (`docs/`) went from markdown files with nowhere to render to an
+  actual static build: `docs/build.mjs` renders `docs/content/*.md` to branded,
+  searchable HTML (self-hosted Montserrat/Roboto Mono, a small client-side
+  search index, no framework, no CDN). `npm run docs:dev` serves it locally.
+- `docs/content/examples.md` used to describe eight example apps that were
+  never built. Rewrote it to describe what actually ships: one playground with
+  a mode/motion switcher, and the Astro SSR example. See `NOTES.md` for why.
+- Added `scripts/site/build.mjs` / `scripts/site/preview.mjs`, which assemble
+  the docs build and the playground build (base path `/rewap/playground/`)
+  into one `site-dist/` for GitHub Pages, and `.github/workflows/pages.yml` to
+  deploy it on push to `main` via the official Pages actions. Verified locally
+  with `npm run site:build` + the preview script, which mirrors the `/rewap/`
+  base path; the actual GitHub Pages deploy has not been run (see
+  `docs/maintainers/github.md`).
+- Filled in the rest of `.github/`: issue forms, a pull request template,
+  `CODEOWNERS` (`@nashiuso`, the only maintainer), `dependabot.yml`, a CodeQL
+  workflow, a dependency-review workflow on pull requests, and a `release.yml`
+  that is wired up but has never run (no tag has been pushed).
+- README rewrite: the Features, Examples and License sections existed only as
+  HTML comments and never rendered on GitHub — in particular, the page had no
+  visible license statement at all despite the repository being MIT licensed.
+  All of it is visible now, plus new CLI and Documentation sections.
+- Lint and format were both quietly passing for the wrong reason: there was no
+  `.gitignore` and the ESLint/Prettier ignore lists didn't cover
+  `examples/playground/dist` specifically, so as soon as that example had ever
+  been built, `lint`/`format:check` would try to run on its minified bundle
+  and fail with hundreds of unrelated errors. Ignore lists now use `**/dist/**`
+  and there's a `.gitignore`.
 
 Some internal names are still a little ugly. `insertionIndexFromProjection` and
 `projectedCenters` in `core/order.ts` are the old centre-based projection helpers;

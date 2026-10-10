@@ -9,7 +9,21 @@
 
 .rw-layout {
   display: grid;
-  grid-template-columns: repeat(var(--rw-columns, auto-fit), minmax(var(--rw-min-column, 240px), 1fr));
+  /*
+   * NOTE(nashiuso): this used to be
+   *   repeat(var(--rw-columns, auto-fit), minmax(var(--rw-min-column), 1fr))
+   * which looks like it should fall back to `auto-fit` when `--rw-columns`
+   * is unset. It does not: `repeat()`'s track-count argument only accepts an
+   * `auto-fill`/`auto-fit` keyword as a literal token, not through a custom
+   * property substitution, in any browser that implements the grid spec as
+   * written. The declaration was silently invalid, and every layout without
+   * an explicit `columns` prop rendered as a single column. Caught by the
+   * playground, not by a unit test — jsdom does not lay out grids at all.
+   */
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(var(--rw-min-column, 240px), 1fr)
+  );
   gap: var(--rw-gap, 12px);
   align-content: start;
   color: var(--rw-text, #e7ecf3);
@@ -23,7 +37,9 @@
   grid-template-columns: 1fr;
 }
 
-/* An explicit `columns` prop switches to that many equal columns. */
+/* An explicit `columns` prop switches to that many equal columns. `--rw-columns`
+   is always a plain integer here, so it does not hit the `repeat()` limitation
+   above. */
 .rw-layout[data-rw-columns] {
   grid-template-columns: repeat(var(--rw-columns), minmax(0, 1fr));
 }
@@ -114,7 +130,11 @@
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: repeating-linear-gradient(-45deg, transparent 0 6px, rgba(255, 255, 255, 0.02) 6px 12px);
+  background: repeating-linear-gradient(
+    -45deg,
+    transparent 0 6px,
+    rgba(255, 255, 255, 0.02) 6px 12px
+  );
 }
 
 .rw-visually-hidden {

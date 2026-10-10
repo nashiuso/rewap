@@ -79,7 +79,10 @@ const hasOwnHandle = (element: HTMLElement): boolean => {
   return false;
 };
 
-const ItemImpl = (props: ItemProps, forwardedRef: ForwardedRef<HTMLDivElement>) => {
+const ItemImpl = (
+  props: ItemProps,
+  forwardedRef: ForwardedRef<HTMLDivElement>,
+) => {
   const {
     id,
     children,
@@ -115,7 +118,10 @@ const ItemImpl = (props: ItemProps, forwardedRef: ForwardedRef<HTMLDivElement>) 
   );
   const resolvedMotion = motion ?? context.motion;
   const plan = useMemo(
-    () => resolveMotion(resolvedMotion, { prefersReducedMotion: context.prefersReducedMotion }),
+    () =>
+      resolveMotion(resolvedMotion, {
+        prefersReducedMotion: context.prefersReducedMotion,
+      }),
     [resolvedMotion, context.prefersReducedMotion],
   );
 
@@ -132,9 +138,14 @@ const ItemImpl = (props: ItemProps, forwardedRef: ForwardedRef<HTMLDivElement>) 
     const element = elementRef.current;
     if (!element) return;
     const ownsHandle = hasOwnHandle(element);
-    setDetectedHandleOnly((previous) => (previous === ownsHandle ? previous : ownsHandle));
+    setDetectedHandleOnly((previous) =>
+      previous === ownsHandle ? previous : ownsHandle,
+    );
     const resolvedHandleOnly = handleOnly ?? ownsHandle;
-    const accessibleLabel = label ?? element.getAttribute("aria-label") ?? fallbackLabel(element, index);
+    const accessibleLabel =
+      label ??
+      element.getAttribute("aria-label") ??
+      fallbackLabel(element, index);
     return registerItemRef.current(id, {
       label: accessibleLabel,
       element,
@@ -148,28 +159,39 @@ const ItemImpl = (props: ItemProps, forwardedRef: ForwardedRef<HTMLDivElement>) 
   useEffect(() => {
     if (!active) return;
     const element = elementRef.current;
-    const resolvedHandleOnly = handleOnly ?? (element ? hasOwnHandle(element) : false);
+    const resolvedHandleOnly =
+      handleOnly ?? (element ? hasOwnHandle(element) : false);
     if (!resolvedHandleOnly && !disabled && draggable) {
       element?.focus({ preventScroll: true });
     }
   }, [active, disabled, draggable, handleOnly]);
 
   // ------------------------------------------------------------------ effects
-  const hoverLift = mergedEffects.hover === "lift" || mergedEffects.hover === "raise";
+  const hoverLift =
+    mergedEffects.hover === "lift" || mergedEffects.hover === "raise";
   const liftAmount = mergedEffects.hover === "raise" ? -8 : -4;
   const liftElevation = mergedEffects.hover === "raise" ? 0.6 : 0.35;
 
   const handlePointerEnter = useCallback(
     (event: ReactPointerEvent<HTMLDivElement>) => {
       onPointerEnter?.(event);
-      if (!hoverLift || disabled || active || event.pointerType === "touch") return;
+      if (!hoverLift || disabled || active || event.pointerType === "touch")
+        return;
       const element = elementRef.current;
       if (!element) return;
       const node = nodeRef.current ?? elementStateFor(element);
       nodeRef.current = node;
       node.animate({ y: liftAmount, elevation: liftElevation }, plan);
     },
-    [active, disabled, hoverLift, liftAmount, liftElevation, onPointerEnter, plan],
+    [
+      active,
+      disabled,
+      hoverLift,
+      liftAmount,
+      liftElevation,
+      onPointerEnter,
+      plan,
+    ],
   );
 
   const handlePointerLeave = useCallback(
@@ -245,8 +267,13 @@ const ItemImpl = (props: ItemProps, forwardedRef: ForwardedRef<HTMLDivElement>) 
       if (direction === "first" || direction === "last") {
         event.preventDefault();
         const target =
-          direction === "first" ? context.renderIds[0] : context.renderIds[context.renderIds.length - 1];
-        if (target) context.registry.get(target)?.element?.focus({ preventScroll: false });
+          direction === "first"
+            ? context.renderIds[0]
+            : context.renderIds[context.renderIds.length - 1];
+        if (target)
+          context.registry
+            .get(target)
+            ?.element?.focus({ preventScroll: false });
       }
     },
     [context, disabled, draggable, focusSibling, id, onKeyDown],
@@ -274,7 +301,10 @@ const ItemImpl = (props: ItemProps, forwardedRef: ForwardedRef<HTMLDivElement>) 
     (node: HTMLDivElement | null) => {
       elementRef.current = node;
       if (typeof forwardedRef === "function") forwardedRef(node);
-      else if (forwardedRef) (forwardedRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
+      else if (forwardedRef)
+        (
+          forwardedRef as React.MutableRefObject<HTMLDivElement | null>
+        ).current = node;
     },
     [forwardedRef],
   );
@@ -282,7 +312,11 @@ const ItemImpl = (props: ItemProps, forwardedRef: ForwardedRef<HTMLDivElement>) 
   // With a handle, the item itself stays scrollable on touch and only the handle
   // captures the gesture — which is what mobile users expect.
   const handleOnlyResolved = handleOnly ?? detectedHandleOnly;
-  const touchAction = handleOnlyResolved ? "auto" : disabled || !draggable ? "auto" : "none";
+  const touchAction = handleOnlyResolved
+    ? "auto"
+    : disabled || !draggable
+      ? "auto"
+      : "none";
 
   const gridStyle: CSSProperties = {
     ...(columnSpan ? { gridColumn: `span ${columnSpan}` } : {}),
@@ -338,7 +372,13 @@ export const Item = forwardRef(ItemImpl) as unknown as ((
 
 /** The default handle icon: six dots, drawn inline so nothing is fetched. */
 const GripIcon = () => (
-  <svg width="10" height="16" viewBox="0 0 10 16" aria-hidden="true" focusable="false">
+  <svg
+    width="10"
+    height="16"
+    viewBox="0 0 10 16"
+    aria-hidden="true"
+    focusable="false"
+  >
     <g fill="currentColor">
       <circle cx="2" cy="3" r="1.15" />
       <circle cx="8" cy="3" r="1.15" />
@@ -350,20 +390,35 @@ const GripIcon = () => (
   </svg>
 );
 
-export interface ItemHandleProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children"> {
+export interface ItemHandleProps extends Omit<
+  ButtonHTMLAttributes<HTMLButtonElement>,
+  "children"
+> {
   children?: ReactNode;
   /** Accessible name for the handle; omit when rendering a decorative icon only. */
   label?: string;
   as?: ElementType;
 }
 
-const ItemHandleImpl = (props: ItemHandleProps, forwardedRef: ForwardedRef<HTMLButtonElement>) => {
-  const { children, label, as: Component = "button", className, style, ...rest } = props;
+const ItemHandleImpl = (
+  props: ItemHandleProps,
+  forwardedRef: ForwardedRef<HTMLButtonElement>,
+) => {
+  const {
+    children,
+    label,
+    as: Component = "button",
+    className,
+    style,
+    ...rest
+  } = props;
   // `label` is the documented prop, but an `aria-label` passed straight through is
   // an easy thing to write and was previously swallowed by the line below. It is
   // honoured instead of dropped: silently ignoring an accessibility attribute is
   // the one kind of prop forwarding this component should not get wrong.
-  const ariaLabel = label ?? (typeof rest["aria-label"] === "string" ? rest["aria-label"] : undefined);
+  const ariaLabel =
+    label ??
+    (typeof rest["aria-label"] === "string" ? rest["aria-label"] : undefined);
   delete rest["aria-label"];
   const decorative = children === undefined && !ariaLabel;
   return (

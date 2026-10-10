@@ -30,7 +30,12 @@
 
 // React bindings
 export { Layout, type LayoutProps } from "./react/Layout";
-export { Item, ItemHandle, type ItemProps, type ItemHandleProps } from "./react/Item";
+export {
+  Item,
+  ItemHandle,
+  type ItemProps,
+  type ItemHandleProps,
+} from "./react/Item";
 export { useLayout, type LayoutController } from "./react/useLayout";
 export { type PlaceholderRenderInfo, type ItemMeta } from "./react/context";
 export type { LayoutBounds } from "./react/Layout";
@@ -42,7 +47,11 @@ export type {
 } from "./react/useLayoutEngine";
 
 // Framework-agnostic engine
-export { createRewap, type RewapInstance, type RewapOptions } from "./core/rewap";
+export {
+  createRewap,
+  type RewapInstance,
+  type RewapOptions,
+} from "./core/rewap";
 
 // Order and history helpers that applications genuinely need to keep working
 // after a drag. The rest of the engine is in `@nashiuso/rewap/core`.
@@ -76,7 +85,11 @@ export type {
   PhysicsOptions,
   SnapOptions,
 } from "./core/types";
-export type { CollisionStrategy, CollisionInput, CollisionResult } from "./core/collision";
+export type {
+  CollisionStrategy,
+  CollisionInput,
+  CollisionResult,
+} from "./core/collision";
 export type { KeyboardOptions } from "./core/keyboard";
 export type { GeometryProvider } from "./core/measure";
 export type {

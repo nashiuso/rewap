@@ -20,7 +20,12 @@ import {
 } from "./helpers";
 
 const LIST: GeometryOptions = { ids: ["a", "b", "c", "d"], columns: 1 };
-const GRID: GeometryOptions = { ids: ["a", "b", "c", "d"], columns: 2, cellWidth: 160, cellHeight: 100 };
+const GRID: GeometryOptions = {
+  ids: ["a", "b", "c", "d"],
+  columns: 2,
+  cellWidth: 160,
+  cellHeight: 100,
+};
 
 let geometry: InstalledGeometry;
 
@@ -30,14 +35,22 @@ const idsInDom = (container: HTMLElement): string[] =>
   );
 
 const itemOf = (container: HTMLElement, id: string): HTMLElement =>
-  container.querySelector<HTMLElement>(`[data-rewap-item="${id}"]`) as HTMLElement;
+  container.querySelector<HTMLElement>(
+    `[data-rewap-item="${id}"]`,
+  ) as HTMLElement;
 
-const at = (point: { x: number; y: number }) => ({ clientX: point.x, clientY: point.y });
+const at = (point: { x: number; y: number }) => ({
+  clientX: point.x,
+  clientY: point.y,
+});
 
 /** Installs the geometry a test needs, always mirroring the rendered order. */
 const useGeometry = (options: GeometryOptions): void => {
   geometry.restore();
-  geometry = installGeometry({ ...options, ids: () => idsInDom(document.body) });
+  geometry = installGeometry({
+    ...options,
+    ids: () => idsInDom(document.body),
+  });
 };
 
 beforeEach(() => {
@@ -79,7 +92,10 @@ describe("reorder mode", () => {
 
   it("animates the items that were displaced with a FLIP transform", async () => {
     const { container } = render(
-      <Layout mode="reorder" motion={{ type: "spring", stiffness: 180, damping: 20, mass: 1 }}>
+      <Layout
+        mode="reorder"
+        motion={{ type: "spring", stiffness: 180, damping: 20, mass: 1 }}
+      >
         <Item id="a">A</Item>
         <Item id="b">B</Item>
         <Item id="c">C</Item>
@@ -95,7 +111,9 @@ describe("reorder mode", () => {
 
     // "b" moved one cell up, so it is rendered one cell lower and springs back.
     const displaced = itemOf(container, "b");
-    const offset = /translate3d\((-?[\d.]+)px, (-?[\d.]+)px/.exec(displaced.style.transform);
+    const offset = /translate3d\((-?[\d.]+)px, (-?[\d.]+)px/.exec(
+      displaced.style.transform,
+    );
     expect(offset).toBeTruthy();
     expect(Number(offset?.[2])).toBeGreaterThan(0);
     expect(Number(offset?.[2])).toBeLessThanOrEqual(130.001);
@@ -105,18 +123,24 @@ describe("reorder mode", () => {
     });
     await advanceFrame(3);
     const mid = Number(
-      /translate3d\((-?[\d.]+)px, (-?[\d.]+)px/.exec(itemOf(container, "b").style.transform)?.[2],
+      /translate3d\((-?[\d.]+)px, (-?[\d.]+)px/.exec(
+        itemOf(container, "b").style.transform,
+      )?.[2],
     );
     expect(Math.abs(mid)).toBeLessThan(130);
 
     for (let frame = 0; frame < 400; frame += 1) {
       const value = Number(
-        /translate3d\((-?[\d.]+)px, (-?[\d.]+)px/.exec(itemOf(container, "b").style.transform)?.[2] ?? 0,
+        /translate3d\((-?[\d.]+)px, (-?[\d.]+)px/.exec(
+          itemOf(container, "b").style.transform,
+        )?.[2] ?? 0,
       );
       if (value === 0) break;
       await advanceFrame(2);
     }
-    expect(itemOf(container, "b").style.transform).toBe("translate3d(0px, 0px, 0)");
+    expect(itemOf(container, "b").style.transform).toBe(
+      "translate3d(0px, 0px, 0)",
+    );
   });
 
   it("moves an item programmatically and reports the change once", async () => {
@@ -229,7 +253,9 @@ describe("grid mode", () => {
         <Item id="a">A</Item>
       </Layout>,
     );
-    const layout = container.querySelector<HTMLElement>("[data-rewap-layout]") as HTMLElement;
+    const layout = container.querySelector<HTMLElement>(
+      "[data-rewap-layout]",
+    ) as HTMLElement;
     expect(layout.style.getPropertyValue("--rw-columns")).toBe("3");
     expect(layout.style.getPropertyValue("--rw-min-column")).toBe("140px");
     expect(layout.style.getPropertyValue("--rw-gap")).toBe("16px");
@@ -258,12 +284,18 @@ describe("grid mode", () => {
 
     // The layout advertises the new column count, and the engine re-measures on
     // the next interaction instead of holding on to stale slots.
-    const layout = container.querySelector<HTMLElement>("[data-rewap-layout]") as HTMLElement;
+    const layout = container.querySelector<HTMLElement>(
+      "[data-rewap-layout]",
+    ) as HTMLElement;
     expect(layout.style.getPropertyValue("--rw-columns")).toBe("2");
 
     useGeometry({ ...GRID, ids: ["a", "b"] });
     await act(async () => {
-      firePointer(itemOf(container, "b"), "pointerdown", at(slotCenter(1, GRID)));
+      firePointer(
+        itemOf(container, "b"),
+        "pointerdown",
+        at(slotCenter(1, GRID)),
+      );
       firePointer(window, "pointermove", at(slotCenter(0, GRID)));
     });
     await advanceFrame(4);

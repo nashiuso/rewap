@@ -38,8 +38,12 @@
   --rw-negative: #e08a8a;
 
   /* Typography — Montserrat for UI, Roboto Mono for technical values */
-  --rw-font-ui: "Montserrat", "Montserrat Variable", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --rw-font-mono: "Roboto Mono", "Roboto Mono Variable", ui-monospace, "SFMono-Regular", "Menlo", monospace;
+  --rw-font-ui:
+    "Montserrat", "Montserrat Variable", system-ui, -apple-system, "Segoe UI",
+    Roboto, sans-serif;
+  --rw-font-mono:
+    "Roboto Mono", "Roboto Mono Variable", ui-monospace, "SFMono-Regular",
+    "Menlo", monospace;
   --rw-text-xs: 0.6875rem;
   --rw-text-sm: 0.75rem;
   --rw-text-md: 0.8125rem;

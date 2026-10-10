@@ -1,0 +1,18 @@
+# Prettier should only ever look at files we hand-write. Without this it also
+# walks built output (dist/, examples/*/dist/), which is minified/generated and
+# will never match our formatting rules — `prettier . --check` would fail on
+# someone else's bundler output instead of our source.
+**/dist/**
+node_modules/**
+coverage/**
+test-results/**
+playwright-report/**
+.next/**
+.astro/**
+examples/astro/.astro/**
+# Astro's own tooling (re)writes this file; same reasoning as the matching
+# entry in eslint.config.js — it is not ours to restyle.
+examples/astro/src/env.d.ts
+pnpm-lock.yaml
+package-lock.json
+CHANGELOG.md

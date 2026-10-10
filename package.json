@@ -1,16 +1,17 @@
 {
   "name": "@nashiuso/rewap",
   "version": "1.1.1",
+  "private": true,
   "description": "A React interaction library for draggable, swappable, reorderable and animated layouts. Local-first, dependency-light, TypeScript-native.",
   "license": "MIT",
-  "author": "nashisuso (https://github.com/nashisuso)",
-  "homepage": "https://github.com/nashisuso/rewap#readme",
+  "author": "nashiuso (https://github.com/nashiuso)",
+  "homepage": "https://nashiuso.github.io/rewap/",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/nashisuso/rewap.git"
+    "url": "git+https://github.com/nashiuso/rewap.git"
   },
   "bugs": {
-    "url": "https://github.com/nashisuso/rewap/issues"
+    "url": "https://github.com/nashiuso/rewap/issues"
   },
   "keywords": [
     "react",
@@ -147,33 +148,34 @@
     "CHANGELOG.md",
     "LICENSE"
   ],
-  "workspaces": [
-    "docs",
-    "examples"
-  ],
   "scripts": {
     "build": "tsup && npm run build:types && node scripts/build-css.mjs",
+    "prepare": "node scripts/prepare.mjs",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "typecheck:examples": "tsc --noEmit -p examples/tsconfig.json",
+    "typecheck:examples": "tsc --noEmit -p examples/playground/tsconfig.json",
     "lint": "eslint . --max-warnings=0",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
     "test:types": "tsc --noEmit -p tests/types/tsconfig.json",
     "verify:package": "node scripts/verify-package.mjs",
+    "verify:github-install": "node scripts/verify-github-install.mjs",
     "size": "node scripts/size.mjs",
     "banner": "node scripts/banner.mjs",
-    "docs:build": "node scripts/banner.mjs && node docs/build.mjs",
-    "docs:dev": "node docs/serve.mjs",
-    "examples:dev": "vite --config examples/vite.config.ts",
-    "examples:build": "vite build --config examples/vite.config.ts",
-    "examples:preview": "vite preview --config examples/vite.config.ts",
+    "docs:install": "npm install --prefix docs",
+    "docs:build": "npm run banner && npm run docs:install && npm run build --prefix docs",
+    "docs:dev": "npm run docs:install && npm run dev --prefix docs",
+    "examples:install": "npm install --prefix examples/playground",
+    "examples:dev": "npm run banner && npm run examples:install && npm run dev --prefix examples/playground",
+    "examples:build": "npm run banner && npm run examples:install && npm run build --prefix examples/playground",
+    "examples:preview": "npm run preview --prefix examples/playground",
     "test:e2e": "playwright test",
     "ci": "npm run format:check && npm run typecheck && npm run typecheck:examples && npm run lint && npm test && npm run build && npm run lint:package && npm run verify:package && npm run test:types",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
     "lint:package": "npm run build && publint --strict",
-    "verify:release": "npm run ci && npm run examples:build && npm run docs:build && npm run test:e2e && npm pack --dry-run",
+    "site:build": "node scripts/site/build.mjs",
+    "site:preview": "node scripts/site/preview.mjs",
     "build:types": "tsc -p tsconfig.build.json && node scripts/build-types.mjs"
   },
   "peerDependencies": {
@@ -213,9 +215,6 @@
   },
   "engines": {
     "node": ">=18.18.0"
-  },
-  "publishConfig": {
-    "access": "public"
   },
   "bin": {
     "rewap": "./dist/cli/index.js"

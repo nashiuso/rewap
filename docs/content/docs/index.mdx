@@ -1,0 +1,65 @@
+---
+title: Introduction
+description: What rewap is, what it isn't, and how the code is organized.
+---
+
+rewap is a React library for layouts whose items move: swapping, reordering,
+grids, dashboards, boards.
+
+The public surface is deliberately small — a container, an item, and a hook.
+The work sits underneath it: measuring slots, resolving collisions, animating
+what moved, keeping the keyboard path equivalent to the pointer path, and
+announcing what happened to a screen reader.
+
+```tsx
+import { Item, Layout } from "@nashiuso/rewap";
+
+<Layout mode="reorder">
+  <Item id="a">A</Item>
+  <Item id="b">B</Item>
+</Layout>;
+```
+
+That's the whole idea. Everything else in this documentation is either a
+mode, a motion setting, or a piece of information the layout hands back to
+you.
+
+## What it is not
+
+- **Not a general animation library.** The motion engine exists to move
+  items convincingly and to run on the layout's own ticker, not to replace a
+  full animation runtime.
+- **Not a data layer.** External information (weather, IP location) only
+  happens through providers your application creates, with endpoints you
+  chose. The library never fetches anything on its own.
+- **Not a component kit.** The stylesheet is scoped (`rw-*` classes), the
+  tokens are CSS variables, and you can ignore both.
+- **Not a framework.** There's no plugin system, no adapter registry, and no
+  configuration file.
+
+## The three layers
+
+| Layer               | Contains                                                       | Depends on |
+| ------------------- | -------------------------------------------------------------- | ---------- |
+| `react/`            | `Layout`, `Item`, the engine hook, element state               | React      |
+| `core/`             | order, collision, drag session, history, persistence, keyboard | nothing    |
+| `math/` / `motion/` | rectangles, grids, interpolation, statistics, springs          | nothing    |
+
+`core/` doesn't import React. That's what makes the interaction model
+testable without a renderer, and it's why pointer, touch, keyboard, and
+programmatic moves all produce the same result — they all go through the
+same framework-free state machine.
+
+## Where to go next
+
+- [Installation](/docs/installation) — how to add it to a project without
+  an npm-registry publish in the way.
+- [Quick start](/docs/quick-start) — a working board in under twenty lines.
+- [API and layout modes](/docs/api-and-layout-modes) — `swap`, `reorder`,
+  `grid`, and the props that drive them.
+- [Motion and customization](/docs/motion-and-customization) — springs,
+  tweens, and the CSS variables that theme everything.
+- [Accessibility and SSR](/docs/accessibility-and-ssr) — the keyboard path,
+  announcements, and what server rendering does and doesn't do.
+- [Known limitations](/docs/known-limitations) — read this before planning
+  around a browser API or a cross-layout drag.

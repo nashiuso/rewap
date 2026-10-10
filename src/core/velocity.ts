@@ -46,8 +46,13 @@ const DEFAULTS: Required<VelocityTrackerOptions> = {
   maxSpeed: 8000,
 };
 
-export const createVelocityTracker = (options: VelocityTrackerOptions = {}): VelocityTracker => {
-  const smoothing = Math.min(1, Math.max(0.01, options.smoothing ?? DEFAULTS.smoothing));
+export const createVelocityTracker = (
+  options: VelocityTrackerOptions = {},
+): VelocityTracker => {
+  const smoothing = Math.min(
+    1,
+    Math.max(0.01, options.smoothing ?? DEFAULTS.smoothing),
+  );
   const staleAfter = options.staleAfter ?? DEFAULTS.staleAfter;
   const maxSpeed = options.maxSpeed ?? DEFAULTS.maxSpeed;
 

@@ -21,7 +21,11 @@
  * ```
  */
 
-import { createPersistence, type Persistence, type PersistedLayout } from "./persistence";
+import {
+  createPersistence,
+  type Persistence,
+  type PersistedLayout,
+} from "./persistence";
 import { idsEqual, moveId, reconcileIds, swapIds } from "./order";
 import { createHistory, type History } from "./store";
 import type { ItemId, LayoutChangeEvent, LayoutMode, SwapEvent } from "./types";
@@ -76,13 +80,18 @@ export interface RewapInstance {
   destroy(): void;
 }
 
-const normalizeHistory = (value: RewapOptions["history"]): { enabled: boolean; limit: number } => {
+const normalizeHistory = (
+  value: RewapOptions["history"],
+): { enabled: boolean; limit: number } => {
   if (value === false) return { enabled: false, limit: 50 };
-  if (value === true || value === undefined) return { enabled: true, limit: 50 };
+  if (value === true || value === undefined)
+    return { enabled: true, limit: 50 };
   return { enabled: value.enabled ?? true, limit: value.limit ?? 50 };
 };
 
-const normalizePersistence = (value: RewapOptions["persistence"]): Persistence | null => {
+const normalizePersistence = (
+  value: RewapOptions["persistence"],
+): Persistence | null => {
   if (!value) return null;
   const config = value === true ? null : value;
   // A boolean `true` has no key to write under, so it can only read: there is no
@@ -98,11 +107,16 @@ export const createRewap = (options: RewapOptions = {}): RewapInstance => {
   const listeners = new Set<() => void>();
 
   const stored: PersistedLayout | null = persistence?.load() ?? null;
-  const initial = stored ? reconcileIds(stored.ids, options.ids ?? []).ids : [...(options.ids ?? [])];
+  const initial = stored
+    ? reconcileIds(stored.ids, options.ids ?? []).ids
+    : [...(options.ids ?? [])];
 
   let current: ItemId[] = initial;
   const history: History<ItemId[]> | null = historyOptions.enabled
-    ? createHistory<ItemId[]>(initial, { limit: historyOptions.limit, equals: idsEqual })
+    ? createHistory<ItemId[]>(initial, {
+        limit: historyOptions.limit,
+        equals: idsEqual,
+      })
     : null;
 
   const isControlledByHistory = history !== null;
@@ -112,7 +126,11 @@ export const createRewap = (options: RewapOptions = {}): RewapInstance => {
     options.onChange?.([...current], event);
   };
 
-  const commit = (next: ItemId[], event: LayoutChangeEvent, record = true): boolean => {
+  const commit = (
+    next: ItemId[],
+    event: LayoutChangeEvent,
+    record = true,
+  ): boolean => {
     if (idsEqual(current, next)) {
       emit(event);
       return false;
@@ -135,7 +153,10 @@ export const createRewap = (options: RewapOptions = {}): RewapInstance => {
     move(id, index) {
       const from = current.indexOf(id);
       if (from === -1) return false;
-      const bounded = Math.max(0, Math.min(current.length - 1, Math.floor(index)));
+      const bounded = Math.max(
+        0,
+        Math.min(current.length - 1, Math.floor(index)),
+      );
       if (bounded === from) return false;
       const next = orderAfterMove(current, id, bounded, mode);
       const event: LayoutChangeEvent = {
@@ -197,7 +218,12 @@ export const createRewap = (options: RewapOptions = {}): RewapInstance => {
 };
 
 /** The mode decides what "move to index" means; the shared helper is in `order.ts`. */
-const orderAfterMove = (ids: readonly ItemId[], id: ItemId, to: number, mode: LayoutMode): ItemId[] =>
+const orderAfterMove = (
+  ids: readonly ItemId[],
+  id: ItemId,
+  to: number,
+  mode: LayoutMode,
+): ItemId[] =>
   mode === "swap" ? swapIds(ids, id, ids[to] ?? id) : moveId(ids, id, to);
 
 /**
@@ -212,7 +238,12 @@ const emptySlot = (index: number, column: number, row: number) => ({
   rect: { x: 0, y: 0, width: 0, height: 0 },
 });
 
-const swapEventFor = (item: ItemId, from: number, to: number, mode: LayoutMode): SwapEvent => ({
+const swapEventFor = (
+  item: ItemId,
+  from: number,
+  to: number,
+  mode: LayoutMode,
+): SwapEvent => ({
   item,
   previousSlot: emptySlot(from, from, 0),
   nextSlot: emptySlot(to, to, 0),

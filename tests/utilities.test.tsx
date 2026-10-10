@@ -11,14 +11,23 @@ import { act, render, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { breakpointOf, useViewport } from "../src/utilities/useViewport";
-import { qualityFrom, useConnection, useNetworkInfo } from "../src/utilities/useNetworkInfo";
+import {
+  qualityFrom,
+  useConnection,
+  useNetworkInfo,
+} from "../src/utilities/useNetworkInfo";
 import { useBattery } from "../src/utilities/useBattery";
 import { usePerformance } from "../src/utilities/usePerformance";
 import { useKeyboardLayout } from "../src/utilities/useKeyboardLayout";
 import { useWeather } from "../src/utilities/useWeather";
 import { useEmailVerification } from "../src/utilities/useEmailVerification";
 import { useMediaQuery } from "../src/utilities/useMediaQuery";
-import { isDisposableDomain, levenshtein, suggestDomain, validateEmailLocal } from "../src/utilities/email";
+import {
+  isDisposableDomain,
+  levenshtein,
+  suggestDomain,
+  validateEmailLocal,
+} from "../src/utilities/email";
 import {
   createDeclaredLocationProvider,
   createStaticWeatherProvider,
@@ -36,15 +45,25 @@ const staticWeather = createStaticWeatherProvider({
   condition: "clear",
   humidity: 45,
 });
-const declaredLocation = createDeclaredLocationProvider({ latitude: 41.4, longitude: 2.2 });
+const declaredLocation = createDeclaredLocationProvider({
+  latitude: 41.4,
+  longitude: 2.2,
+});
 const syntaxOnly = createSyntaxOnlyVerificationProvider();
 
 const setWindowSize = (width: number, height: number): void => {
-  Object.defineProperty(window, "innerWidth", { configurable: true, value: width });
-  Object.defineProperty(window, "innerHeight", { configurable: true, value: height });
+  Object.defineProperty(window, "innerWidth", {
+    configurable: true,
+    value: width,
+  });
+  Object.defineProperty(window, "innerHeight", {
+    configurable: true,
+    value: height,
+  });
 };
 
-const frame = (): Promise<void> => new Promise((resolve) => requestAnimationFrame(() => resolve()));
+const frame = (): Promise<void> =>
+  new Promise((resolve) => requestAnimationFrame(() => resolve()));
 
 afterEach(() => {
   setWindowSize(1024, 768);
@@ -82,7 +101,10 @@ describe("useViewport", () => {
   });
 
   it("tracks scroll without a resize", async () => {
-    Object.defineProperty(window, "scrollY", { configurable: true, value: 120 });
+    Object.defineProperty(window, "scrollY", {
+      configurable: true,
+      value: 120,
+    });
     const { result } = renderHook(() => useViewport());
     expect(result.current.scrollY).toBe(120);
   });
@@ -93,8 +115,12 @@ describe("useViewport", () => {
     expect(breakpointOf(1024)).toBe("lg");
     expect(breakpointOf(2000)).toBe("xl");
     // Custom thresholds replace the defaults wholesale.
-    expect(breakpointOf(700, { sm: 600, md: 900, lg: 1200, xl: 1600 })).toBe("sm");
-    expect(breakpointOf(950, { sm: 600, md: 900, lg: 1200, xl: 1600 })).toBe("md");
+    expect(breakpointOf(700, { sm: 600, md: 900, lg: 1200, xl: 1600 })).toBe(
+      "sm",
+    );
+    expect(breakpointOf(950, { sm: 600, md: 900, lg: 1200, xl: 1600 })).toBe(
+      "md",
+    );
   });
 });
 
@@ -107,7 +133,9 @@ interface FakeConnection extends EventTarget {
   saveData: boolean;
 }
 
-const stubConnection = (values: Partial<FakeConnection> = {}): FakeConnection => {
+const stubConnection = (
+  values: Partial<FakeConnection> = {},
+): FakeConnection => {
   const connection = Object.assign(new EventTarget(), {
     effectiveType: "4g",
     downlink: 10,
@@ -131,7 +159,11 @@ describe("useNetworkInfo / useConnection", () => {
   });
 
   it("says so when the browser exposes nothing", () => {
-    vi.stubGlobal("navigator", { ...navigator, onLine: true, connection: undefined });
+    vi.stubGlobal("navigator", {
+      ...navigator,
+      onLine: true,
+      connection: undefined,
+    });
     const { result } = renderHook(() => useNetworkInfo());
 
     expect(result.current.supported.connection).toBe(false);
@@ -189,7 +221,10 @@ describe("useBattery", () => {
       chargingTime: 1800,
       dischargingTime: Infinity,
     });
-    vi.stubGlobal("navigator", { ...navigator, getBattery: async () => manager });
+    vi.stubGlobal("navigator", {
+      ...navigator,
+      getBattery: async () => manager,
+    });
 
     const { result } = renderHook(() => useBattery());
     await waitFor(() => expect(result.current.supported).toBe(true));
@@ -217,13 +252,17 @@ describe("usePerformance", () => {
     await waitFor(() => expect(result.current.frames).toBeGreaterThan(0));
 
     expect(result.current.cpuTemperature.supported).toBe(false);
-    expect(result.current.cpuTemperature.reason).toContain("cannot read CPU temperature");
+    expect(result.current.cpuTemperature.reason).toContain(
+      "cannot read CPU temperature",
+    );
   });
 
   it("can skip the frame loop entirely", () => {
     const { result } = renderHook(() => usePerformance({ measureFps: false }));
     expect(result.current.fps).toBe(0);
-    expect(result.current.supported.fps).toBe(typeof window.requestAnimationFrame === "function");
+    expect(result.current.supported.fps).toBe(
+      typeof window.requestAnimationFrame === "function",
+    );
   });
 });
 
@@ -257,7 +296,9 @@ describe("useKeyboardLayout", () => {
     expect(result.current.modifiers.shift).toBe(false);
 
     await act(async () => {
-      window.dispatchEvent(new KeyboardEvent("keydown", { key: "Shift", shiftKey: true }));
+      window.dispatchEvent(
+        new KeyboardEvent("keydown", { key: "Shift", shiftKey: true }),
+      );
     });
     expect(result.current.modifiers.shift).toBe(true);
 
@@ -289,7 +330,10 @@ describe("useWeather", () => {
 
   it("stays idle and honest when no provider is configured", async () => {
     const { result } = renderHook(() =>
-      useWeather({ source: "coordinates", coordinates: { latitude: 41.4, longitude: 2.2 } }),
+      useWeather({
+        source: "coordinates",
+        coordinates: { latitude: 41.4, longitude: 2.2 },
+      }),
     );
 
     await waitFor(() => expect(result.current.status).toBe("unsupported"));
@@ -298,7 +342,9 @@ describe("useWeather", () => {
   });
 
   it('explains why `source: "ip"` needs a provider', async () => {
-    const { result } = renderHook(() => useWeather({ source: "ip", provider: staticWeather }));
+    const { result } = renderHook(() =>
+      useWeather({ source: "ip", provider: staticWeather }),
+    );
 
     await waitFor(() => expect(result.current.status).toBe("unsupported"));
     expect(result.current.unsupportedReason).toContain("locationProvider");
@@ -327,7 +373,11 @@ describe("useWeather", () => {
 
   it("does not run at all when it is disabled", async () => {
     const { result } = renderHook(() =>
-      useWeather({ enabled: false, coordinates: { latitude: 1, longitude: 2 }, provider: staticWeather }),
+      useWeather({
+        enabled: false,
+        coordinates: { latitude: 1, longitude: 2 },
+        provider: staticWeather,
+      }),
     );
 
     expect(result.current.status).toBe("idle");
@@ -344,7 +394,9 @@ describe("email helpers", () => {
     expect(validateEmailLocal("someone@@example.com").valid).toBe(false);
     // Whitespace is trimmed and the domain is normalised; the local part is kept
     // as typed, because it is case-sensitive in theory.
-    expect(validateEmailLocal("  Someone@Example.COM ").normalized).toBe("Someone@example.com");
+    expect(validateEmailLocal("  Someone@Example.COM ").normalized).toBe(
+      "Someone@example.com",
+    );
   });
 
   it("flags disposable domains and suggests typos", () => {
@@ -362,11 +414,15 @@ describe("email helpers", () => {
 
 describe("useEmailVerification", () => {
   it("runs the local check and says nothing was verified remotely", () => {
-    const { result } = renderHook(() => useEmailVerification("someone@example.com"));
+    const { result } = renderHook(() =>
+      useEmailVerification("someone@example.com"),
+    );
 
     expect(result.current.local.valid).toBe(true);
     expect(result.current.remote.status).toBe("not-configured");
-    expect(result.current.remote.unsupportedReason).toContain("No verification provider");
+    expect(result.current.remote.unsupportedReason).toContain(
+      "No verification provider",
+    );
   });
 
   it("does not send an invalid address anywhere", async () => {
@@ -392,7 +448,9 @@ describe("useEmailVerification", () => {
       }),
     );
 
-    const outcome: { current: ProviderOutcome<EmailVerificationVerdict> | null } = { current: null };
+    const outcome: {
+      current: ProviderOutcome<EmailVerificationVerdict> | null;
+    } = { current: null };
     await act(async () => {
       outcome.current = await result.current.verify();
     });
@@ -400,7 +458,8 @@ describe("useEmailVerification", () => {
     expect(result.current.remote.status).toBe("verified");
     expect(result.current.remote.checkedAt).toBeTypeOf("number");
     expect(outcome.current?.status).toBe("success");
-    if (outcome.current?.status === "success") expect(outcome.current.data.deliverable).toBe(true);
+    if (outcome.current?.status === "success")
+      expect(outcome.current.data.deliverable).toBe(true);
   });
 });
 
@@ -412,12 +471,18 @@ describe("useMediaQuery", () => {
     const list = {
       matches: false,
       media: "(min-width: 900px)",
-      addEventListener: (_type: string, listener: (event: { matches: boolean }) => void) =>
+      addEventListener: (
+        _type: string,
+        listener: (event: { matches: boolean }) => void,
+      ) => listeners.add(listener),
+      removeEventListener: (
+        _type: string,
+        listener: (event: { matches: boolean }) => void,
+      ) => listeners.delete(listener),
+      addListener: (listener: (event: { matches: boolean }) => void) =>
         listeners.add(listener),
-      removeEventListener: (_type: string, listener: (event: { matches: boolean }) => void) =>
+      removeListener: (listener: (event: { matches: boolean }) => void) =>
         listeners.delete(listener),
-      addListener: (listener: (event: { matches: boolean }) => void) => listeners.add(listener),
-      removeListener: (listener: (event: { matches: boolean }) => void) => listeners.delete(listener),
     };
     vi.stubGlobal(
       "matchMedia",

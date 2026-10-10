@@ -12,9 +12,18 @@ export interface Vector {
 
 export const point = (x: number, y: number): Point => ({ x, y });
 
-export const add = (a: Point, b: Point): Point => ({ x: a.x + b.x, y: a.y + b.y });
-export const subtract = (a: Point, b: Point): Point => ({ x: a.x - b.x, y: a.y - b.y });
-export const scale = (a: Point, factor: number): Point => ({ x: a.x * factor, y: a.y * factor });
+export const add = (a: Point, b: Point): Point => ({
+  x: a.x + b.x,
+  y: a.y + b.y,
+});
+export const subtract = (a: Point, b: Point): Point => ({
+  x: a.x - b.x,
+  y: a.y - b.y,
+});
+export const scale = (a: Point, factor: number): Point => ({
+  x: a.x * factor,
+  y: a.y * factor,
+});
 export const dot = (a: Point, b: Point): number => a.x * b.x + a.y * b.y;
 export const magnitude = (a: Point): number => Math.hypot(a.x, a.y);
 
@@ -25,14 +34,16 @@ export const normalize = (a: Point): Point => {
 };
 
 /** Euclidean distance between two points. */
-export const distance = (a: Point, b: Point): number => Math.hypot(a.x - b.x, a.y - b.y);
+export const distance = (a: Point, b: Point): number =>
+  Math.hypot(a.x - b.x, a.y - b.y);
 
 /** Squared distance — cheaper for comparisons where the square root is irrelevant. */
 export const distanceSquared = (a: Point, b: Point): number =>
   (a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y);
 
 /** Distance between rectangle centers. */
-export const centerDistance = (a: Rect, b: Rect): number => distance(rectCenter(a), rectCenter(b));
+export const centerDistance = (a: Rect, b: Rect): number =>
+  distance(rectCenter(a), rectCenter(b));
 
 /** Distance from a point to the closest edge of a rectangle (0 when inside). */
 export const distanceToRect = (p: Point, r: Rect): number => {
@@ -87,7 +98,8 @@ export const nearest = <T>(
     }
   }
   if (best === null) return null;
-  if (options.maxDistance !== undefined && bestDistance > options.maxDistance) return null;
+  if (options.maxDistance !== undefined && bestDistance > options.maxDistance)
+    return null;
   return best;
 };
 
@@ -130,7 +142,11 @@ export const projectRatio = (p: Point, a: Point, b: Point): number => {
   return Math.min(1, Math.max(0, t));
 };
 
-export const rotatePoint = (p: Point, origin: Point, radians: number): Point => {
+export const rotatePoint = (
+  p: Point,
+  origin: Point,
+  radians: number,
+): Point => {
   const cos = Math.cos(radians);
   const sin = Math.sin(radians);
   const dx = p.x - origin.x;
@@ -141,14 +157,23 @@ export const rotatePoint = (p: Point, origin: Point, radians: number): Point => 
   };
 };
 
-export const angle = (a: Point, b: Point): number => Math.atan2(b.y - a.y, b.x - a.x);
+export const angle = (a: Point, b: Point): number =>
+  Math.atan2(b.y - a.y, b.x - a.x);
 export const degrees = (radians: number): number => (radians * 180) / Math.PI;
 export const radians = (deg: number): number => (deg * Math.PI) / 180;
 
 /** One-dimensional overlap between the intervals [aStart, aEnd] and [bStart, bEnd]. */
-export const intervalOverlap = (aStart: number, aEnd: number, bStart: number, bEnd: number): number =>
-  Math.max(0, Math.min(aEnd, bEnd) - Math.max(aStart, bStart));
+export const intervalOverlap = (
+  aStart: number,
+  aEnd: number,
+  bStart: number,
+  bEnd: number,
+): number => Math.max(0, Math.min(aEnd, bEnd) - Math.max(aStart, bStart));
 
 /** True when two intervals overlap at all. */
-export const intervalsIntersect = (aStart: number, aEnd: number, bStart: number, bEnd: number): boolean =>
-  intervalOverlap(aStart, aEnd, bStart, bEnd) > 0;
+export const intervalsIntersect = (
+  aStart: number,
+  aEnd: number,
+  bStart: number,
+  bEnd: number,
+): boolean => intervalOverlap(aStart, aEnd, bStart, bEnd) > 0;

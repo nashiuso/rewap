@@ -1,0 +1,115 @@
+---
+title: Motion and customization
+description: Presets, springs, reduced motion, and the CSS variables that theme a layout.
+---
+
+The goal of the motion engine isn't to make everything look physical. It's
+to make movement predictable.
+
+## Presets
+
+```tsx
+<Layout motion="smooth">   {/* default: a soft spring, no overshoot */}
+<Layout motion="snappy">   {/* stiffer and faster, for small items */}
+<Layout motion="soft">     {/* a tween instead of a spring */}
+<Layout motion="instant">  {/* no animation at all */}
+```
+
+| Preset    | Kind                          | Character                                  |
+| --------- | ----------------------------- | ------------------------------------------ |
+| `smooth`  | spring, `320 / 32 / mass 1`   | short, slightly damped settle              |
+| `snappy`  | spring, `520 / 38 / mass 0.9` | fast and decisive, good for swap previews  |
+| `soft`    | spring, `180 / 26 / mass 1.1` | gentle; long travel and ghost placeholders |
+| `instant` | zero-length tween             | the item is where it should be, now        |
+
+Custom springs and tweens both work directly:
+
+```tsx
+<Layout motion={{ type: "spring", stiffness: 220, damping: 24, mass: 1 }}>
+<Layout motion={{ type: "tween", duration: 260, easing: "ease-out-quint" }}>
+```
+
+`criticalDamping(stiffness, mass)` (from `@nashiuso/rewap/motion`) returns
+the damping value that removes overshoot exactly, for a fast spring without
+the bounce. A spring _without_ critical damping is allowed to overshoot on
+purpose — a drop that never overshoots can look like a jump cut on a large
+movement.
+
+## Why a fixed-step integrator
+
+The spring uses semi-implicit Euler at a fixed `1/60` step, with
+sub-stepping for long frames, rather than a continuous solver. That's not
+the most accurate integrator available — it's the one whose behaviour
+doesn't change with the display's refresh rate, so a drag on a 120 Hz
+screen and the same drag on a 60 Hz screen produce the same path and the
+test suite can assert on actual numbers instead of approximate ones.
+
+A spring is at rest when both the distance to its target _and_ the velocity
+are below their thresholds — not when it merely looks close. Without the
+velocity half of that, a spring passing through its target at speed would
+stop there instead of continuing; without the distance half, it would keep
+writing transforms that round to the same pixel for another second, for no
+visible benefit.
+
+One thing it deliberately doesn't do: fling the item on release. The settle
+duration comes from how far the item has to travel, not from the pointer's
+exit velocity — with a placeholder already showing where the item will
+land, the extra travel from a fling read as imprecision rather than
+momentum when it was tried.
+
+## Reduced motion
+
+`prefers-reduced-motion: reduce` resolves every motion plan to `instant`
+automatically. The drag still works; the item simply appears in its new
+place. Nothing needs to be configured, and this is handled once at plan
+resolution rather than as a special case scattered through the animation
+code.
+
+```tsx
+{/* Escape hatch, for decoration rather than movement — use rarely: */}
+<Layout motion={{ type: "spring", stiffness: 200, damping: 20, respectReducedMotion: false }}>
+```
+
+## One ticker
+
+Every animation in the library subscribes to a single shared
+`requestAnimationFrame` loop, started when the first animation registers
+and stopped when the last one ends. A hundred items moving is one loop, not
+a hundred, and an idle layout schedules nothing. During a drag, React
+re-renders on status and destination changes only — the transform itself is
+written imperatively by a single element-state controller, so a 60 Hz drag
+on a sixty-item board doesn't produce sixty renders per second.
+
+## Placeholders
+
+```tsx
+<Layout placeholder="outline">              {/* default-adjacent: a dashed outline */}
+<Layout placeholder="ghost">                {/* clones and animates the dragged element */}
+<Layout renderPlaceholder={({ item, slot }) => <MyPlaceholder />}>
+```
+
+Placeholders are positioned from the destination slot, not the pointer.
+`ghost` is the most expensive variant (it clones and animates a real
+element) and isn't the default for that reason — `auto` and `outline` cover
+most layouts without it.
+
+## Customizing with CSS
+
+There's no `theme` prop. Every visual default is a CSS custom property on
+`:root`, scoped under `rw-*` class names:
+
+```css
+.panels {
+  --rw-columns: 3;
+  --rw-min-column: 220px;
+  --rw-gap: 16px;
+  --rw-accent: #49a1a8;
+  --rw-radius: 6px;
+}
+```
+
+Setting `columns`, `minColumnWidth`, or `gap` as props writes the matching
+variable for you. Without them, the layout is a flow container: items are
+placed by whatever CSS you already have, and rewap only measures where they
+ended up — which is the intended way to make a layout responsive with one
+media query instead of a JavaScript breakpoint.

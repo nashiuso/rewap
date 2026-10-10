@@ -15,7 +15,15 @@
  * `aria-describedby`.
  */
 
-import { forwardRef, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import { useIsomorphicLayoutEffect } from "./useIsomorphicLayoutEffect";
 import type {
@@ -54,16 +62,34 @@ import { rect, rectFromDOMRect, sanitizeRect, type Rect } from "../math/rect";
 import { resolveMotion } from "../motion/presets";
 import { readTranslate } from "../motion/transform";
 import { idsFromChildren, orderChildren } from "./children";
-import { LayoutContext, type ItemMeta, type LayoutContextValue, type PlaceholderRenderInfo } from "./context";
-import { warnDuplicateIds, warnItemsWithoutChildren, warnPersistenceControlled } from "./dev";
+import {
+  LayoutContext,
+  type ItemMeta,
+  type LayoutContextValue,
+  type PlaceholderRenderInfo,
+} from "./context";
+import {
+  warnDuplicateIds,
+  warnItemsWithoutChildren,
+  warnPersistenceControlled,
+} from "./dev";
 import { elementStateFor, type ElementStateController } from "./elementState";
 import { playFlip, rectChanged } from "./flip";
 import { buildLayoutController, type LayoutController } from "./useLayout";
-import { useLayoutEngine, type LayoutItemInput, type PersistenceConfig } from "./useLayoutEngine";
+import {
+  useLayoutEngine,
+  type LayoutItemInput,
+  type PersistenceConfig,
+} from "./useLayoutEngine";
 
 /** Drag boundary: `"container"` (default), `"viewport"`, `null`, an element, a ref or a rect. */
 export type LayoutBounds =
-  "container" | "viewport" | null | HTMLElement | Rect | RefObject<HTMLElement | null>;
+  | "container"
+  | "viewport"
+  | null
+  | HTMLElement
+  | Rect
+  | RefObject<HTMLElement | null>;
 
 export interface LayoutProps<T = unknown> extends Omit<
   HTMLAttributes<HTMLDivElement>,
@@ -130,10 +156,15 @@ export interface LayoutProps<T = unknown> extends Omit<
 }
 
 const asPx = (value: number | string | undefined): string | undefined =>
-  value === undefined ? undefined : typeof value === "number" ? `${value}px` : value;
+  value === undefined
+    ? undefined
+    : typeof value === "number"
+      ? `${value}px`
+      : value;
 
 /** Interactive descendants keep their own gestures. */
-const interactiveSelector = "button, a, input, select, textarea, [role='button'], [contenteditable='true']";
+const interactiveSelector =
+  "button, a, input, select, textarea, [role='button'], [contenteditable='true']";
 
 const nearestLayout = (element: Element | null): Element | null =>
   element?.closest("[data-rewap-layout]") ?? null;
@@ -147,7 +178,9 @@ const sourceFromPointer = (pointerType: string): InputSource => {
 const sameRect = (a: Rect | null, b: Rect | null): boolean => {
   if (a === b) return true;
   if (!a || !b) return false;
-  return a.x === b.x && a.y === b.y && a.width === b.width && a.height === b.height;
+  return (
+    a.x === b.x && a.y === b.y && a.width === b.width && a.height === b.height
+  );
 };
 
 const assignRef = <T,>(ref: Ref<T> | undefined, value: T | null): void => {
@@ -157,11 +190,15 @@ const assignRef = <T,>(ref: Ref<T> | undefined, value: T | null): void => {
 };
 
 const prefersReducedMotionNow = (): boolean => {
-  if (typeof window === "undefined" || typeof window.matchMedia !== "function") return false;
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function")
+    return false;
   return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 };
 
-const LayoutImpl = (props: LayoutProps<unknown>, forwardedRef: Ref<HTMLDivElement>) => {
+const LayoutImpl = (
+  props: LayoutProps<unknown>,
+  forwardedRef: Ref<HTMLDivElement>,
+) => {
   const {
     children,
     mode = "swap",
@@ -214,7 +251,9 @@ const LayoutImpl = (props: LayoutProps<unknown>, forwardedRef: Ref<HTMLDivElemen
 
   const [focusId, setFocusId] = useState<ItemId | null>(null);
   const [placeholderBox, setPlaceholderBox] = useState<Rect | null>(null);
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(prefersReducedMotionNow);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(
+    prefersReducedMotionNow,
+  );
 
   const rawId = useId();
   const instructionsId = `rw-instructions-${rawId.replace(/[^a-zA-Z0-9_-]/g, "")}`;
@@ -231,9 +270,18 @@ const LayoutImpl = (props: LayoutProps<unknown>, forwardedRef: Ref<HTMLDivElemen
 
   // -------------------------------------------------------------------- config
   const childIds = useMemo(() => idsFromChildren(children), [children]);
-  const resolvedEffects = useMemo<EffectsOptions>(() => effects ?? {}, [effects]);
-  const historyEnabled = !(history === false || (typeof history === "object" && history.enabled === false));
-  const historyLimit = typeof history === "object" && typeof history.limit === "number" ? history.limit : 50;
+  const resolvedEffects = useMemo<EffectsOptions>(
+    () => effects ?? {},
+    [effects],
+  );
+  const historyEnabled = !(
+    history === false ||
+    (typeof history === "object" && history.enabled === false)
+  );
+  const historyLimit =
+    typeof history === "object" && typeof history.limit === "number"
+      ? history.limit
+      : 50;
   const persistenceConfig = useMemo<PersistenceConfig | null>(() => {
     if (!persistence || persistence === true) return null;
     return persistence.enabled === false ? null : persistence;
@@ -244,7 +292,10 @@ const LayoutImpl = (props: LayoutProps<unknown>, forwardedRef: Ref<HTMLDivElemen
     const { enabled, ...options } = keyboard;
     return enabled === false ? null : options;
   }, [keyboard]);
-  const plan = useMemo(() => resolveMotion(motion, { prefersReducedMotion }), [motion, prefersReducedMotion]);
+  const plan = useMemo(
+    () => resolveMotion(motion, { prefersReducedMotion }),
+    [motion, prefersReducedMotion],
+  );
   const placeholderPlan = useMemo(
     () => resolveMotion(placeholderMotion ?? motion, { prefersReducedMotion }),
     [motion, placeholderMotion, prefersReducedMotion],
@@ -335,12 +386,19 @@ const LayoutImpl = (props: LayoutProps<unknown>, forwardedRef: Ref<HTMLDivElemen
   const baseRectOf = useCallback(
     (element: HTMLElement): Rect => {
       const measured = sanitizeRect(
-        geometry ? geometry.measure(element) : rectFromDOMRect(element.getBoundingClientRect()),
+        geometry
+          ? geometry.measure(element)
+          : rectFromDOMRect(element.getBoundingClientRect()),
       );
       const translate = readTranslate(element);
       if (translate.x === 0 && translate.y === 0) return measured;
       return sanitizeRect(
-        rect(measured.x - translate.x, measured.y - translate.y, measured.width, measured.height),
+        rect(
+          measured.x - translate.x,
+          measured.y - translate.y,
+          measured.width,
+          measured.height,
+        ),
       );
     },
     [geometry],
@@ -393,18 +451,31 @@ const LayoutImpl = (props: LayoutProps<unknown>, forwardedRef: Ref<HTMLDivElemen
         engine.invalidateSlots();
         const candidates = engine.measure();
         const index = snapshot.destinationIndex;
-        const candidate = index === null ? undefined : candidates.find((entry) => entry.index === index);
+        const candidate =
+          index === null
+            ? undefined
+            : candidates.find((entry) => entry.index === index);
         const containerRect = geometry
           ? geometry.measure(container)
           : rectFromDOMRect(container.getBoundingClientRect());
-        const target = candidate?.slot.rect ?? (activeId ? rects.get(activeId) : undefined);
+        const target =
+          candidate?.slot.rect ?? (activeId ? rects.get(activeId) : undefined);
         if (target) {
           const box = sanitizeRect(
-            rect(target.x - containerRect.x, target.y - containerRect.y, target.width, target.height),
+            rect(
+              target.x - containerRect.x,
+              target.y - containerRect.y,
+              target.width,
+              target.height,
+            ),
           );
-          setPlaceholderBox((previous) => (sameRect(previous, box) ? previous : box));
+          setPlaceholderBox((previous) =>
+            sameRect(previous, box) ? previous : box,
+          );
         } else {
-          setPlaceholderBox((previous) => (previous === null ? previous : null));
+          setPlaceholderBox((previous) =>
+            previous === null ? previous : null,
+          );
         }
       } else {
         setPlaceholderBox((previous) => (previous === null ? previous : null));
@@ -419,7 +490,10 @@ const LayoutImpl = (props: LayoutProps<unknown>, forwardedRef: Ref<HTMLDivElemen
     const node = elementStateFor(element);
     const previous = placeholderRectRef.current;
     if (previous) {
-      node.set({ x: previous.x - placeholderBox.x, y: previous.y - placeholderBox.y });
+      node.set({
+        x: previous.x - placeholderBox.x,
+        y: previous.y - placeholderBox.y,
+      });
     } else {
       node.set({ x: 0, y: 0, opacity: 0, scale: 0.98 });
     }
@@ -432,7 +506,10 @@ const LayoutImpl = (props: LayoutProps<unknown>, forwardedRef: Ref<HTMLDivElemen
   }, [placeholderBox]);
 
   // ------------------------------------------------------------------ gestures
-  const gestureRef = useRef<{ pointerId: number | null; moved: boolean } | null>(null);
+  const gestureRef = useRef<{
+    pointerId: number | null;
+    moved: boolean;
+  } | null>(null);
   const suppressClickRef = useRef(false);
 
   const assignContainer = useCallback(
@@ -451,15 +528,18 @@ const LayoutImpl = (props: LayoutProps<unknown>, forwardedRef: Ref<HTMLDivElemen
       if (event.pointerType === "mouse" && event.button !== 0) return false;
 
       const target = event.target as HTMLElement | null;
-      const itemElement = target?.closest<HTMLElement>("[data-rewap-item]") ?? null;
-      if (!itemElement || nearestLayout(itemElement) !== container) return false;
+      const itemElement =
+        target?.closest<HTMLElement>("[data-rewap-item]") ?? null;
+      if (!itemElement || nearestLayout(itemElement) !== container)
+        return false;
 
       const id = itemElement.dataset.rewapItem;
       if (!id) return false;
       const meta = registry.get(id);
       if (!meta || !meta.draggable || meta.disabled) return false;
 
-      const handle = target?.closest<HTMLElement>("[data-rewap-handle]") ?? null;
+      const handle =
+        target?.closest<HTMLElement>("[data-rewap-handle]") ?? null;
       if (meta.handleOnly && !handle) return false;
       // Interactive children keep their own behaviour unless a handle started it.
       if (!handle && target?.closest(interactiveSelector)) return false;
@@ -495,19 +575,22 @@ const LayoutImpl = (props: LayoutProps<unknown>, forwardedRef: Ref<HTMLDivElemen
 
   const gestureListeners = useRef<(() => void) | null>(null);
 
-  const endGesture = useCallback((commit: boolean, reason: DropReason = "cancel"): void => {
-    const detach = gestureListeners.current;
-    gestureListeners.current = null;
-    detach?.();
-    const gesture = gestureRef.current;
-    gestureRef.current = null;
-    if (!gesture) return;
-    // A drag that moved must not also fire a click on the item underneath. The
-    // flag is consumed by that click, or reset by the next pointer down.
-    if (gesture.moved) suppressClickRef.current = true;
-    if (commit) liveController.current.drop();
-    else liveController.current.cancel(reason);
-  }, []);
+  const endGesture = useCallback(
+    (commit: boolean, reason: DropReason = "cancel"): void => {
+      const detach = gestureListeners.current;
+      gestureListeners.current = null;
+      detach?.();
+      const gesture = gestureRef.current;
+      gestureRef.current = null;
+      if (!gesture) return;
+      // A drag that moved must not also fire a click on the item underneath. The
+      // flag is consumed by that click, or reset by the next pointer down.
+      if (gesture.moved) suppressClickRef.current = true;
+      if (commit) liveController.current.drop();
+      else liveController.current.cancel(reason);
+    },
+    [],
+  );
 
   /**
    * Listening on `window` rather than on the container keeps the drag alive when
@@ -520,14 +603,18 @@ const LayoutImpl = (props: LayoutProps<unknown>, forwardedRef: Ref<HTMLDivElemen
     const gestureOf = (event: PointerEvent) => {
       const gesture = gestureRef.current;
       if (!gesture) return false;
-      if (gesture.pointerId !== null && event.pointerId !== gesture.pointerId) return false;
+      if (gesture.pointerId !== null && event.pointerId !== gesture.pointerId)
+        return false;
       return true;
     };
     const move = (event: PointerEvent) => {
       if (!gestureOf(event)) return;
       const gesture = gestureRef.current as { moved: boolean };
       gesture.moved = true;
-      liveController.current.move({ x: event.clientX, y: event.clientY }, event.timeStamp);
+      liveController.current.move(
+        { x: event.clientX, y: event.clientY },
+        event.timeStamp,
+      );
     };
     const up = (event: PointerEvent) => {
       if (!gestureOf(event)) return;
@@ -606,12 +693,26 @@ const LayoutImpl = (props: LayoutProps<unknown>, forwardedRef: Ref<HTMLDivElemen
     const item = snapshot.activeId;
     if (!item) return null;
     const index = snapshot.destinationIndex;
-    const candidate = index === null ? undefined : engine.slots().find((entry) => entry.index === index);
+    const candidate =
+      index === null
+        ? undefined
+        : engine.slots().find((entry) => entry.index === index);
     if (candidate) return { item, slot: candidate.slot, mode };
     if (!placeholderBox) return null;
-    const slot: Slot = { index: index ?? 0, column: 0, row: 0, rect: placeholderBox };
+    const slot: Slot = {
+      index: index ?? 0,
+      column: 0,
+      row: 0,
+      rect: placeholderBox,
+    };
     return { item, slot, mode };
-  }, [engine, mode, placeholderBox, snapshot.activeId, snapshot.destinationIndex]);
+  }, [
+    engine,
+    mode,
+    placeholderBox,
+    snapshot.activeId,
+    snapshot.destinationIndex,
+  ]);
 
   const contextValue = useMemo<LayoutContextValue>(
     () => ({
@@ -668,7 +769,10 @@ const LayoutImpl = (props: LayoutProps<unknown>, forwardedRef: Ref<HTMLDivElemen
   );
 
   // --------------------------------------------------------------- controller
-  const controllerHandle = useMemo(() => buildLayoutController(contextValue), [contextValue]);
+  const controllerHandle = useMemo(
+    () => buildLayoutController(contextValue),
+    [contextValue],
+  );
 
   useEffect(() => {
     assignRef(controllerRef, controllerHandle);
@@ -698,12 +802,17 @@ const LayoutImpl = (props: LayoutProps<unknown>, forwardedRef: Ref<HTMLDivElemen
 
   // -------------------------------------------------------------------- render
   const dragging = snapshot.status !== "idle";
-  const ordered = useMemo(() => orderChildren(children, renderIds), [children, renderIds]);
+  const ordered = useMemo(
+    () => orderChildren(children, renderIds),
+    [children, renderIds],
+  );
 
   const resolvedStyle = {
     position: "relative",
     ...(columns !== undefined ? { "--rw-columns": String(columns) } : {}),
-    ...(minColumnWidth !== undefined ? { "--rw-min-column": asPx(minColumnWidth) } : {}),
+    ...(minColumnWidth !== undefined
+      ? { "--rw-min-column": asPx(minColumnWidth) }
+      : {}),
     ...(gap !== undefined ? { "--rw-gap": asPx(gap) } : {}),
     ...style,
   } as CSSProperties;
@@ -719,7 +828,9 @@ const LayoutImpl = (props: LayoutProps<unknown>, forwardedRef: Ref<HTMLDivElemen
         data-status={snapshot.status}
         {...(dragging ? { "data-rewap-dragging": "" } : {})}
         {...(disabled ? { "data-rewap-disabled": "" } : {})}
-        {...(columns !== undefined ? { "data-rw-columns": String(columns) } : {})}
+        {...(columns !== undefined
+          ? { "data-rw-columns": String(columns) }
+          : {})}
         {...(placeholder !== "none" ? { "data-placeholder": placeholder } : {})}
         role={rest.role ?? "list"}
         aria-label={label ?? rest["aria-label"]}

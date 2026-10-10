@@ -15,7 +15,11 @@ export {
   type PlaceholderRenderInfo,
   type ItemMeta,
 } from "./context";
-export { elementStateFor, releaseElementState, type ElementStateController } from "./elementState";
+export {
+  elementStateFor,
+  releaseElementState,
+  type ElementStateController,
+} from "./elementState";
 export { playFlip, rectChanged, orderKey } from "./flip";
 export {
   useLayoutEngine,

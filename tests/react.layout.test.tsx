@@ -6,7 +6,13 @@
  * uncontrolled state, history and persistence.
  */
 
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import { useState } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -58,12 +64,15 @@ describe("<Layout> basics", () => {
       </Layout>,
     );
 
-    const layout = container.querySelector("[data-rewap-layout]") as HTMLElement;
+    const layout = container.querySelector(
+      "[data-rewap-layout]",
+    ) as HTMLElement;
     expect(layout.getAttribute("role")).toBe("list");
     expect(layout.getAttribute("aria-label")).toBe("Dashboard");
     expect(layout.getAttribute("aria-describedby")).toBeTruthy();
 
-    const [first, second] = container.querySelectorAll<HTMLElement>("[data-rewap-item]");
+    const [first, second] =
+      container.querySelectorAll<HTMLElement>("[data-rewap-item]");
     expect(first?.getAttribute("role")).toBe("listitem");
     expect(first?.getAttribute("aria-roledescription")).toBe("draggable item");
     expect(first?.getAttribute("tabindex")).toBe("0");
@@ -87,7 +96,9 @@ describe("<Layout> basics", () => {
         </Item>
       </Layout>,
     );
-    const describedBy = container.querySelector("[data-rewap-layout]")?.getAttribute("aria-describedby");
+    const describedBy = container
+      .querySelector("[data-rewap-layout]")
+      ?.getAttribute("aria-describedby");
     // The instructions element is referenced by id; jsdom does not implement
     // CSS.escape, so it is looked up by attribute instead.
     const instructions = [...container.querySelectorAll("span")].find(
@@ -108,9 +119,13 @@ describe("<Layout> basics", () => {
     });
 
     await waitFor(() => {
-      expect(document.querySelector('[data-rewap-announcer="assertive"]')).toBeTruthy();
+      expect(
+        document.querySelector('[data-rewap-announcer="assertive"]'),
+      ).toBeTruthy();
     });
-    const region = document.querySelector('[data-rewap-announcer="assertive"]') as HTMLElement;
+    const region = document.querySelector(
+      '[data-rewap-announcer="assertive"]',
+    ) as HTMLElement;
     expect(region.getAttribute("aria-live")).toBe("assertive");
     expect(region.textContent).toContain("grabbed");
 
@@ -118,9 +133,15 @@ describe("<Layout> basics", () => {
     await act(async () => {
       fireEvent.keyDown(item as HTMLElement, { key: "ArrowDown" });
     });
-    expect(container.querySelector("[data-rewap-layout]")?.getAttribute("data-status")).toBe("dragging");
+    expect(
+      container
+        .querySelector("[data-rewap-layout]")
+        ?.getAttribute("data-status"),
+    ).toBe("dragging");
     await waitFor(() => {
-      expect(document.querySelector('[data-rewap-announcer="polite"]')).toBeTruthy();
+      expect(
+        document.querySelector('[data-rewap-announcer="polite"]'),
+      ).toBeTruthy();
     });
   });
 
@@ -132,7 +153,9 @@ describe("<Layout> basics", () => {
         <Item id="b">B</Item>
       </Layout>,
     );
-    const children = [...(container.querySelector("[data-rewap-layout]")?.children ?? [])];
+    const children = [
+      ...(container.querySelector("[data-rewap-layout]")?.children ?? []),
+    ];
     expect(children[1]?.tagName).toBe("P");
     expect(idsInDom(container)).toEqual(["a", "b"]);
   });
@@ -151,7 +174,9 @@ describe("<Layout> basics", () => {
         </Item>
       </Layout>,
     );
-    const layout = container.querySelector("[data-rewap-layout]") as HTMLElement;
+    const layout = container.querySelector(
+      "[data-rewap-layout]",
+    ) as HTMLElement;
     expect(layout.dataset.mode).toBe("grid");
     expect(layout.style.getPropertyValue("--rw-columns")).toBe("3");
     expect(layout.style.getPropertyValue("--rw-gap")).toBe("20px");
@@ -172,7 +197,8 @@ describe("<Layout> basics", () => {
         </Item>
       </Layout>,
     );
-    const [first, second] = container.querySelectorAll<HTMLElement>("[data-rewap-item]");
+    const [first, second] =
+      container.querySelectorAll<HTMLElement>("[data-rewap-item]");
     expect(first?.style.touchAction).toBe("none");
     expect(second?.style.touchAction).toBe("auto");
     expect(second?.hasAttribute("data-rewap-static")).toBe(true);
@@ -187,7 +213,9 @@ describe("<Layout> basics", () => {
       </Layout>,
     );
     const item = container.querySelector("[data-rewap-item]") as HTMLElement;
-    const handle = container.querySelector("[data-rewap-handle]") as HTMLElement;
+    const handle = container.querySelector(
+      "[data-rewap-handle]",
+    ) as HTMLElement;
     expect(handle.tagName).toBe("BUTTON");
     expect(handle.getAttribute("aria-label")).toBe("Reorder A");
     // Only the handle captures the gesture, so the item stays scrollable.
@@ -203,7 +231,9 @@ describe("<Layout> basics", () => {
         </Item>
       </Layout>,
     );
-    const handle = container.querySelector("[data-rewap-handle]") as HTMLElement;
+    const handle = container.querySelector(
+      "[data-rewap-handle]",
+    ) as HTMLElement;
     expect(handle.getAttribute("aria-hidden")).toBe("true");
     expect(handle.querySelector("svg")).toBeTruthy();
   });
@@ -257,7 +287,12 @@ describe("<Layout> ordering", () => {
   it("keeps a stored order and appends new items at the end", async () => {
     window.localStorage.setItem(
       "dashboard",
-      JSON.stringify({ version: 1, mode: "reorder", ids: ["b", "a"], savedAt: Date.now() }),
+      JSON.stringify({
+        version: 1,
+        mode: "reorder",
+        ids: ["b", "a"],
+        savedAt: Date.now(),
+      }),
     );
     const { container } = render(
       <Layout persistence={{ key: "dashboard" }}>
@@ -272,10 +307,19 @@ describe("<Layout> ordering", () => {
   it("ignores persistence while the order is controlled", async () => {
     window.localStorage.setItem(
       "controlled",
-      JSON.stringify({ version: 1, mode: "swap", ids: ["b", "a"], savedAt: Date.now() }),
+      JSON.stringify({
+        version: 1,
+        mode: "swap",
+        ids: ["b", "a"],
+        savedAt: Date.now(),
+      }),
     );
     const { container } = render(
-      <Layout items={["a", "b"]} onChange={() => {}} persistence={{ key: "controlled" }}>
+      <Layout
+        items={["a", "b"]}
+        onChange={() => {}}
+        persistence={{ key: "controlled" }}
+      >
         <Item id="a">A</Item>
         <Item id="b">B</Item>
       </Layout>,
@@ -328,11 +372,15 @@ describe("<Layout> controller", () => {
     });
     await waitFor(() => expect(idsInDom(container)).toEqual(["a", "b", "c"]));
 
-    expect(api!.element("a")).toBe(container.querySelector('[data-rewap-item="a"]'));
+    expect(api!.element("a")).toBe(
+      container.querySelector('[data-rewap-item="a"]'),
+    );
     await act(async () => {
       api!.announce("hello", "polite");
     });
-    expect(document.querySelector('[data-rewap-announcer="polite"]')?.textContent).toBe("hello");
+    expect(
+      document.querySelector('[data-rewap-announcer="polite"]')?.textContent,
+    ).toBe("hello");
   });
 
   it("supports controlled usage where the parent owns the order", async () => {
@@ -346,7 +394,9 @@ describe("<Layout> controller", () => {
             items={items}
             onChange={(next, event) => {
               // Object items keep their payload; string items stay strings.
-              setItems(next.map((item) => (typeof item === "string" ? item : item.id)));
+              setItems(
+                next.map((item) => (typeof item === "string" ? item : item.id)),
+              );
               setLast(event);
             }}
           >
@@ -357,7 +407,9 @@ describe("<Layout> controller", () => {
           <button type="button" onClick={() => setItems(["c", "b", "a"])}>
             reverse
           </button>
-          <output data-testid="last">{last ? `${last.ids.join("")}:${last.source}` : "none"}</output>
+          <output data-testid="last">
+            {last ? `${last.ids.join("")}:${last.source}` : "none"}
+          </output>
         </>
       );
     };
@@ -411,8 +463,13 @@ describe("<Layout> motion and reduced motion", () => {
         <Item id="b">B</Item>
       </Layout>,
     );
-    const item = container.querySelector('[data-rewap-item="a"]') as HTMLElement;
-    expect(item.style.transform === "" || item.style.transform === "translate3d(0px, 0px, 0)").toBe(true);
+    const item = container.querySelector(
+      '[data-rewap-item="a"]',
+    ) as HTMLElement;
+    expect(
+      item.style.transform === "" ||
+        item.style.transform === "translate3d(0px, 0px, 0)",
+    ).toBe(true);
   });
 
   it("honours prefers-reduced-motion for animations", async () => {

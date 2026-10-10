@@ -81,7 +81,10 @@ export const createElementState = (
       cancelAnimation();
       const merged: VisualState = { ...state, ...patch };
       if (transformOptions) {
-        applyVisualState(element, merged, applied, { ...options, ...transformOptions });
+        applyVisualState(element, merged, applied, {
+          ...options,
+          ...transformOptions,
+        });
       } else {
         applyVisualState(element, merged, applied, options);
       }

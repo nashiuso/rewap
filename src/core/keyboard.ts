@@ -39,7 +39,9 @@ export const candidatesInDirection = (
   currentIndex: number,
   direction: "left" | "right" | "up" | "down",
 ): SlotCandidate[] => {
-  const current = candidates.find((candidate) => candidate.index === currentIndex);
+  const current = candidates.find(
+    (candidate) => candidate.index === currentIndex,
+  );
   if (!current) return [];
   const from = rectCenter(current.rect);
   const axis = direction === "left" || direction === "right" ? "x" : "y";
@@ -50,7 +52,8 @@ export const candidatesInDirection = (
     const center = rectCenter(candidate.rect);
     const along = (axis === "x" ? center.x - from.x : center.y - from.y) * sign;
     if (along <= 1) return false;
-    const perpendicular = axis === "x" ? Math.abs(center.y - from.y) : Math.abs(center.x - from.x);
+    const perpendicular =
+      axis === "x" ? Math.abs(center.y - from.y) : Math.abs(center.x - from.x);
     const tolerance =
       (axis === "x" ? current.rect.height : current.rect.width) / 2 +
       (axis === "x" ? candidate.rect.height : candidate.rect.width) / 2;
@@ -60,11 +63,23 @@ export const candidatesInDirection = (
   return forward.sort((a, b) => {
     const aCenter = rectCenter(a.rect);
     const bCenter = rectCenter(b.rect);
-    const aAlong = axis === "x" ? Math.abs(aCenter.x - from.x) : Math.abs(aCenter.y - from.y);
-    const bAlong = axis === "x" ? Math.abs(bCenter.x - from.x) : Math.abs(bCenter.y - from.y);
+    const aAlong =
+      axis === "x"
+        ? Math.abs(aCenter.x - from.x)
+        : Math.abs(aCenter.y - from.y);
+    const bAlong =
+      axis === "x"
+        ? Math.abs(bCenter.x - from.x)
+        : Math.abs(bCenter.y - from.y);
     if (Math.abs(aAlong - bAlong) > 0.5) return aAlong - bAlong;
-    const aPerp = axis === "x" ? Math.abs(aCenter.y - from.y) : Math.abs(aCenter.x - from.x);
-    const bPerp = axis === "x" ? Math.abs(bCenter.y - from.y) : Math.abs(bCenter.x - from.x);
+    const aPerp =
+      axis === "x"
+        ? Math.abs(aCenter.y - from.y)
+        : Math.abs(aCenter.x - from.x);
+    const bPerp =
+      axis === "x"
+        ? Math.abs(bCenter.y - from.y)
+        : Math.abs(bCenter.x - from.x);
     if (Math.abs(aPerp - bPerp) > 0.5) return aPerp - bPerp;
     return a.index - b.index;
   });
@@ -90,7 +105,10 @@ export const stepIndex = (
 };
 
 /** `Home`/`End`/`PageUp`-style jumps to the first or last slot. */
-export const boundaryIndex = (candidates: readonly SlotCandidate[], boundary: "first" | "last"): number => {
+export const boundaryIndex = (
+  candidates: readonly SlotCandidate[],
+  boundary: "first" | "last",
+): number => {
   if (candidates.length === 0) return 0;
   if (boundary === "first") return 0;
   return candidates.length - 1;
@@ -104,11 +122,15 @@ export const resolveTargetIndex = (
   keyboard: KeyboardOptions = {},
 ): number => {
   const config = { ...defaultKeyboardOptions, ...keyboard };
-  if (direction === "first" || direction === "last") return boundaryIndex(candidates, direction);
+  if (direction === "first" || direction === "last")
+    return boundaryIndex(candidates, direction);
   const count = options.large ? config.largeStep : config.step;
   return stepIndex(candidates, currentIndex, direction, count);
 };
 
 /** Human-readable announcement for a move, used by the live region. */
-export const describeMove = (itemLabel: string, index: number, total: number): string =>
-  `${itemLabel} moved to position ${index + 1} of ${total}`;
+export const describeMove = (
+  itemLabel: string,
+  index: number,
+  total: number,
+): string => `${itemLabel} moved to position ${index + 1} of ${total}`;

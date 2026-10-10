@@ -63,7 +63,9 @@ export const useLayout = (): LayoutController => {
  * lie about identity and break memoised props downstream. It is documented rather
  * than changed; `useLayout()` inside the layout has the live values.
  */
-export const buildLayoutController = (context: LayoutContextValue): LayoutController => {
+export const buildLayoutController = (
+  context: LayoutContextValue,
+): LayoutController => {
   const slots = context.slots();
   const ids = context.renderIds;
   const positionOf = (id: ItemId) => ids.indexOf(id);
@@ -74,7 +76,9 @@ export const buildLayoutController = (context: LayoutContextValue): LayoutContro
     mode: context.mode,
     slots: slots.map((candidate) => candidate.slot),
     activeId: context.snapshot.activeId,
-    isDragging: context.snapshot.status === "dragging" || context.snapshot.status === "settling",
+    isDragging:
+      context.snapshot.status === "dragging" ||
+      context.snapshot.status === "settling",
     canUndo: context.canUndo,
     canRedo: context.canRedo,
     move: (id, index) => context.moveItem(id, index),
@@ -94,7 +98,11 @@ export const buildLayoutController = (context: LayoutContextValue): LayoutContro
     element: (id) => context.registry.get(id)?.element ?? null,
     scrollIntoView: (id, options) => {
       const element = context.registry.get(id)?.element;
-      element?.scrollIntoView?.({ block: "nearest", inline: "nearest", ...options });
+      element?.scrollIntoView?.({
+        block: "nearest",
+        inline: "nearest",
+        ...options,
+      });
     },
   };
 };

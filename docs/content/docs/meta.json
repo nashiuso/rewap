@@ -1,0 +1,12 @@
+{
+  "title": "rewap",
+  "pages": [
+    "index",
+    "installation",
+    "quick-start",
+    "api-and-layout-modes",
+    "motion-and-customization",
+    "accessibility-and-ssr",
+    "known-limitations"
+  ]
+}

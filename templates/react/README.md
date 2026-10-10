@@ -1,6 +1,6 @@
 # **NAME**
 
-A React + TypeScript project with [*`@nashiuso/rewap`*](https://github.com/nashisuso/rewap).
+A React + TypeScript project with [_`@nashiuso/rewap`_](https://github.com/nashiuso/rewap).
 
 ```bash
 npm run dev
@@ -14,6 +14,6 @@ layout's `persistence` option, which writes to `localStorage` in this browser on
 
 - `src/App.tsx`: the layout, its mode and its items.
 - `src/styles.css`: the small amount of styling the example adds.
-- The [*documentation*](https://github.com/nashisuso/rewap/tree/main/docs) covers
+- The [_documentation_](https://github.com/nashiuso/rewap/tree/main/docs) covers
   collision strategies, the motion layer, keyboard behaviour and the optional
   charts and widgets.

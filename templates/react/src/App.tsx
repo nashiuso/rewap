@@ -11,7 +11,9 @@ export const App = () => (
   <main className="page">
     <header className="page__head">
       <h1>__NAME__</h1>
-      <p>Drag a panel, or tab to one and press Space. The order is kept locally.</p>
+      <p>
+        Drag a panel, or tab to one and press Space. The order is kept locally.
+      </p>
     </header>
 
     <Layout

@@ -9,7 +9,15 @@
 import type { CSSProperties } from "react";
 
 import { useWeather, type UseWeatherOptions } from "../utilities/useWeather";
-import { Widget, WidgetNote, WidgetRows, WidgetRow, WidgetState, WidgetValue, WidgetError } from "./Widget";
+import {
+  Widget,
+  WidgetNote,
+  WidgetRows,
+  WidgetRow,
+  WidgetState,
+  WidgetValue,
+  WidgetError,
+} from "./Widget";
 
 export interface WeatherWidgetProps extends UseWeatherOptions {
   title?: string;
@@ -37,7 +45,10 @@ const formatTime = (iso: string | null): string => {
   if (!iso) return "—";
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return "—";
-  return date.toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" });
+  return date.toLocaleTimeString(undefined, {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 };
 
 export const WeatherWidget = ({
@@ -50,7 +61,9 @@ export const WeatherWidget = ({
   const weather = useWeather(weatherOptions);
   const unitLabel = weather.data?.unit === "fahrenheit" ? "°F" : "°C";
   const locationLine = weather.location
-    ? [weather.location.city, weather.location.country].filter(Boolean).join(", ") ||
+    ? [weather.location.city, weather.location.country]
+        .filter(Boolean)
+        .join(", ") ||
       `${weather.location.latitude.toFixed(2)}, ${weather.location.longitude.toFixed(2)}`
     : null;
 
@@ -73,10 +86,14 @@ export const WeatherWidget = ({
       ) : null}
 
       {weather.status === "error" ? (
-        <WidgetError>{weather.error ?? "The weather request failed."}</WidgetError>
+        <WidgetError>
+          {weather.error ?? "The weather request failed."}
+        </WidgetError>
       ) : null}
 
-      {weather.status === "locating" || weather.status === "loading" || weather.status === "idle" ? (
+      {weather.status === "locating" ||
+      weather.status === "loading" ||
+      weather.status === "idle" ? (
         <WidgetState tone="accent">
           {weather.status === "locating" ? "Resolving location…" : "Loading…"}
         </WidgetState>
@@ -84,11 +101,16 @@ export const WeatherWidget = ({
 
       {weather.data ? (
         <>
-          <WidgetValue unit={unitLabel}>{Math.round(weather.data.temperature)}</WidgetValue>
+          <WidgetValue unit={unitLabel}>
+            {Math.round(weather.data.temperature)}
+          </WidgetValue>
           <WidgetRows>
             <WidgetRow
               label="Condition"
-              value={conditionLabels[weather.data.condition] ?? weather.data.condition}
+              value={
+                conditionLabels[weather.data.condition] ??
+                weather.data.condition
+              }
             />
             {weather.data.apparentTemperature !== null ? (
               <WidgetRow
@@ -107,10 +129,16 @@ export const WeatherWidget = ({
             ) : null}
             {showLocation && locationLine ? (
               <WidgetRow
-                label={weather.location?.accuracy === "coarse" ? "Approx. location" : "Location"}
+                label={
+                  weather.location?.accuracy === "coarse"
+                    ? "Approx. location"
+                    : "Location"
+                }
                 value={locationLine}
                 title={
-                  weather.location?.accuracy === "coarse" ? "IP-based location is approximate." : undefined
+                  weather.location?.accuracy === "coarse"
+                    ? "IP-based location is approximate."
+                    : undefined
                 }
               />
             ) : null}

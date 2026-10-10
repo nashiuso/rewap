@@ -1,0 +1,110 @@
+---
+title: Accessibility and SSR
+description: The keyboard path, announcements, and what server rendering does and doesn't do.
+---
+
+Dragging is a pointer gesture by nature, and a library that only implements
+the pointer path hasn't implemented dragging for everyone. The keyboard path
+in rewap drives the same drag controller as a pointer drag, so a keyboard
+reorder produces the same `onSwap` payloads a mouse drag would.
+
+## Keyboard
+
+| Key                    | Action                                          |
+| ---------------------- | ----------------------------------------------- |
+| `Tab`                  | Move focus between items                        |
+| `Space` / `Enter`      | Grab the focused item, or drop a grabbed one    |
+| Arrow keys             | Move a grabbed item; without a grab, move focus |
+| `Shift` + Arrow        | Move three slots at once (`largeStep`)          |
+| `Home` / `End`         | Jump to the first or last slot                  |
+| `Escape`               | Cancel and return the item                      |
+| `Cmd/Ctrl + Z`         | Undo                                            |
+| `Cmd/Ctrl + Shift + Z` | Redo                                            |
+
+What an arrow press _does_ depends on the mode, same as a pointer drop: in
+`reorder` it shifts the item one slot (three with `Shift`) and everything in
+between moves with it; in `swap` it exchanges the item with its neighbour.
+These aren't the same gesture in different clothing — worth testing
+explicitly if you're shipping a keyboard-first screen.
+
+```tsx
+<Layout keyboard={{ step: 1, largeStep: 3 }}>   {/* the defaults */}
+<Layout keyboard={false}>                        {/* disable entirely */}
+```
+
+## What an item exposes
+
+| Attribute              | Value                                                       |
+| ---------------------- | ----------------------------------------------------------- |
+| `role`                 | `listitem` (the layout itself is `role="list"`)             |
+| `aria-roledescription` | `draggable item`                                            |
+| `aria-keyshortcuts`    | `Space Enter Escape ArrowUp … Home End Control+Z Meta+Z`    |
+| `tabindex`             | `0` for draggable items, absent for disabled or static ones |
+| `aria-label`           | your `label`, or the item's own text as a fallback          |
+
+## Announcements
+
+| Event              | Priority  | Message                                                                     |
+| ------------------ | --------- | --------------------------------------------------------------------------- |
+| Grab               | assertive | "Weather grabbed. Use arrow keys to move, Enter to drop, Escape to cancel." |
+| Destination change | polite    | "Weather moved to position 2"                                               |
+| Cancel             | polite    | "Drag cancelled"                                                            |
+| Undo / redo        | polite    | "Undo. 4 items."                                                            |
+
+Two live regions, one per priority, created lazily on first use and removed
+when the layout unmounts — a page that never drags anything doesn't grow an
+extra DOM node. Grabbing focuses the item; dropping leaves focus on the item
+in its new position; arrow keys move focus between items when nothing is
+grabbed, so the list is navigable without ever starting a drag.
+
+```tsx
+const api = useLayout();
+api.announce("Saved", "polite");
+```
+
+## Charts
+
+`<Chart>` (`@nashiuso/rewap/charts`) renders `role="img"` with a generated
+or given label, marks the SVG itself `aria-hidden`, and renders a visually
+hidden table of the underlying values — a screen reader user gets the
+numbers, not a description of the shape.
+
+```tsx
+<Chart type="line" data={values} ariaLabel="Revenue by week, 8 points" />
+```
+
+The library covers the parts it owns: slots, keys, announcements, focus,
+ARIA. It can't know that a card contains a chart with a missing label, or
+that a placeholder colour is invisible against your brand background — the
+usual checklist still applies to whatever you put inside an item.
+
+## Server rendering
+
+- **Renders.** `<Layout>` and `<Item>` produce the same markup on the server
+  as on the client: items in order, `role="list"`, labels,
+  `aria-keyshortcuts`.
+- **Doesn't measure.** No element is measured during render — slots are
+  measured in an effect after hydration, which is also when
+  `ResizeObserver` is attached.
+- **Doesn't touch the browser at import time.** Nothing at module scope
+  reads `window`, `document`, `navigator`, or `localStorage`; each is looked
+  up when used, behind an availability check. The layout-effect hooks
+  degrade to `useEffect` when there's no window, so React's "useLayoutEffect
+  does nothing on the server" warning never appears.
+
+One consequence worth planning around: **persistence is read in an effect**,
+so a server-rendered page's first paint shows the authored order, and the
+stored order (if any) arrives with hydration. For most layouts this is
+invisible; if a visible flash matters for your page, render a skeleton
+until mount instead of the real board.
+
+`tests/ssr.test.tsx` asserts this by rendering with `renderToString` in a
+plain Node environment and checking for the absence of
+window/document errors — React 18+ is required
+(`>=18.0.0` in `peerDependencies`).
+
+Astro, Next.js, and Remix all work the same way: hydrate the component with
+whatever directive or boundary your framework uses
+(`client:visible`/`client:load` in Astro, a `"use client"` boundary in
+Next's App Router), and import the stylesheet once wherever your framework
+handles global CSS.

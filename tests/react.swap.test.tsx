@@ -33,9 +33,14 @@ const idsInDom = (container: HTMLElement): string[] =>
   );
 
 const itemOf = (container: HTMLElement, id: string): HTMLElement =>
-  container.querySelector<HTMLElement>(`[data-rewap-item="${id}"]`) as HTMLElement;
+  container.querySelector<HTMLElement>(
+    `[data-rewap-item="${id}"]`,
+  ) as HTMLElement;
 
-const at = (point: { x: number; y: number }) => ({ clientX: point.x, clientY: point.y });
+const at = (point: { x: number; y: number }) => ({
+  clientX: point.x,
+  clientY: point.y,
+});
 
 const advance = async (steps = 6): Promise<void> => {
   const { advanceFrame } = await import("./helpers");
@@ -130,7 +135,8 @@ describe("swap mode", () => {
       api = useLayout();
       return null;
     };
-    const onChange = vi.fn<(items: unknown[], event: LayoutChangeEvent) => void>();
+    const onChange =
+      vi.fn<(items: unknown[], event: LayoutChangeEvent) => void>();
     const { container } = render(
       <Layout items={undefined} onChange={onChange}>
         <Item id="a">A</Item>
@@ -166,7 +172,10 @@ describe("swap mode", () => {
     await dragPointer({
       from: itemOf(container, "a"),
       fromPoint: slotCenter(0, CELLS),
-      toPoint: { x: slotCenter(0, CELLS).x + 20, y: slotCenter(0, CELLS).y + 10 },
+      toPoint: {
+        x: slotCenter(0, CELLS).x + 20,
+        y: slotCenter(0, CELLS).y + 10,
+      },
     });
 
     expect(idsInDom(container)).toEqual(["a", "b"]);
@@ -193,7 +202,12 @@ describe("swap mode", () => {
   it("ignores slots below minCollisionScore", async () => {
     const onChange = vi.fn();
     const { container } = render(
-      <Layout mode="swap" collision="intersection" minCollisionScore={0.99} onChange={onChange}>
+      <Layout
+        mode="swap"
+        collision="intersection"
+        minCollisionScore={0.99}
+        onChange={onChange}
+      >
         <Item id="a">A</Item>
         <Item id="b">B</Item>
       </Layout>,

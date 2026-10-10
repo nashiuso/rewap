@@ -28,7 +28,9 @@ const jsonResponse = (body: unknown, status = 200): Response =>
     json: async () => body,
   }) as unknown as Response;
 
-const stubFetch = (impl: (url: string, init?: RequestInit) => Promise<Response>) => {
+const stubFetch = (
+  impl: (url: string, init?: RequestInit) => Promise<Response>,
+) => {
   const spy = vi.fn(impl);
   vi.stubGlobal("fetch", spy);
   return spy;
@@ -71,7 +73,9 @@ describe("fetchJson", () => {
       (_url, init) =>
         new Promise<Response>((_resolve, reject) => {
           sawSignal = init?.signal ?? undefined;
-          init?.signal?.addEventListener("abort", () => reject(new Error("aborted")));
+          init?.signal?.addEventListener("abort", () =>
+            reject(new Error("aborted")),
+          );
         }),
     );
 
@@ -87,7 +91,9 @@ describe("fetchJson", () => {
 
   it("reports a missing fetch instead of throwing something unreadable", async () => {
     vi.stubGlobal("fetch", undefined);
-    await expect(fetchJson("https://example.test/api")).rejects.toThrow("fetch is not available");
+    await expect(fetchJson("https://example.test/api")).rejects.toThrow(
+      "fetch is not available",
+    );
   });
 });
 
@@ -109,7 +115,11 @@ describe("weather providers", () => {
     );
 
     const provider = createOpenMeteoProvider();
-    const outcome = await provider.fetchWeather({ latitude: 41.39, longitude: 2.17, unit: "celsius" });
+    const outcome = await provider.fetchWeather({
+      latitude: 41.39,
+      longitude: 2.17,
+      unit: "celsius",
+    });
     expect(outcome.status).toBe("success");
     if (outcome.status !== "success") return;
 
@@ -126,7 +136,9 @@ describe("weather providers", () => {
   });
 
   it("asks for Fahrenheit when the caller uses Fahrenheit", async () => {
-    const spy = stubFetch(async () => jsonResponse({ current: { temperature_2m: 70, weather_code: 0 } }));
+    const spy = stubFetch(async () =>
+      jsonResponse({ current: { temperature_2m: 70, weather_code: 0 } }),
+    );
     await createOpenMeteoProvider({ timeoutMs: 100 }).fetchWeather({
       latitude: 0,
       longitude: 0,
@@ -146,8 +158,13 @@ describe("weather providers", () => {
       unit: "celsius",
     });
 
-    expect(outcome).toMatchObject({ status: "error", httpStatus: 429, retryable: true });
-    if (outcome.status === "error") expect(outcome.message).toBe("rate limited");
+    expect(outcome).toMatchObject({
+      status: "error",
+      httpStatus: 429,
+      retryable: true,
+    });
+    if (outcome.status === "error")
+      expect(outcome.message).toBe("rate limited");
   });
 
   it("reports a response without a temperature", async () => {
@@ -169,15 +186,25 @@ describe("weather providers", () => {
       humidity: 40,
     });
 
-    const outcome = await provider.fetchWeather({ latitude: 1, longitude: 2, unit: "celsius" });
+    const outcome = await provider.fetchWeather({
+      latitude: 1,
+      longitude: 2,
+      unit: "celsius",
+    });
     expect(outcome.status).toBe("success");
     if (outcome.status === "success") expect(outcome.data.temperature).toBe(18);
     expect(spy).not.toHaveBeenCalled();
   });
 
   it("can be marked unsupported with a reason to display", async () => {
-    const provider = createUnsupportedWeatherProvider("Weather requires a configured provider.");
-    const outcome = await provider.fetchWeather({ latitude: 0, longitude: 0, unit: "celsius" });
+    const provider = createUnsupportedWeatherProvider(
+      "Weather requires a configured provider.",
+    );
+    const outcome = await provider.fetchWeather({
+      latitude: 0,
+      longitude: 0,
+      unit: "celsius",
+    });
     expect(outcome).toEqual({
       status: "unsupported",
       reason: "Weather requires a configured provider.",
@@ -187,8 +214,12 @@ describe("weather providers", () => {
 
 describe("location providers", () => {
   it("reads an IP endpoint through the default parser", async () => {
-    stubFetch(async () => jsonResponse({ latitude: 41.3874, longitude: 2.1686, city: "Barcelona" }));
-    const location = createIpLocationProvider({ endpoint: "https://example.test/json" });
+    stubFetch(async () =>
+      jsonResponse({ latitude: 41.3874, longitude: 2.1686, city: "Barcelona" }),
+    );
+    const location = createIpLocationProvider({
+      endpoint: "https://example.test/json",
+    });
     const outcome = await location.locate();
 
     expect(outcome.status).toBe("success");
@@ -215,7 +246,9 @@ describe("location providers", () => {
     if (outcome.status === "success") expect(outcome.data.longitude).toBe(2);
 
     stubFetch(async () => jsonResponse({ nothing: true }));
-    const failing = await createIpLocationProvider({ endpoint: "https://example.test/json" }).locate();
+    const failing = await createIpLocationProvider({
+      endpoint: "https://example.test/json",
+    }).locate();
     expect(failing.status).toBe("error");
   });
 
@@ -234,7 +267,8 @@ describe("location providers", () => {
     const outcome = await provider.locate();
     expect(getCurrentPosition).toHaveBeenCalledTimes(1);
     expect(outcome.status).toBe("success");
-    if (outcome.status === "success") expect(outcome.data.accuracy).toBe("precise");
+    if (outcome.status === "success")
+      expect(outcome.data.accuracy).toBe("precise");
   });
 
   it("explains itself when the browser has no geolocation at all", async () => {
@@ -242,7 +276,8 @@ describe("location providers", () => {
     const outcome = await createBrowserGeolocationProvider().locate();
 
     expect(outcome.status).toBe("unsupported");
-    if (outcome.status === "unsupported") expect(outcome.reason).toContain("geolocation");
+    if (outcome.status === "unsupported")
+      expect(outcome.reason).toContain("geolocation");
   });
 
   it("returns a declared location without any request", async () => {
@@ -264,8 +299,12 @@ describe("location providers", () => {
 
 describe("email verification providers", () => {
   it("posts to the application's own endpoint", async () => {
-    const spy = stubFetch(async () => jsonResponse({ state: "deliverable", domain_has_mx: true }, 200));
-    const provider = createHttpEmailVerificationProvider({ endpoint: "/api/verify-email" });
+    const spy = stubFetch(async () =>
+      jsonResponse({ state: "deliverable", domain_has_mx: true }, 200),
+    );
+    const provider = createHttpEmailVerificationProvider({
+      endpoint: "/api/verify-email",
+    });
     const outcome = await provider.verify({ email: "someone@example.com" });
 
     expect(outcome.status).toBe("success");
@@ -276,7 +315,9 @@ describe("email verification providers", () => {
 
     const init = spy.mock.calls[0]?.[1];
     expect(init?.method).toBe("POST");
-    expect(JSON.parse(String(init?.body))).toEqual({ email: "someone@example.com" });
+    expect(JSON.parse(String(init?.body))).toEqual({
+      email: "someone@example.com",
+    });
   });
 
   it("can use GET with a custom parameter name", async () => {
@@ -296,13 +337,21 @@ describe("email verification providers", () => {
     const rejected = await createHttpEmailVerificationProvider({
       endpoint: "https://example.test/verify",
     }).verify({ email: "someone@example.com" });
-    expect(rejected).toMatchObject({ status: "error", retryable: false, httpStatus: 400 });
+    expect(rejected).toMatchObject({
+      status: "error",
+      retryable: false,
+      httpStatus: 400,
+    });
 
     stubFetch(async () => jsonResponse({ message: "later" }, 503));
     const retryable = await createHttpEmailVerificationProvider({
       endpoint: "https://example.test/verify",
     }).verify({ email: "someone@example.com" });
-    expect(retryable).toMatchObject({ status: "error", retryable: true, httpStatus: 503 });
+    expect(retryable).toMatchObject({
+      status: "error",
+      retryable: true,
+      httpStatus: 503,
+    });
   });
 
   it("keeps the syntax-only provider honest about what it checked", async () => {
@@ -314,10 +363,13 @@ describe("email verification providers", () => {
     if (outcome.status === "success") {
       expect(outcome.data.deliverable).toBe(true);
       expect(outcome.data.mailboxConfirmed).toBeNull();
-      expect(outcome.data.message).toContain("nothing about the mailbox was checked");
+      expect(outcome.data.message).toContain(
+        "nothing about the mailbox was checked",
+      );
     }
 
     const invalid = await provider.verify({ email: "not-an-email" });
-    if (invalid.status === "success") expect(invalid.data.deliverable).toBe(false);
+    if (invalid.status === "success")
+      expect(invalid.data.deliverable).toBe(false);
   });
 });
