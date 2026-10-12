@@ -1,9 +1,8 @@
 #!/usr/bin/env node
 /**
- * Packs the library the way `npm publish` would, installs the resulting
- * tarball into a scratch project, and imports every public entry point from
- * there — not from the repository's `node_modules` symlink, which would quietly
- * pass even if `files` or `exports` were wrong.
+ * Packs the library into a local archive, installs it into a scratch project,
+ * and imports every public entry point from there — not from the repository's
+ * `node_modules` symlink, which would quietly pass even if `files` or `exports` were wrong.
  *
  * This is slower than trusting `tsup`'s exit code, which is exactly the point:
  * `npm run build` succeeding only proves the compiler was happy. It does not
@@ -58,7 +57,6 @@ try {
   log("checking the tarball only contains what it should");
   const allowedRoots = new Set([
     "dist",
-    "templates",
     "README.md",
     "CHANGELOG.md",
     "LICENSE",
@@ -139,14 +137,6 @@ try {
       throw new Error(`${subpath} resolved to a missing file: ${resolved}`);
     console.log(`  ${subpath} -> ${resolved.replace(consumerDir, ".")}`);
   }
-
-  log("checking the CLI binary resolves and runs");
-  const cliOutput = run(
-    "npx",
-    ["--no-install", "rewap", "version"],
-    consumerDir,
-  ).trim();
-  console.log(`  rewap version -> ${cliOutput}`);
 
   console.log("\n✓ package verified from a clean install\n");
 } finally {

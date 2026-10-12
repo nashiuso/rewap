@@ -15,7 +15,7 @@ take a week or two; you will get an honest estimate rather than a promise.
 
 ## What is in scope
 
-- Anything in the published package that could leak data the user did not intend
+- Anything in the installed package that could leak data the user did not intend
   to send, or execute code on behalf of someone else.
 - Persistence writing to a key it should not, or reading one it should not.
 - Provider code sending a request the application did not configure.

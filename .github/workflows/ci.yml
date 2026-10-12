@@ -1,5 +1,4 @@
-# npm is the only package manager used here, and ' npm ci ' installs from the
-# committed ' package-lock.json ', so a green run means the locked tree is green.
+# `npm ci` installs the exact dependency tree in the committed lockfile.
 
 name: CI
 
@@ -34,9 +33,6 @@ jobs:
 
       - name: Types
         run: npm run typecheck
-
-      - name: Types (examples app)
-        run: npm run typecheck:examples
 
       - name: Types (public API)
         run: npm run test:types

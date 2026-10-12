@@ -84,19 +84,19 @@ restoring it.
 
 ## Layout props (the ones you'll actually reach for)
 
-| Prop                               | Type                                                       | Default               | Notes                                                          |
-| ---------------------------------- | ---------------------------------------------------------- | --------------------- | -------------------------------------------------------------- |
-| `mode`                             | `"swap" \| "reorder" \| "grid"`                            | `"swap"`              | See above                                                      |
-| `items` / `defaultItems`           | `LayoutItemInput[]`                                        | —                     | Controlled vs. uncontrolled order                              |
-| `onChange`                         | `(items, event) => void`                                   | —                     | Fires once per committed order change                          |
-| `onSwap`                           | `(event) => void`                                          | —                     | Fires on every destination change during a drag                |
-| `collision` / `minCollisionScore`  | `CollisionStrategy` / `number`                             | mode default          | See above                                                      |
-| `motion` / `placeholder`           | `MotionValue` / `"auto" \| "outline" \| "ghost" \| "none"` | `"smooth"` / `"auto"` | See [Motion and customization](/docs/motion-and-customization) |
-| `persistence`                      | `boolean \| { key, storage? }`                             | off                   | Local storage only                                             |
-| `keyboard`                         | `boolean \| { step?, largeStep? }`                         | enabled               | See [Accessibility and SSR](/docs/accessibility-and-ssr)       |
-| `columns`, `minColumnWidth`, `gap` | `number \| string`                                         | —                     | Written to `--rw-columns` / `--rw-min-column` / `--rw-gap`     |
-| `disabled`                         | `boolean`                                                  | `false`               | Turns the whole layout read-only                               |
-| `geometry`                         | `GeometryProvider`                                         | DOM measurement       | For tests and virtualised lists                                |
+| Prop                               | Type                                                       | Default               | Notes                                                           |
+| ---------------------------------- | ---------------------------------------------------------- | --------------------- | --------------------------------------------------------------- |
+| `mode`                             | `"swap" \| "reorder" \| "grid"`                            | `"swap"`              | See above                                                       |
+| `items` / `defaultItems`           | `LayoutItemInput[]`                                        | —                     | Controlled vs. uncontrolled order                               |
+| `onChange`                         | `(items, event) => void`                                   | —                     | Fires once per committed order change                           |
+| `onSwap`                           | `(event) => void`                                          | —                     | Fires on every destination change during a drag                 |
+| `collision` / `minCollisionScore`  | `CollisionStrategy` / `number`                             | mode default          | See above                                                       |
+| `motion` / `placeholder`           | `MotionValue` / `"auto" \| "outline" \| "ghost" \| "none"` | `"smooth"` / `"auto"` | See [Motion and customization](/docs/motion-and-customization/) |
+| `persistence`                      | `boolean \| { key, storage? }`                             | off                   | Local storage only                                              |
+| `keyboard`                         | `boolean \| { step?, largeStep? }`                         | enabled               | See [Accessibility and SSR](/docs/accessibility-and-ssr/)       |
+| `columns`, `minColumnWidth`, `gap` | `number \| string`                                         | —                     | Written to `--rw-columns` / `--rw-min-column` / `--rw-gap`      |
+| `disabled`                         | `boolean`                                                  | `false`               | Turns the whole layout read-only                                |
+| `geometry`                         | `GeometryProvider`                                         | DOM measurement       | For tests and virtualised lists                                 |
 
 There's no `breakpoint` prop, on purpose: breakpoints are a CSS concern, and
 duplicating them in JavaScript is how the two drift apart. If you need the

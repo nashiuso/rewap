@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "description": "Interactive showcase for @nashiuso/rewap. Built against the local package, not a published version.",
+  "description": "Small interactive playground built against the local Rewap package.",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",

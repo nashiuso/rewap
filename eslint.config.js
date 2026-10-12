@@ -7,16 +7,13 @@ import prettier from "eslint-config-prettier";
 export default tseslint.config(
   {
     ignores: [
-      // Was a list of specific dist paths ("dist/**", "docs/dist/**", etc.) that
-      // missed examples/playground/dist — lint happily walked into a minified
-      // production bundle and reported hundreds of "window is not defined"
-      // errors against someone else's build output. One glob covers all of them.
+      // Build output is generated and is never linted as source.
       "**/dist/**",
-      // Assembled Pages artifact (`scripts/site/build.mjs`) — a copy of
-      // docs/dist + examples/playground/dist, already covered above and
-      // already linted at its source.
       "site-dist/**",
       "node_modules/**",
+      "docs/.next/**",
+      "docs/.source/**",
+      "docs/out/**",
       "coverage/**",
       "examples/astro/.astro/**",
       // Astro's own tooling writes this file; it is not ours to restyle.
@@ -55,7 +52,7 @@ export default tseslint.config(
   // would otherwise disagree with it. No rules are added here.
   prettier,
   {
-    files: ["**/*.mjs", "scripts/**", "docs/build.mjs", "docs/serve.mjs"],
+    files: ["**/*.mjs"],
     // Node globals, plus the browser ones: these scripts hand small callbacks to
     // Playwright's `page.evaluate`, and those run in the page, not in Node.
     languageOptions: { globals: { ...globals.node, ...globals.browser } },

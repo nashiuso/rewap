@@ -4,7 +4,7 @@ import "@nashiuso/rewap/styles.css";
 import { CodePanel } from "./CodePanel";
 import "./app.css";
 
-type MotionName = "smooth" | "snappy";
+type MotionName = "smooth" | "snappy" | "soft" | "instant";
 
 const MODES: { value: LayoutMode; label: string; hint: string }[] = [
   {
@@ -16,7 +16,7 @@ const MODES: { value: LayoutMode; label: string; hint: string }[] = [
   { value: "grid", label: "Grid", hint: "tiles can span multiple columns" },
 ];
 
-const MOTIONS: MotionName[] = ["smooth", "snappy"];
+const MOTIONS: MotionName[] = ["smooth", "snappy", "soft", "instant"];
 
 // Local, deterministic data — no fetches, no timers tied to the real clock.
 const TILES = [
@@ -36,7 +36,7 @@ const GRID_SPAN: Partial<Record<(typeof TILES)[number]["id"], number>> = {
 export default function App() {
   const [mode, setMode] = useState<LayoutMode>("swap");
   const [motion, setMotion] = useState<MotionName>("smooth");
-  const [lastSwap, setLastSwap] = useState<string | null>(null);
+  const [lastMovedItem, setLastMovedItem] = useState<string | null>(null);
 
   const code = useMemo(
     () => `<Layout mode="${mode}" motion="${motion}">`,
@@ -50,8 +50,8 @@ export default function App() {
           <p className="pg-eyebrow">rewap · playground</p>
           <h1>Drag anything below.</h1>
           <p className="pg-sub">
-            Local data, no network calls. Built from the package in this
-            repository, not a published release.
+            Local data, no network calls. Running against the package built from
+            this repository.
           </p>
         </div>
         <a
@@ -64,12 +64,17 @@ export default function App() {
         </a>
       </header>
 
-      <div className="pg-controls" role="group" aria-label="Layout mode">
+      <div
+        className="pg-controls"
+        role="group"
+        aria-label="Layout and motion controls"
+      >
         {MODES.map((m) => (
           <button
             key={m.value}
             type="button"
             className={mode === m.value ? "pg-pill pg-pill--active" : "pg-pill"}
+            aria-pressed={mode === m.value}
             onClick={() => setMode(m.value)}
             title={m.hint}
           >
@@ -82,6 +87,7 @@ export default function App() {
             key={m}
             type="button"
             className={motion === m ? "pg-pill pg-pill--active" : "pg-pill"}
+            aria-pressed={motion === m}
             onClick={() => setMotion(m)}
           >
             {m}
@@ -96,7 +102,7 @@ export default function App() {
         label="Playground tiles"
         minColumnWidth={160}
         gap={14}
-        onSwap={(event) => setLastSwap(event.item)}
+        onSwap={(event) => setLastMovedItem(event.item)}
         className="pg-board"
       >
         {TILES.map((tile) => (
@@ -113,9 +119,9 @@ export default function App() {
       <div className="pg-footer">
         <CodePanel code={code} />
         <p className="pg-status">
-          {lastSwap
-            ? `last swap: ${lastSwap}`
-            : "drag a tile to see the swap event here"}
+          {lastMovedItem
+            ? `last moved item: ${lastMovedItem}`
+            : "drag a tile to see the destination event here"}
         </p>
       </div>
     </div>

@@ -19,8 +19,7 @@ person, so the most useful thing you can do is make a report reproducible.
 
 Include:
 
-1. The commit or tag you installed (`rewap` isn't on the npm registry — see
-   [README](README.md#install) — so "version" means the git ref you pinned).
+1. The commit or tag you installed (see the [GitHub installation instructions](README.md#installation)).
 2. The mode (`swap`, `reorder`, `grid`) and the input (`pointer`, `touch`,
    keyboard).
 3. What you expected and what happened instead.
@@ -60,7 +59,7 @@ test: cover reorder with a fragment between items
 
 ## Tagging a version
 
-There's no npm publish step — see [README](README.md#install) for why. Cutting a
-version is: bump `package.json`, update `CHANGELOG.md` with what actually changed,
-then `git tag vX.Y.Z && git push --tags`. That tag is what people pin in their own
-`package.json` (`github:nashiuso/rewap#vX.Y.Z`).
+Distribution is GitHub-only; no npm registry release is involved. A maintainer
+can prepare a pinned install by updating `package.json`, recording the changes in
+`CHANGELOG.md`, and creating a Git tag when authorized. Consumers can pin that tag
+or a full commit SHA in `package.json` (`github:nashiuso/rewap#<ref>`).

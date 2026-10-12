@@ -35,18 +35,4 @@ export default defineConfig([
       js: "/* @nashiuso/rewap v1.1.1 | MIT | github.com/nashiuso */",
     },
   },
-  // The CLI is a Node program, not a browser module: ESM only, with a shebang, and
-  // built separately so it never ends up in the browser bundles above.
-  {
-    entry: { "cli/index": "src/cli/index.ts" },
-    format: ["esm"],
-    platform: "node",
-    target: "node18",
-    dts: false,
-    clean: false,
-    sourcemap: false,
-    banner: {
-      js: "#!/usr/bin/env node\n/* @nashiuso/rewap v1.1.1 | MIT | github.com/nashiuso */",
-    },
-  },
 ]);

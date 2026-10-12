@@ -1,3 +1,5 @@
+import { dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 import { createMDX } from "fumadocs-mdx/next";
 
 // Set by scripts/site/build.mjs when this build is being assembled into the
@@ -5,6 +7,7 @@ import { createMDX } from "fumadocs-mdx/next";
 // for the same pattern on the playground side). A plain `npm run build` keeps
 // the default root base, so the docs site also works as a standalone app.
 const basePath = process.env.GH_PAGES ? "/rewap" : "";
+const docsRoot = dirname(fileURLToPath(import.meta.url));
 
 /** @type {import('next').NextConfig} */
 const config = {
@@ -15,6 +18,7 @@ const config = {
   images: { unoptimized: true },
   trailingSlash: true,
   basePath,
+  turbopack: { root: docsRoot },
   env: {
     NEXT_PUBLIC_BASE_PATH: basePath,
   },

@@ -32,6 +32,6 @@ test.describe("pointer drag · swap mode", () => {
 
   test("reports the swap through onSwap", async ({ page }) => {
     await dragItem(page, "two", "four");
-    await expect(page.getByText(/last swap: two/)).toBeVisible();
+    await expect(page.getByText(/last moved item: two/)).toBeVisible();
   });
 });

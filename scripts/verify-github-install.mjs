@@ -1,34 +1,25 @@
 #!/usr/bin/env node
 /**
- * Proves the "install straight from git, build on install" story actually
- * works, without needing to push anywhere. It:
- *
- *   1. Makes a throwaway bare git repo from the current commit (HEAD, not
- *      the working tree — same as what a real `npm install github:...`
- *      would fetch).
- *   2. `npm install`s it into a scratch consumer project the exact same way
- *      npm handles any git dependency (`git+file://` is resolved by npm's
- *      git-dependency code path, not its local-path/`file:` code path).
- *   3. Imports the documented entry points and resolves the CSS exports,
- *      from the *consumer's* node_modules — not from this repo's own dist/,
- *      which would prove nothing about a real install.
- *
- * Doesn't touch the real GitHub remote and doesn't require network access
- * beyond what's already local.
+ * Verifies the Git dependency install path against the current working tree.
+ * A temporary bare remote exercises npm's git installer without pushing to
+ * GitHub or changing this repository's history.
  */
 import { execFileSync } from "node:child_process";
 import {
-  mkdtempSync,
+  cpSync,
+  existsSync,
   mkdirSync,
+  mkdtempSync,
+  readFileSync,
   rmSync,
   writeFileSync,
-  existsSync,
 } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = dirname(dirname(fileURLToPath(import.meta.url)));
+const manifest = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
 
 function run(cmd, args, opts = {}) {
   console.log(`$ ${cmd} ${args.join(" ")}`);
@@ -40,22 +31,55 @@ function runCapture(cmd, args, opts = {}) {
 }
 
 const work = mkdtempSync(join(tmpdir(), "rewap-github-install-"));
+const snapshot = join(work, "snapshot");
 const bareRepo = join(work, "rewap.git");
 const consumer = join(work, "consumer");
 
 try {
-  const headCommit = runCapture("git", ["rev-parse", "HEAD"], { cwd: root });
-  console.log(`\n→ packaging HEAD (${headCommit.slice(0, 8)}) as a bare repo`);
+  console.log("\n→ snapshotting the current working tree");
+  mkdirSync(snapshot, { recursive: true });
+  const trackedAndNew = execFileSync(
+    "git",
+    ["ls-files", "--cached", "--others", "--exclude-standard", "-z"],
+    { cwd: root },
+  )
+    .toString()
+    .split("\0")
+    .filter(Boolean);
+
+  for (const path of trackedAndNew) {
+    const source = join(root, path);
+    if (!existsSync(source)) continue;
+    const target = join(snapshot, path);
+    mkdirSync(dirname(target), { recursive: true });
+    cpSync(source, target, { recursive: true, verbatimSymlinks: true });
+  }
+
+  run("git", ["init", "--quiet", "--initial-branch=main"], {
+    cwd: snapshot,
+  });
+  run("git", ["config", "user.name", "Rewap install check"], {
+    cwd: snapshot,
+  });
+  run("git", ["config", "user.email", "install-check@example.invalid"], {
+    cwd: snapshot,
+  });
+  run("git", ["add", "-A"], { cwd: snapshot });
+  run("git", ["commit", "--quiet", "-m", "working tree snapshot"], {
+    cwd: snapshot,
+  });
+  const snapshotCommit = runCapture("git", ["rev-parse", "HEAD"], {
+    cwd: snapshot,
+  });
+
   mkdirSync(bareRepo, { recursive: true });
   run("git", ["init", "--bare", "--initial-branch=main", bareRepo]);
-  run("git", ["push", bareRepo, `${headCommit}:refs/heads/main`], {
-    cwd: root,
+  run("git", ["push", bareRepo, `${snapshotCommit}:refs/heads/main`], {
+    cwd: snapshot,
   });
-  // Make sure the bare repo's HEAD actually points at `main` — npm's git
-  // dependency resolution reads the remote's symbolic HEAD (the same thing
-  // `git clone` without a ref uses), and a bare repo created without this
-  // defaults to `master`, which was never pushed here.
-  run("git", ["symbolic-ref", "HEAD", "refs/heads/main"], { cwd: bareRepo });
+  run("git", ["symbolic-ref", "HEAD", "refs/heads/main"], {
+    cwd: bareRepo,
+  });
 
   console.log("\n→ creating a scratch consumer project");
   mkdirSync(consumer, { recursive: true });
@@ -74,65 +98,94 @@ try {
   );
 
   console.log(
-    "\n→ npm install git+file://<bare repo> (same code path as github:nashiuso/rewap)",
+    "\n→ npm install git+file://<bare repo> (the same git dependency path)",
   );
   run("npm", ["install", `git+file://${bareRepo}`, "--no-audit", "--no-fund"], {
     cwd: consumer,
   });
 
-  const installedDist = join(
-    consumer,
-    "node_modules",
-    "@nashiuso",
-    "rewap",
-    "dist",
-  );
+  const packageDir = join(consumer, "node_modules", "@nashiuso", "rewap");
+  const installedDist = join(packageDir, "dist");
   if (!existsSync(installedDist)) {
     throw new Error(
-      `expected ${installedDist} to exist — the "prepare" script did not build dist/ on install`,
+      `expected ${installedDist} to exist — the prepare lifecycle did not build dist/`,
     );
   }
-  console.log(`  dist/ was built on install: ${installedDist}`);
+  console.log("  prepare built dist/ in the installed git dependency");
 
-  console.log(
-    "\n→ importing documented entry points from the installed package",
+  console.log("\n→ importing every public JavaScript entry point");
+  const subpaths = Object.keys(manifest.exports).filter(
+    (key) => key !== "./package.json" && !key.endsWith(".css"),
   );
-  const subpaths = [
-    ".",
-    "./react",
-    "./core",
-    "./math",
-    "./motion",
-    "./accessibility",
-    "./utilities",
-    "./providers",
-  ];
+  const specifiers = subpaths.map((path) =>
+    path === "." ? "@nashiuso/rewap" : `@nashiuso/rewap${path.slice(1)}`,
+  );
   const checkFile = join(consumer, "check-imports.mjs");
-  const specifiers = subpaths.map((p) =>
-    p === "." ? "@nashiuso/rewap" : `@nashiuso/rewap${p.slice(1)}`,
+  writeFileSync(
+    checkFile,
+    specifiers
+      .map((specifier) => `await import(${JSON.stringify(specifier)});`)
+      .concat(`console.log("all ${specifiers.length} entry points imported");`)
+      .join("\n"),
   );
-  const checkScript = specifiers
-    .map((spec) => `await import(${JSON.stringify(spec)});`)
-    .concat([
-      `console.log("all ${specifiers.length} subpath(s) imported cleanly");`,
-    ])
-    .join("\n");
-  writeFileSync(checkFile, checkScript);
   run("node", [checkFile], { cwd: consumer });
 
-  console.log("\n→ resolving CSS entry points");
+  console.log("\n→ resolving every CSS export from the consumer");
+  const cssSubpaths = Object.keys(manifest.exports).filter((key) =>
+    key.endsWith(".css"),
+  );
   const resolveCssFile = join(consumer, "resolve-css.cjs");
-  for (const css of ["styles.css", "tokens.css", "charts.css", "widgets.css"]) {
+  for (const subpath of cssSubpaths) {
+    const specifier = `@nashiuso/rewap${subpath.slice(1)}`;
     writeFileSync(
       resolveCssFile,
-      `console.log(require.resolve(${JSON.stringify(`@nashiuso/rewap/${css}`)}));`,
+      `console.log(require.resolve(${JSON.stringify(specifier)}));`,
     );
     const resolved = runCapture("node", [resolveCssFile], { cwd: consumer });
-    console.log(`  ./${css} -> ${resolved.replace(consumer + "/", "")}`);
+    console.log(`  ${subpath} -> ${resolved.replace(consumer + "/", "")}`);
   }
 
+  console.log("\n→ checking declarations in a separate TypeScript consumer");
+  run(
+    "npm",
+    [
+      "install",
+      "--no-save",
+      "--no-audit",
+      "--no-fund",
+      "typescript",
+      "@types/react",
+      "@types/react-dom",
+      "@types/node",
+    ],
+    { cwd: consumer },
+  );
+  const typesFile = join(consumer, "consumer-check.tsx");
+  writeFileSync(
+    typesFile,
+    `import { Item, Layout, type LayoutMode } from "@nashiuso/rewap";\nconst mode: LayoutMode = "swap";\nexport const example = <Layout mode={mode}><Item id="one">One</Item></Layout>;\n`,
+  );
+  run(
+    "node",
+    [
+      join(root, "node_modules/typescript/bin/tsc"),
+      "--noEmit",
+      "--strict",
+      "--jsx",
+      "react-jsx",
+      "--target",
+      "ES2020",
+      "--module",
+      "ESNext",
+      "--moduleResolution",
+      "Bundler",
+      "consumer-check.tsx",
+    ],
+    { cwd: consumer },
+  );
+
   console.log(
-    "\n✓ installing @nashiuso/rewap straight from git works end to end",
+    "\n✓ Git installation, generated output, imports, CSS and declarations verified",
   );
 } finally {
   rmSync(work, { recursive: true, force: true });

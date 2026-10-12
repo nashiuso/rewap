@@ -9,6 +9,5 @@
     "rootDir": "src",
     "stripInternal": true
   },
-  "include": ["src"],
-  "exclude": ["src/cli"]
+  "include": ["src"]
 }
