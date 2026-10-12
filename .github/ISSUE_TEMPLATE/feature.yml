@@ -5,9 +5,8 @@ body:
   - type: markdown
     attributes:
       value: |
-        Check [docs/content/known-limitations.md](../../docs/content/known-limitations.md)
-        first — some gaps (cross-layout dragging, free-form positioning) are
-        known and already explained there.
+        Check the [known limitations](https://nashiuso.github.io/rewap/docs/known-limitations/)
+        first — some gaps are intentional and documented there.
 
   - type: textarea
     id: problem

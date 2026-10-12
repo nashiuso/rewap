@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
-# Sets non-destructive repository metadata on github.com/nashiuso/rewap using
-# the GitHub CLI. Does NOT touch branch protection, Pages source, or secrets —
-# see docs/maintainers/github.md section 3 for those (deliberately manual).
+# Sets repository metadata on github.com/nashiuso/rewap using the GitHub CLI.
+# It does NOT change branch protection, Pages source, or secrets.
 #
 # Requires: `gh` installed and `gh auth login` already run with an account
 # that has admin access to the repository. This script changes real settings
@@ -48,9 +47,7 @@ gh repo edit "${REPO}" --enable-issues --enable-discussions
 
 cat <<'EOF'
 
-Done. Not touched by this script, do these by hand (docs/maintainers/github.md
-section 3 has the exact steps):
-  - Branch protection on main
-  - Pages source (Settings -> Pages -> Build and deployment -> Source -> GitHub Actions)
-  - NPM_TOKEN secret, only if/when you intend to use release.yml
+Done. To publish the static site, set Pages source to GitHub Actions in
+Settings -> Pages -> Build and deployment. The workflow uses the built-in
+Pages permissions and needs no deployment secret.
 EOF

@@ -21,12 +21,12 @@
   --color-fd-card: #f4f5f6;
   --color-fd-card-foreground: #020204;
   --color-fd-border: rgba(2, 2, 4, 0.12);
-  --color-fd-primary: #3a8288;
-  --color-fd-primary-foreground: #ffffff;
+  --color-fd-primary: #49a1a8;
+  --color-fd-primary-foreground: #020204;
   --color-fd-secondary: #eceef0;
   --color-fd-secondary-foreground: #020204;
   --color-fd-accent: rgba(73, 161, 168, 0.12);
-  --color-fd-accent-foreground: #3a8288;
+  --color-fd-accent-foreground: #49a1a8;
   --color-fd-ring: #49a1a8;
   --color-fd-overlay: rgba(2, 2, 4, 0.3);
 }

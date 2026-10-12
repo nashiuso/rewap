@@ -3,13 +3,13 @@ import Link from "next/link";
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 const playgroundHref = process.env.GH_PAGES
   ? `${basePath}/playground/`
-  : "https://github.com/nashiuso/rewap/tree/main/examples/playground";
+  : "http://localhost:5173/";
 
 export default function HomePage() {
   return (
     <main className="mx-auto flex max-w-2xl flex-1 flex-col items-center justify-center gap-6 px-6 py-24 text-center">
       <img
-        src={`${basePath}/brand/buttons/logo.svg`}
+        src={`${basePath}/brand/buttons/mark.svg`}
         alt="rewap"
         width={56}
         height={56}
@@ -21,7 +21,7 @@ export default function HomePage() {
       </p>
       <div className="flex flex-wrap items-center justify-center gap-3">
         <Link
-          href="/docs/introduction"
+          href="/docs/"
           className="rounded-md border border-fd-border bg-fd-primary px-4 py-2 text-sm font-medium text-fd-primary-foreground"
         >
           Read the docs

@@ -5,8 +5,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        This is a one-person project (see MAINTAINERS.md), so the single most
-        useful thing you can do is make this reproducible without your app.
+        The most useful bug reports include a small reproduction independent of your app.
 
   - type: input
     id: version
