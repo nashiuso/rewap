@@ -31,20 +31,27 @@ publish credentials or decide the project is "ready" for a public version
 number it currently isn't. See the README's install section and
 `CONTRIBUTING.md`'s tagging note.
 
-## On the devDependency audit warnings
+## On the audit findings
 
-After the 1.1.1-alpha toolchain repair (Vite `6.4.4`, Vitest `3.2.7`,
-`@vitejs/plugin-react` `4.7.0`, esbuild `0.25.12`), root `npm audit` reports
-4 findings (2 moderate, 2 critical), all in the dev-only
-`vitest` → `@vitest/mocker` / `tinypool` chain — nothing that ships to a
-consumer in `dist/`. The audit-suggested fix is Vitest `4.1.11`, a major
-runner bump whose engines (`^20.0.0 || ^22.0.0 || >=24.0.0`) would drop the
-Node 18 support this package still declares (`>=18.18.0`), so it is deferred
-deliberately rather than forced. Do not repeat the earlier
-`npm audit fix --force`: it installed Vite `8.3.4` + Vitest `5.0.4` against
-`@vitejs/plugin-react@4`, whose peer range ends at Vite 7, and left
-`npm ci` failing with `ERESOLVE`. The docs and playground audits are clean;
-the Astro example's findings are separate and would need an Astro major.
+Checked during the 1.1.1 alpha cleanup (see the cleanup branch's commit history for the date).
+
+- **Root (dev tooling):** 4 findings (2 critical, 2 moderate). All are in the
+  dev-only Vitest chain: `vitest` and `@vitest/mocker`, plus `tinypool` (critical
+  prototype-pollution advisories, fixed in `tinypool` 2.1.2+). Vitest 3 depends on
+  tinypool 1.x, so the only fix npm offers is a Vitest 4 upgrade (`4.1.11`). Vitest 4
+  declares Node `^20 || ^22 || >=24`, which would drop the Node 18 support this package
+  still declares (`>=18.18.0`). We deliberately do not override `tinypool` to a major
+  version Vitest 3 does not declare. Do not repeat `npm audit fix --force`: it
+  installed Vite 8.3.4 + Vitest 5.0.4 against `@vitejs/plugin-react@4`, whose peer range
+  ends at Vite 7, and left `npm ci` failing with `ERESOLVE`.
+- **Docs and playground:** 0 findings each.
+- **Astro example:** 16 findings (1 critical, 7 high, 8 moderate). These come from
+  Astro 4.16.x and its tooling, and every listed Astro advisory range covers 4.x. The
+  npm-suggested fix is Astro 6 (a major upgrade), so it is left for a separate decision.
+  The static build (`astro build`, no adapter) does not run Astro's server or dev
+  server; several advisories concern those. `@astrojs/react` 3.6.3 (latest stable 3.x)
+  is flagged because its advisory range includes a 3.7.0 beta, and no stable fixed
+  release exists.
 
 ## On this not being a one-release project
 

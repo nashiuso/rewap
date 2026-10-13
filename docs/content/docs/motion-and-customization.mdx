@@ -9,10 +9,10 @@ to make movement predictable.
 ## Presets
 
 ```tsx
-<Layout motion="smooth">   {/* default: a soft spring, no overshoot */}
-<Layout motion="snappy">   {/* stiffer and faster, for small items */}
-<Layout motion="soft">     {/* a tween instead of a spring */}
-<Layout motion="instant">  {/* no animation at all */}
+<Layout motion="smooth" />; // default: a short, slightly damped spring
+<Layout motion="snappy" />; // stiffer and faster, for small items
+<Layout motion="soft" />; // a slower, gentler spring for long travel
+<Layout motion="instant" />; // no animation at all
 ```
 
 | Preset    | Kind                          | Character                                  |
@@ -25,8 +25,8 @@ to make movement predictable.
 Custom springs and tweens both work directly:
 
 ```tsx
-<Layout motion={{ type: "spring", stiffness: 220, damping: 24, mass: 1 }}>
-<Layout motion={{ type: "tween", duration: 260, easing: "ease-out-quint" }}>
+<Layout motion={{ type: "spring", stiffness: 220, damping: 24, mass: 1 }} />;
+<Layout motion={{ type: "tween", duration: 260, easing: "easeOutQuint" }} />;
 ```
 
 `criticalDamping(stiffness, mass)` (from `@nashiuso/rewap/motion`) returns
@@ -37,8 +37,8 @@ movement.
 
 ## Why a fixed-step integrator
 
-The spring uses semi-implicit Euler at a fixed `1/60` step, with
-sub-stepping for long frames, rather than a continuous solver. That's not
+The spring uses semi-implicit Euler at a fixed `1/240` second step (each frame
+is split into as many of those steps as it needs), rather than a continuous solver. That's not
 the most accurate integrator available — it's the one whose behaviour
 doesn't change with the display's refresh rate, so a drag on a 120 Hz
 screen and the same drag on a 60 Hz screen produce the same path and the
@@ -66,8 +66,15 @@ resolution rather than as a special case scattered through the animation
 code.
 
 ```tsx
-{/* Escape hatch, for decoration rather than movement — use rarely: */}
-<Layout motion={{ type: "spring", stiffness: 200, damping: 20, respectReducedMotion: false }}>
+// Escape hatch, for decoration rather than movement — use rarely:
+<Layout
+  motion={{
+    type: "spring",
+    stiffness: 200,
+    damping: 20,
+    respectReducedMotion: false,
+  }}
+/>
 ```
 
 ## One ticker
@@ -83,9 +90,11 @@ on a sixty-item board doesn't produce sixty renders per second.
 ## Placeholders
 
 ```tsx
-<Layout placeholder="outline">              {/* default-adjacent: a dashed outline */}
-<Layout placeholder="ghost">                {/* clones and animates the dragged element */}
-<Layout renderPlaceholder={({ item, slot }) => <MyPlaceholder />}>
+<Layout placeholder="outline" />; // default-adjacent: a dashed outline
+<Layout placeholder="ghost" />; // clones and animates the dragged element
+<Layout
+  renderPlaceholder={({ item, slot }) => <div className="my-placeholder" />}
+/>;
 ```
 
 Placeholders are positioned from the destination slot, not the pointer.

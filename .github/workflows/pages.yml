@@ -1,7 +1,10 @@
-# Builds docs + playground into one static site and deploys it to GitHub
+# Builds the docs and playground into one static site and deploys it to GitHub
 # Pages at the project-site path (https://nashiuso.github.io/rewap/).
-# Uses GitHub's built-in Pages OIDC token — no secrets are defined or
-# referenced anywhere in this file.
+#
+# Production-only: both jobs are skipped unless the run is on refs/heads/main,
+# including manual (workflow_dispatch) runs started from another branch.
+# The build job is the gate: site:build verifies the assembled artifact before
+# anything is uploaded. Uses GitHub's built-in Pages OIDC token; no secrets.
 name: Deploy docs site
 
 on:
@@ -9,46 +12,63 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# Read-only by default. Pages write access is granted to the deploy job only.
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
+# Do not cancel an in-flight Pages deployment (GitHub's recommendation).
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:
+    name: build site
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            docs/package-lock.json
+            examples/playground/package-lock.json
 
+      # `npm ci` runs the root `prepare` script, which builds dist/ for the
+      # playground's file:../.. dependency. Fail early if that did not happen.
       - run: npm ci
 
-      - name: Build library (docs/playground depend on the built package)
-        run: npm run build
+      - name: Check library build output
+        run: test -f dist/index.js && test -f dist/types/index.d.ts
 
-      - name: Build site (docs + playground -> site-dist/)
+      - name: Build and verify site (docs + playground -> site-dist/)
         run: npm run site:build
 
-      - uses: actions/configure-pages@v5
+      - uses: actions/configure-pages@v6
 
-      - uses: actions/upload-pages-artifact@v3
+      # v5 excludes dotfiles unless told otherwise; site-dist/.nojekyll must ship
+      # so GitHub Pages does not run Jekyll and hide the _next/ directory.
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v5
         with:
           path: site-dist
+          include-hidden-files: true
 
   deploy:
+    name: deploy to GitHub Pages
+    if: github.ref == 'refs/heads/main'
     needs: build
     runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5

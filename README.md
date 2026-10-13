@@ -1,35 +1,42 @@
 <p align="center">
-  <img alt="Rewap" src="./assets/banner.svg" width="100%">
-  <h1 align="center">rewap</h1>
+  <img src="./assets/banner.svg" alt="rewap — draggable, swappable React layouts" width="100%">
 </p>
 
-A React library for dragging, swapping, reordering and arranging items.
+<h1 align="center">rewap</h1>
 
-[![CI](https://github.com/nashiuso/rewap/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/nashiuso/rewap/actions/workflows/ci.yml)
-[![MIT license](https://img.shields.io/badge/license-MIT-D9DBDF?style=flat-square&labelColor=020204)](./LICENSE)
-
-**1.1.1 alpha — unreleased.** Distributed from GitHub; not published to the npm registry.
+Rewap is a React library for layouts whose items move: drag to swap, reorder or
+place items in a grid, with pointer, touch and keyboard input.
 
 <p align="center">
-  <a href="https://nashiuso.github.io/rewap/"><img src="./assets/buttons/docs.svg" alt="Documentation" height="32"></a>&nbsp;
-  <a href="https://nashiuso.github.io/rewap/playground/"><img src="./assets/buttons/examples.svg" alt="Playground" height="32"></a>&nbsp;
+  <a href="https://nashiuso.github.io/rewap/"><img src="./assets/buttons/docs.svg" alt="Documentation" height="32"></a>
+  <a href="https://nashiuso.github.io/rewap/playground/"><img src="./assets/buttons/examples.svg" alt="Playground" height="32"></a>
+  <a href="https://nashiuso.github.io/rewap/docs/quick-start/"><img src="./assets/buttons/start.svg" alt="Get started" height="32"></a>
   <a href="https://github.com/nashiuso/rewap"><img src="./assets/buttons/github.svg" alt="GitHub" height="32"></a>
 </p>
 
-## Installation
+<p align="center">
+  <a href="https://github.com/nashiuso/rewap/actions/workflows/ci.yml"><img src="https://github.com/nashiuso/rewap/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI status"></a>
+  <img src="https://img.shields.io/badge/license-MIT-49A1A8?style=flat-square&labelColor=020204" alt="MIT license">
+  <img src="https://img.shields.io/badge/status-1.1.1%20alpha-49A1A8?style=flat-square&labelColor=020204" alt="Status: 1.1.1 alpha">
+</p>
 
-Install from GitHub with npm:
+> **1.1.1 alpha, unreleased.** Install from GitHub. The package is not published
+> to the npm registry, and this repository has no release tags yet.
+
+## Installation
 
 ```bash
 npm install github:nashiuso/rewap
 ```
 
-For a reproducible install, append `#` and a full commit SHA or an existing tag
-to the GitHub specifier (for example, `github:nashiuso/rewap#<ref>`). Replace
-`<ref>` with a commit or tag that exists in the repository; npm records it in the lockfile.
+For a reproducible install, pin a full commit SHA or an existing tag:
+`npm install github:nashiuso/rewap#<ref>`. npm records the resolved commit in your lockfile.
 
-Git installs run the package's `prepare` script to build the distribution files.
-React 18 or newer is required.
+The git install runs the package's `prepare` script, which builds `dist/`
+(ESM, CommonJS, declarations and stylesheets).
+
+- Peer dependency: `react` 18 or newer. The test suite runs against React 18.3.
+- Node.js 18.18.0 or newer for installing and using the package.
 
 ## Quick example
 
@@ -47,45 +54,77 @@ export function App() {
 }
 ```
 
-Items can be dragged with a pointer, touch, or keyboard. `Layout` also accepts an
-`onChange` callback for controlled order and a `motion` preset.
+Drag an item with a pointer or touch, or focus it and press `Space`, move with the
+arrow keys, and press `Space` again to drop. `Escape` cancels, and
+`Ctrl`/`Cmd`+`Z` undoes.
 
 ## Layout modes
 
-- `swap` exchanges the dragged item with its target.
-- `reorder` inserts the item at its target and shifts the items in between.
-- `grid` places the item by grid cell. Use `columns`, `minColumnWidth`, or
-  `Item`'s `columnSpan` and `rowSpan` to shape the grid.
+Set the mode with `<Layout mode="…">`. The mode decides what a drop produces.
 
-## Documentation
+- **`swap`** (default) exchanges the dragged item with the item in the target slot.
+- **`reorder`** removes the item and inserts it at the target, shifting the items in between.
+- **`grid`** places the item in the target cell. Shape the grid with `columns`,
+  `minColumnWidth`, and `columnSpan` / `rowSpan` on `Item`.
 
-The Fumadocs site covers installation, the API, motion, accessibility, SSR and
-known limitations: [rewap docs](https://nashiuso.github.io/rewap/).
+Controlled and uncontrolled order, persistence, motion presets and collision
+strategies are covered in the documentation.
 
-## Playground
+## Public API
 
-Try the modes and motion presets with six local draggable items:
-[open the playground](https://nashiuso.github.io/rewap/playground/).
+| Export                | What it is                                    |
+| --------------------- | --------------------------------------------- |
+| `Layout`              | The container: order, drag session, history   |
+| `Item`, `Item.Handle` | A draggable unit, and an optional drag handle |
+| `useLayout()`         | Current state and programmatic moves          |
+| `createRewap`         | Framework-agnostic engine                     |
 
-## Development and tests
+Optional entry points are imported explicitly and only pulled in when used:
+
+- `@nashiuso/rewap/core`: The framework-agnostic engine
+- `@nashiuso/rewap/math`: Geometry, grids, interpolation, statistics
+- `@nashiuso/rewap/motion`: Springs, easings, the shared animation ticker
+- `@nashiuso/rewap/accessibility`: Live-region announcer and keyboard grammar
+- `@nashiuso/rewap/utilities`: Browser hooks that report what the platform exposes
+- `@nashiuso/rewap/providers`: Adapters for external data, only when you configure them
+- `@nashiuso/rewap/charts`: `Chart`, an SVG chart with an accessible data table
+- `@nashiuso/rewap/widgets`: Ready-made dashboard widgets
+
+Stylesheets: `styles.css` (layout defaults), plus `tokens.css`, `charts.css` and
+`widgets.css` for the optional modules. Styles are scoped to `rw-*` classes and
+`--rw-*` custom properties.
+
+## Accessibility and server rendering
+
+- Every mode has a keyboard path that drives the same drag controller as a pointer
+  drag. Grab, move, drop and cancel changes are announced through a live region.
+- `prefers-reduced-motion: reduce` makes movement instant. Dragging still works.
+- `Layout` and `Item` render on the server with the same markup as the client.
+  Measurement and persistence happen after mount, so the first server-rendered
+  paint shows the authored order.
+
+Details are in [Accessibility and SSR](https://nashiuso.github.io/rewap/docs/accessibility-and-ssr/).
+
+## Documentation and playground
+
+- [Documentation](https://nashiuso.github.io/rewap/): installation, API, motion,
+  accessibility, SSR and known limitations.
+- [Playground](https://nashiuso.github.io/rewap/playground/): six local items to try
+  the modes and motion presets.
+
+## Development
 
 ```bash
-npm ci
-npm run format:check
-npm run typecheck
-npm run lint
-npm test
-npm run build
-npm run test:types
-npm run test:e2e
-npm run docs:build
-npm run examples:build
-npm run site:build
+npm ci                    # installs the lockfile tree and builds dist/ via prepare
+npm run ci                # format, types, lint, tests, build and package checks
+npm run test:e2e          # browser tests (run `npx playwright install chromium` once)
+npm run site:build        # docs + playground into site-dist/
 npm run verify:github-install
 ```
 
-Playwright needs Chromium once per machine: `npx playwright install chromium`.
-`npm run site:build` writes the documentation and playground to `site-dist/`.
+The documentation site is a Next.js and Fumadocs app in `docs/` and requires
+Node.js 20.9 or newer. The browser tests require Node.js 20 or newer. The Astro
+example in `examples/astro` is described in its own README.
 
 ## License
 

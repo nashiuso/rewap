@@ -3,7 +3,7 @@ title: API and layout modes
 description: Layout, Item, useLayout — the three things the public API is made of, and the three modes that decide what a drop does.
 ---
 
-The whole public surface is two components and one hook:
+The core of the API is two components and one hook:
 
 ```tsx
 import { Layout, Item, useLayout } from "@nashiuso/rewap";
@@ -39,7 +39,7 @@ board is usually `reorder` with an `intersection` strategy, not the
 `reorder` default.
 
 `move(id, index)` on `useLayout()` follows whichever mode is active: it
-exchanges in `swap`, inserts in `reorder`. That surprises people the first
+exchanges in `swap`, and inserts (the `reorder` behaviour) in `reorder` and `grid`. That surprises people the first
 time (it surprised the person writing the tests for it, too), but the
 alternative — two functions that behave differently from the gesture they're
 meant to imitate — is worse. `swap(a, b)` is available separately if you
@@ -67,8 +67,8 @@ every insertion land one short, which shows up as the placeholder flickering
 to the neighbour the instant a drag starts.
 
 ```tsx
-<Layout collision="intersection">                             {/* override the mode's default */}
-<Layout collision="projection" minCollisionScore={0.4}>       {/* reject weak matches */}
+<Layout collision="intersection" />; // override the mode's default
+<Layout collision="projection" minCollisionScore={0.4} />; // reject weak matches
 ```
 
 ## Committed order vs. render order
@@ -128,7 +128,7 @@ the same numbers.
 `onSwap` fires on every destination change — more than once per drag.
 `onChange` fires once, when the order actually commits.
 
-```ts
+```text
 {
   item: "notes",
   previousSlot: { index: 1, column: 0, row: 1, rect: { x: 0, y: 232, width: 320, height: 132 } },

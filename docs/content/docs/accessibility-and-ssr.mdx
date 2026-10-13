@@ -10,16 +10,16 @@ reorder produces the same `onSwap` payloads a mouse drag would.
 
 ## Keyboard
 
-| Key                    | Action                                          |
-| ---------------------- | ----------------------------------------------- |
-| `Tab`                  | Move focus between items                        |
-| `Space` / `Enter`      | Grab the focused item, or drop a grabbed one    |
-| Arrow keys             | Move a grabbed item; without a grab, move focus |
-| `Shift` + Arrow        | Move three slots at once (`largeStep`)          |
-| `Home` / `End`         | Jump to the first or last slot                  |
-| `Escape`               | Cancel and return the item                      |
-| `Cmd/Ctrl + Z`         | Undo                                            |
-| `Cmd/Ctrl + Shift + Z` | Redo                                            |
+| Key                    | Action                                                                                        |
+| ---------------------- | --------------------------------------------------------------------------------------------- |
+| `Tab`                  | Move focus between items                                                                      |
+| `Space` / `Enter`      | Grab the focused item, or drop a grabbed one                                                  |
+| Arrow keys             | Move a grabbed item; without a grab, Up/Down move focus between items (Left/Right do nothing) |
+| `Shift` + Arrow        | Move three slots at once (`largeStep`)                                                        |
+| `Home` / `End`         | Jump to the first or last slot                                                                |
+| `Escape`               | Cancel and return the item                                                                    |
+| `Cmd/Ctrl + Z`         | Undo                                                                                          |
+| `Cmd/Ctrl + Shift + Z` | Redo                                                                                          |
 
 What an arrow press _does_ depends on the mode, same as a pointer drop: in
 `reorder` it shifts the item one slot (three with `Shift`) and everything in
@@ -28,8 +28,8 @@ These aren't the same gesture in different clothing — worth testing
 explicitly if you're shipping a keyboard-first screen.
 
 ```tsx
-<Layout keyboard={{ step: 1, largeStep: 3 }}>   {/* the defaults */}
-<Layout keyboard={false}>                        {/* disable entirely */}
+<Layout keyboard={{ step: 1, largeStep: 3 }} />; // the defaults
+<Layout keyboard={false} />; // disable entirely
 ```
 
 ## What an item exposes
@@ -48,6 +48,7 @@ explicitly if you're shipping a keyboard-first screen.
 | ------------------ | --------- | --------------------------------------------------------------------------- |
 | Grab               | assertive | "Weather grabbed. Use arrow keys to move, Enter to drop, Escape to cancel." |
 | Destination change | polite    | "Weather moved to position 2"                                               |
+| Drop               | polite    | "Weather dropped at position 2"                                             |
 | Cancel             | polite    | "Drag cancelled"                                                            |
 | Undo / redo        | polite    | "Undo. 4 items."                                                            |
 
@@ -103,8 +104,8 @@ plain Node environment and checking for the absence of
 window/document errors — React 18+ is required
 (`>=18.0.0` in `peerDependencies`).
 
-Astro, Next.js, and Remix all work the same way: hydrate the component with
-whatever directive or boundary your framework uses
-(`client:visible`/`client:load` in Astro, a `"use client"` boundary in
-Next's App Router), and import the stylesheet once wherever your framework
-handles global CSS.
+The same approach applies to other React-based frameworks: hydrate the
+component with the boundary your framework provides, and import the stylesheet
+once wherever your framework handles global CSS. The repository's Astro example
+uses `client:visible` and `client:load` (see `examples/astro`); this is the
+integration that has been verified in the repository.
