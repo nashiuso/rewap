@@ -33,10 +33,18 @@ number it currently isn't. See the README's install section and
 
 ## On the devDependency audit warnings
 
-`npm audit` reports vulnerabilities in the `vitest` → `esbuild` → `tinypool`
-chain — all in test tooling, nothing that ships to a consumer. Fixing them needs
-a major-version bump of `vitest`, which hasn't made it into a pass yet. See
-`docs/content/docs/known-limitations.mdx`.
+After the 1.1.1-alpha toolchain repair (Vite `6.4.4`, Vitest `3.2.7`,
+`@vitejs/plugin-react` `4.7.0`, esbuild `0.25.12`), root `npm audit` reports
+4 findings (2 moderate, 2 critical), all in the dev-only
+`vitest` → `@vitest/mocker` / `tinypool` chain — nothing that ships to a
+consumer in `dist/`. The audit-suggested fix is Vitest `4.1.11`, a major
+runner bump whose engines (`^20.0.0 || ^22.0.0 || >=24.0.0`) would drop the
+Node 18 support this package still declares (`>=18.18.0`), so it is deferred
+deliberately rather than forced. Do not repeat the earlier
+`npm audit fix --force`: it installed Vite `8.3.4` + Vitest `5.0.4` against
+`@vitejs/plugin-react@4`, whose peer range ends at Vite 7, and left
+`npm ci` failing with `ERESOLVE`. The docs and playground audits are clean;
+the Astro example's findings are separate and would need an Astro major.
 
 ## On this not being a one-release project
 
