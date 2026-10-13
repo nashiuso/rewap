@@ -3,6 +3,17 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
   test: {
     environment: "jsdom",
+    // jsdom only exposes `localStorage`/`sessionStorage` when the document has a
+    // real (non-opaque) origin. Vitest currently defaults its jsdom `url` to
+    // `http://localhost:3000`, so storage happens to work — but that default
+    // lives in Vitest, not here, and the persistence/layout suites depend on it.
+    // Pinning it keeps `window.localStorage` and `window.sessionStorage` real
+    // (not mocked) regardless of what the runner defaults to.
+    environmentOptions: {
+      jsdom: {
+        url: "http://localhost:3000/",
+      },
+    },
     globals: true,
     setupFiles: ["tests/setup.ts"],
     include: ["tests/**/*.test.ts", "tests/**/*.test.tsx"],
