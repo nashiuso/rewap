@@ -1,1 +1,6 @@
-* @nashiuso
+# Rutas sensibles: requieren revisión del propietario
+/.github/          @nashiuso
+/scripts/          @nashiuso
+/package.json      @nashiuso
+/package-lock.json @nashiuso
+/docs/package.json @nashiuso
