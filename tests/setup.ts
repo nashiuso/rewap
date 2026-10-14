@@ -1,3 +1,40 @@
+// Node 26 Web Storage polyfill
+// Node 25+ defines a global `localStorage` accessor that returns `undefined`
+// unless the process was started with --localstorage-file. Vitest's jsdom
+// environment refuses to overwrite keys the runtime already defines, so in
+// the jsdom environment that stub shadows jsdom's real Storage and every
+// `localStorage.getItem(...)` throws "Cannot read properties of undefined".
+// Install a real in-memory Storage when the global resolves to nothing,
+// before any test module reads it. Guarded so Node < 26 and any future
+// runtime that provides a working Storage keep jsdom's own implementation.
+type StorageHost = { localStorage?: Storage };
+
+const nodeHost = globalThis as unknown as StorageHost;
+const windowHost =
+  typeof window !== "undefined" ? (window as unknown as StorageHost) : null;
+
+if (typeof nodeHost.localStorage === "undefined") {
+  const store = new Map<string, string>();
+  const storage: Storage = {
+    get length() {
+      return store.size;
+    },
+    key: (i: number) => [...store.keys()][i] ?? null,
+    getItem: (k: string) => store.get(String(k)) ?? null,
+    setItem: (k: string, v: string) => void store.set(String(k), String(v)),
+    removeItem: (k: string) => void store.delete(String(k)),
+    clear: () => store.clear(),
+  };
+  for (const host of [nodeHost, windowHost]) {
+    if (!host) continue;
+    Object.defineProperty(host, "localStorage", {
+      value: storage,
+      configurable: true,
+      writable: true,
+    });
+  }
+}
+
 /**
  * Test environment.
  *
