@@ -1,0 +1,29 @@
+# Normalize line endings: enforce LF in the repo, let Git convert on checkout
+* text=auto eol=lf
+
+# Explicit binary types — never diff, merge, or normalize these
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.gif  binary
+*.ico  binary
+*.webp binary
+*.woff binary
+*.woff2 binary
+*.ttf  binary
+*.eot  binary
+*.pdf  binary
+*.zip  binary
+*.gz   binary
+*.tgz  binary
+
+# SVG is text and benefits from diff, but mark it as such explicitly
+*.svg  text
+
+# Lockfiles: keep them as text (diff noise is acceptable for security review)
+package-lock.json  text eol=lf
+
+# Linguist: mark generated output so it doesn't skew language stats
+dist/**     linguist-generated=true
+site-dist/** linguist-generated=true
+docs/out/**  linguist-generated=true
