@@ -10,7 +10,6 @@
 #   browser          Playwright end-to-end tests in Chromium (Node 22).
 #   site             Docs + playground + assembled GitHub Pages artifact (Node 22,
 #                    the same version pages.yml uses for production).
-#   astro-example    Lockfile-based install and build of examples/astro (Node 22).
 
 name: CI
 
@@ -128,28 +127,3 @@ jobs:
       # broken /rewap/ links. It is the same command pages.yml runs for production.
       - name: Assemble and verify the static site
         run: npm run site:build
-
-  astro-example:
-    name: astro example
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 22
-          cache: npm
-          cache-dependency-path: |
-            package-lock.json
-            examples/astro/package-lock.json
-
-      # Root `npm ci` builds dist/, which examples/astro links to via file:../..
-      - run: npm ci
-
-      - name: Install the example (lockfile)
-        working-directory: examples/astro
-        run: npm ci
-
-      - name: Build the example
-        working-directory: examples/astro
-        run: npm run build

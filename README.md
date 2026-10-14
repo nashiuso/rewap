@@ -123,8 +123,7 @@ npm run verify:github-install
 ```
 
 The documentation site is a Next.js and Fumadocs app in `docs/` and requires
-Node.js 20.9 or newer. The browser tests require Node.js 20 or newer. The Astro
-example in `examples/astro` is described in its own README.
+Node.js 20.9 or newer. The browser tests require Node.js 20 or newer.
 
 ## License
 
