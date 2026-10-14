@@ -7,7 +7,13 @@
 // Install a real in-memory Storage when the global resolves to nothing,
 // before any test module reads it. Guarded so Node < 26 and any future
 // runtime that provides a working Storage keep jsdom's own implementation.
-if (typeof (globalThis as any).localStorage === "undefined") {
+type StorageHost = { localStorage?: Storage };
+
+const nodeHost = globalThis as unknown as StorageHost;
+const windowHost =
+  typeof window !== "undefined" ? (window as unknown as StorageHost) : null;
+
+if (typeof nodeHost.localStorage === "undefined") {
   const store = new Map<string, string>();
   const storage: Storage = {
     get length() {
@@ -19,10 +25,9 @@ if (typeof (globalThis as any).localStorage === "undefined") {
     removeItem: (k: string) => void store.delete(String(k)),
     clear: () => store.clear(),
   };
-  for (const target of [globalThis, (globalThis as any).window].filter(
-    Boolean,
-  )) {
-    Object.defineProperty(target, "localStorage", {
+  for (const host of [nodeHost, windowHost]) {
+    if (!host) continue;
+    Object.defineProperty(host, "localStorage", {
       value: storage,
       configurable: true,
       writable: true,
