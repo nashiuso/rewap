@@ -44,13 +44,10 @@ Checked during the 1.1.1 alpha cleanup (see the cleanup branch's commit history 
   `@vitejs/plugin-react@4` (peer range ends at Vite 7) and leaves `npm ci` failing with
   `ERESOLVE`. Stay on Vitest 4 until `@vitejs/plugin-react` allows Vite 8.
 - **Docs and playground:** 0 findings each.
-- **Astro example:** 16 findings (1 critical, 7 high, 8 moderate). These come from
-  Astro 4.16.x and its tooling, and every listed Astro advisory range covers 4.x. The
-  npm-suggested fix is Astro 6 (a major upgrade), so it is left for a separate decision.
-  The static build (`astro build`, no adapter) does not run Astro's server or dev
-  server; several advisories concern those. `@astrojs/react` 3.6.3 (latest stable 3.x)
-  is flagged because its advisory range includes a 3.7.0 beta, and no stable fixed
-  release exists.
+- **Astro example:** removed. It carried 27 of the 31 open advisories (1 critical,
+  7 high, 19 moderate/low) through Astro 4.16.x and its tooling. Upgrading Astro 4 → 7
+  is a three-major migration on a non-published demo; removing the example clears the
+  advisories and the CI job without touching the library.
 
 ## On this not being a one-release project
 
