@@ -4,7 +4,7 @@
 # pages.yml and is restricted to main.
 #
 # Jobs:
-#   library          Node 18.18.0 (the declared engine minimum), 20 and 22:
+#   library          Node 20, 22 and 24:
 #                    format, types, lint, unit/component tests, build, package
 #                    checks, and the GitHub-install check (runs `prepare`).
 #   browser          Playwright end-to-end tests in Chromium (Node 22).
@@ -35,7 +35,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        node: ["18.18.0", "20", "22"]
+        node: ["20", "22", "24"]
     steps:
       - uses: actions/checkout@v7
 

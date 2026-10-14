@@ -35,15 +35,14 @@ number it currently isn't. See the README's install section and
 
 Checked during the 1.1.1 alpha cleanup (see the cleanup branch's commit history for the date).
 
-- **Root (dev tooling):** 4 findings (2 critical, 2 moderate). All are in the
-  dev-only Vitest chain: `vitest` and `@vitest/mocker`, plus `tinypool` (critical
-  prototype-pollution advisories, fixed in `tinypool` 2.1.2+). Vitest 3 depends on
-  tinypool 1.x, so the only fix npm offers is a Vitest 4 upgrade (`4.1.11`). Vitest 4
-  declares Node `^20 || ^22 || >=24`, which would drop the Node 18 support this package
-  still declares (`>=18.18.0`). We deliberately do not override `tinypool` to a major
-  version Vitest 3 does not declare. Do not repeat `npm audit fix --force`: it
-  installed Vite 8.3.4 + Vitest 5.0.4 against `@vitejs/plugin-react@4`, whose peer range
-  ends at Vite 7, and left `npm ci` failing with `ERESOLVE`.
+- **Root (dev tooling):** resolved by upgrading Vitest 3 → 4 (`4.1.11`). The two
+  critical `tinypool` prototype-pollution advisories (fixed in `tinypool` 2.1.2+) are
+  gone: Vitest 4 depends on tinypool 2.x. The upgrade raises `engines.node` from
+  `>=18.18.0` to `>=20`, matching Vitest 4's declared range (`^20 || ^22 || >=24`) and
+  the CI matrix in `.github/workflows/ci.yml` (`20`, `22`, `24`).
+  Do not repeat `npm audit fix --force`: it installs Vite 8.x + Vitest 5.x against
+  `@vitejs/plugin-react@4` (peer range ends at Vite 7) and leaves `npm ci` failing with
+  `ERESOLVE`. Stay on Vitest 4 until `@vitejs/plugin-react` allows Vite 8.
 - **Docs and playground:** 0 findings each.
 - **Astro example:** 16 findings (1 critical, 7 high, 8 moderate). These come from
   Astro 4.16.x and its tooling, and every listed Astro advisory range covers 4.x. The
