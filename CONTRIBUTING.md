@@ -8,8 +8,10 @@ person, so the most useful thing you can do is make a report reproducible.
 - `npm test` has to pass, including the suites that cover the path you touched.
 - `npm run test:e2e` covers the browser behaviour; it needs
   `npx playwright install chromium` once, and `--with-deps` on a bare Linux image.
-- `npm run ci` runs the whole pipeline in the order CI does. Running it before you
-  push saves a round trip.
+- `npm run ci` runs the core library checks (format, types, lint, tests, build,
+  package checks). It does not run the browser tests, the documentation build,
+  the static-site assembly or the Astro example; CI runs those as separate jobs.
+  See `.github/workflows/ci.yml`.
 - Keep changes focused. A bug report and a refactor are two pull requests; a
   refactor and a rename are two as well.
 - If you change behaviour on purpose, say so in the description. Several tests in

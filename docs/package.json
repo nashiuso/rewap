@@ -3,6 +3,9 @@
   "version": "1.1.1",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": ">=20.9.0"
+  },
   "description": "Documentation site for @nashiuso/rewap. A real Fumadocs (Next.js + MDX) app, built locally from source, no remote scripts.",
   "scripts": {
     "dev": "next dev",

@@ -232,7 +232,16 @@ describe("<ClockWidget>", () => {
     const { container } = render(<ClockWidget timeZone="UTC" />);
     expect(container.textContent).toContain("09:15:30");
     expect(container.textContent).toContain("UTC");
-    expect(container.textContent).toMatch(/device clock/i);
+    // The requirement is that the source is named as this device's clock,
+    // not a synchronised time source. The widget's note words that as
+    // "this device's clock — not synchronized with a time server" (the
+    // header meta can instead read "device clock", depending on whether
+    // the requested zone matches the device zone), so match the meaning
+    // rather than one exact phrase.
+    expect(container.textContent).toMatch(/device'?s clock/i);
+    expect(container.textContent).toMatch(
+      /not synchronized with a time server/i,
+    );
 
     vi.advanceTimersByTime(1000);
     vi.useRealTimers();

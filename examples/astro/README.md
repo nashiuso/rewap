@@ -1,7 +1,16 @@
 # Rewap + Astro
 
+This example depends on the package in this repository (`file:../..`), not a
+published version. Install the root first: its `prepare` script builds `dist/`,
+which the example links to.
+
 ```bash
-npm install
+# from the repository root
+npm ci
+
+# then in this directory
+cd examples/astro
+npm ci
 npm run dev
 ```
 
@@ -15,5 +24,4 @@ is the whole story.
   during `astro build`'s static HTML pass — no `window`/`document` access outside
   an effect — then hydrates and measures its own geometry in the browser.
 
-This example depends on the package in this repository (`file:../..`), not a
-published version, so `npm run build` in the repo root has to run first.
+Dependency audit findings for this example are recorded in `NOTES.md`.

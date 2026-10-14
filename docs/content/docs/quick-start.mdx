@@ -35,16 +35,34 @@ Try it: drag a panel, press `Space` then `ArrowDown` then `Enter`, undo with
 ## Reacting to a drop
 
 ```tsx
-const [order, setOrder] = useState(panels);
+import { useState } from "react";
+import { Item, Layout, type LayoutItemInput } from "@nashiuso/rewap";
 
-<Layout mode="reorder" items={order} onChange={(next) => setOrder(next)}>
-  {order.map((panel) => (
-    <Item key={panel.id} id={panel.id} label={panel.title}>
-      {panel.title}
-    </Item>
-  ))}
-</Layout>;
+const panelById = new Map(panels.map((panel) => [panel.id, panel]));
+const idOf = (entry: LayoutItemInput) =>
+  typeof entry === "string" ? entry : entry.id;
+
+export function ControlledBoard() {
+  const [order, setOrder] = useState(panels.map((panel) => panel.id));
+
+  return (
+    <Layout
+      mode="reorder"
+      items={order}
+      onChange={(next) => setOrder(next.map(idOf))}
+    >
+      {order.map((id) => (
+        <Item key={id} id={id} label={panelById.get(id)?.title}>
+          {panelById.get(id)?.title}
+        </Item>
+      ))}
+    </Layout>
+  );
+}
 ```
+
+`onChange` receives the new order as `LayoutItemInput` values (an id, or an
+object with an `id`), so the example above keeps only the ids.
 
 `items` plus `onChange` makes the application the owner of the order: rewap
 stops writing persistence in that case, and stops assuming it can change the
@@ -54,7 +72,10 @@ about changes, use `defaultItems` and read `onChange` without writing back.
 ## Remembering the order
 
 ```tsx
-<Layout mode="reorder" persistence={{ key: "dashboard", storage: "localStorage" }}>
+<Layout
+  mode="reorder"
+  persistence={{ key: "dashboard", storage: "localStorage" }}
+/>
 ```
 
 There's no sync service and no account. The adapter is `localStorage`,

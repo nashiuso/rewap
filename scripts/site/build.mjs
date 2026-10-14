@@ -97,6 +97,8 @@ const requiredFiles = [
   "playground/index.html",
   "brand/buttons/logo.svg",
   "brand/buttons/mark.svg",
+  // Dotfile: GitHub Pages skips Jekyll only if this ships. Uploads must include hidden files.
+  ".nojekyll",
 ];
 const missingFiles = requiredFiles.filter(
   (path) => !existsSync(join(siteDist, path)),

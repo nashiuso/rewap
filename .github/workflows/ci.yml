@@ -1,31 +1,51 @@
-# `npm ci` installs the exact dependency tree in the committed lockfile.
+# Continuous integration for pull requests and pushes to main and work/** branches.
+#
+# This workflow never deploys anything. Production Pages deployment lives in
+# pages.yml and is restricted to main.
+#
+# Jobs:
+#   library          Node 18.18.0 (the declared engine minimum), 20 and 22:
+#                    format, types, lint, unit/component tests, build, package
+#                    checks, and the GitHub-install check (runs `prepare`).
+#   browser          Playwright end-to-end tests in Chromium (Node 22).
+#   site             Docs + playground + assembled GitHub Pages artifact (Node 22,
+#                    the same version pages.yml uses for production).
+#   astro-example    Lockfile-based install and build of examples/astro (Node 22).
 
 name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, "work/**"]
   pull_request:
 
 permissions:
   contents: read
 
+# Superseding runs for the same branch are cancelled, so a push to a work branch
+# that already has an open pull request does not keep two identical runs alive.
+concurrency:
+  group: ci-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
 jobs:
-  check:
-    name: check (node ${{ matrix.node }})
+  library:
+    name: library (node ${{ matrix.node }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        node: [20, 22]
+        node: ["18.18.0", "20", "22"]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node }}
           cache: npm
 
+      # `npm ci` installs the exact tree in the committed lockfile. Its `prepare`
+      # script also builds dist/, which the checks below consume.
       - run: npm ci
 
       - name: Format
@@ -51,46 +71,84 @@ jobs:
           npm run lint:package
           npm run verify:package
 
-      - name: Documentation site
-        run: npm run docs:build
+      - name: GitHub installation (git dependency path)
+        run: npm run verify:github-install
 
-      - name: Examples app
-        run: npm run examples:build
+  browser:
+    name: browser tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            examples/playground/package-lock.json
+
+      - run: npm ci
 
       - name: Install Chromium
-        if: matrix.node == 20
         run: npx playwright install --with-deps chromium
 
+      # Playwright's webServer builds the playground itself (npm run examples:build).
       - name: Browser tests
-        if: matrix.node == 20
         run: npm run test:e2e
 
       - name: Upload traces
-        if: failure() && matrix.node == 20
-        uses: actions/upload-artifact@v4
+        if: failure()
+        uses: actions/upload-artifact@v7
         with:
           name: playwright-traces
           path: test-results/
           retention-days: 7
 
+  site:
+    name: docs and playground site
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            docs/package-lock.json
+            examples/playground/package-lock.json
+
+      # Installs the root tree (prepare builds dist/, which the playground imports).
+      - run: npm ci
+
+      # site:build installs and builds docs and playground from their own lockfiles,
+      # writes site-dist/, and fails on missing required pages, missing assets or
+      # broken /rewap/ links. It is the same command pages.yml runs for production.
+      - name: Assemble and verify the static site
+        run: npm run site:build
+
   astro-example:
     name: astro example
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            examples/astro/package-lock.json
 
+      # Root `npm ci` builds dist/, which examples/astro links to via file:../..
       - run: npm ci
 
-      - run: npm run build
-
-      - name: Install the example
+      - name: Install the example (lockfile)
         working-directory: examples/astro
-        run: npm install --no-audit --no-fund
+        run: npm ci
 
       - name: Build the example
         working-directory: examples/astro
