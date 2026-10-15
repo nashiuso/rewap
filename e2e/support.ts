@@ -1,4 +1,5 @@
 import type { Page, Locator } from "@playwright/test";
+import { expect } from "@playwright/test";
 
 /** Current left-to-right order of items in a Rewap layout, by `id`. */
 export async function itemOrder(
@@ -12,14 +13,39 @@ export async function itemOrder(
     );
 }
 
+/**
+ * Waits for the layout engine to measure items after hydration.
+ *
+ * SSR renders items with `data-rewap-index="-1"` because no measurement has
+ * happened yet. After hydration the engine assigns real indices. Drags must
+ * not start until that measurement is complete.
+ */
+export async function waitForMeasurement(page: Page): Promise<void> {
+  // Wait until at least one item has a non-negative index — the layout
+  // engine sets these as soon as it measures the DOM.
+  await expect(
+    page
+      .locator(
+        "[data-rewap-item][data-rewap-index]:not([data-rewap-index='-1'])",
+      )
+      .first(),
+  ).toBeAttached({ timeout: 10_000 });
+}
+
 /** Drags one item onto another with a real, multi-step pointer path. */
 export async function dragItem(
   page: Page,
   fromId: string,
   toId: string,
 ): Promise<void> {
+  await waitForMeasurement(page);
+
   const from = page.locator(`[data-rewap-item="${fromId}"]`);
   const to = page.locator(`[data-rewap-item="${toId}"]`);
+  // The playground may sit below the fold in the documentation layout.
+  // Scroll both items into view before measuring.
+  await from.scrollIntoViewIfNeeded();
+  await to.scrollIntoViewIfNeeded();
   const fromBox = await from.boundingBox();
   const toBox = await to.boundingBox();
   if (!fromBox || !toBox)

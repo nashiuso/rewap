@@ -10,7 +10,7 @@ place items in a grid, with pointer, touch and keyboard input.
 <p align="center">
   <a href="https://nashiuso.github.io/rewap/"><img src="./assets/buttons/docs.svg" alt="Documentation" height="32"></a>
   <a href="https://nashiuso.github.io/rewap/playground/"><img src="./assets/buttons/examples.svg" alt="Playground" height="32"></a>
-  <a href="https://nashiuso.github.io/rewap/docs/quick-start/"><img src="./assets/buttons/start.svg" alt="Get started" height="32"></a>
+  <a href="https://nashiuso.github.io/rewap/quick-start/"><img src="./assets/buttons/start.svg" alt="Get started" height="32"></a>
   <a href="https://github.com/nashiuso/rewap"><img src="./assets/buttons/github.svg" alt="GitHub" height="32"></a>
 </p>
 
@@ -36,7 +36,8 @@ The git install runs the package's `prepare` script, which builds `dist/`
 (ESM, CommonJS, declarations and stylesheets).
 
 - Peer dependency: `react` 18 or newer. The test suite runs against React 18.3.
-- Node.js 18.18.0 or newer for installing and using the package.
+- Node.js 20 or newer for installing and using the package. The documentation
+  site requires Node.js 22.12 or newer.
 
 ## Quick example
 
@@ -103,14 +104,15 @@ Stylesheets: `styles.css` (layout defaults), plus `tokens.css`, `charts.css` and
   Measurement and persistence happen after mount, so the first server-rendered
   paint shows the authored order.
 
-Details are in [Accessibility and SSR](https://nashiuso.github.io/rewap/docs/accessibility-and-ssr/).
+Details are in [Accessibility and SSR](https://nashiuso.github.io/rewap/accessibility-and-ssr/).
 
 ## Documentation and playground
 
 - [Documentation](https://nashiuso.github.io/rewap/): installation, API, motion,
-  accessibility, SSR and known limitations.
+  accessibility, SSR and known limitations. Built with
+  [Astro](https://astro.build/) and [Starlight](https://starlight.astro.build/).
 - [Playground](https://nashiuso.github.io/rewap/playground/): six local items to try
-  the modes and motion presets.
+  the modes and motion presets, with an editable code example.
 
 ## Development
 
@@ -118,12 +120,14 @@ Details are in [Accessibility and SSR](https://nashiuso.github.io/rewap/docs/acc
 npm ci                    # installs the lockfile tree and builds dist/ via prepare
 npm run ci                # format, types, lint, tests, build and package checks
 npm run test:e2e          # browser tests (run `npx playwright install chromium` once)
-npm run site:build        # docs + playground into site-dist/
+npm run docs:install      # install docs dependencies (one-time, or after lockfile changes)
+npm run docs:dev          # start the docs dev server (requires Node 22.12+)
+npm run site:build        # builds docs and assembles site-dist/
 npm run verify:github-install
 ```
 
-The documentation site is a Next.js and Fumadocs app in `docs/` and requires
-Node.js 20.9 or newer. The browser tests require Node.js 20 or newer.
+The documentation site is an Astro + Starlight app in `docs/` and requires
+Node.js 22.12 or newer. The browser tests require Node.js 20 or newer.
 
 ## License
 

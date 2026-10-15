@@ -3,7 +3,7 @@ import { dragItem, itemOrder } from "./support";
 
 test.describe("pointer drag · swap mode", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/");
+    await page.goto("playground/");
     await expect(page.getByRole("button", { name: "Swap" })).toHaveClass(
       /pg-pill--active/,
     );

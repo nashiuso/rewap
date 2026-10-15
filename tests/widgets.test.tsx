@@ -6,7 +6,7 @@
  * answer, and the markup the shell primitives promise (progressbars, rows, meta).
  */
 
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
@@ -225,7 +225,7 @@ describe("<WeatherWidget>", () => {
 });
 
 describe("<ClockWidget>", () => {
-  it("formats the device clock and names its source", () => {
+  it("formats the device clock and names its source", async () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2026-10-07T09:15:30Z"));
 
@@ -243,7 +243,9 @@ describe("<ClockWidget>", () => {
       /not synchronized with a time server/i,
     );
 
-    vi.advanceTimersByTime(1000);
+    await act(async () => {
+      vi.advanceTimersByTime(1000);
+    });
     vi.useRealTimers();
   });
 });

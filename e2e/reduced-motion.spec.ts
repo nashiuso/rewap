@@ -10,7 +10,7 @@ test.describe("prefers-reduced-motion: reduce", () => {
     const errors: string[] = [];
     page.on("pageerror", (error) => errors.push(error.message));
 
-    await page.goto("/");
+    await page.goto("playground/");
     const before = await itemOrder(page);
 
     await dragItem(page, before[0]!, before[1]!);

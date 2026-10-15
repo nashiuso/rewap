@@ -1,5 +1,12 @@
 import { defineConfig } from "vitest/config";
 
+// Node 25+ exposes a global `localStorage` accessor that warns unless
+// --localstorage-file is passed. The test suite does not need Node's native
+// Web Storage (jsdom provides its own), so suppress the warning on affected
+// versions. Gate on the major version so older Node runtimes are unaffected.
+const nodeMajor = Number(process.versions.node.split(".")[0]);
+const nodeFlags = nodeMajor >= 25 ? ["--no-experimental-webstorage"] : [];
+
 export default defineConfig({
   test: {
     environment: "jsdom",
@@ -16,6 +23,12 @@ export default defineConfig({
     },
     globals: true,
     setupFiles: ["tests/setup.ts"],
+    ...(nodeFlags.length > 0 && {
+      poolOptions: {
+        forks: { execArgv: nodeFlags },
+        threads: { execArgv: nodeFlags },
+      },
+    }),
     include: ["tests/**/*.test.ts", "tests/**/*.test.tsx"],
     restoreMocks: true,
     coverage: {

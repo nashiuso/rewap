@@ -1,10 +1,5 @@
 # Security
 
-## Supported versions
-
-The latest minor release gets fixes. Older minors do not, unless the issue is
-severe and cheap to patch.
-
 ## Reporting
 
 Open a [_private security advisory_](https://github.com/nashiuso/rewap/security/advisories/new)
@@ -36,3 +31,8 @@ Worth stating plainly, because it is a design decision rather than a bug:
 
 Cross-site scripting in an application's own markup, or a third-party provider
 endpoint logging the coordinates you sent it. Both are outside the package.
+
+## Supported versions
+
+The project is an unreleased alpha. There are no published versions to backport
+fixes to. The latest `main` branch gets fixes.

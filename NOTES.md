@@ -14,7 +14,16 @@ longer than three lines, because the symptom (stale coordinates) didn't point at
 the cause (a stale enum) — the coordinates genuinely were correct for the source
 they thought they had.
 
-## On not building eight example apps
+## On the documentation architecture
+
+The original docs site was a Next.js + Fumadocs app in `docs/` with a separate Vite playground in `examples/playground/`. Both are now replaced by a single Astro + Starlight site in `docs/` with the playground integrated as a React island. The reasons:
+
+1. One build system instead of two (Next.js static export + Vite).
+2. The old Astro example (removed earlier) carried 27 of the 31 open advisories. Astro 7 is clean.
+3. Pagefind replaces the Fumadocs/Orama static search index — same client-side search, fewer moving parts.
+4. The playground is no longer a separate app that needs its own Vite config, lockfile, and CI job.
+
+The site builds with `base: "/rewap"` always, so local preview and production produce identical URLs. The assembled artifact is `site-dist/` at the repo root; the library's `dist/` and the site's build output never share a directory.
 
 The original plan for `examples/` was a small gallery — kanban, analytics,
 dashboard, widget board, and so on. It's one playground with a mode and motion
@@ -43,7 +52,17 @@ Checked during the 1.1.1 alpha cleanup (see the cleanup branch's commit history 
   Do not repeat `npm audit fix --force`: it installs Vite 8.x + Vitest 5.x against
   `@vitejs/plugin-react@4` (peer range ends at Vite 7) and leaves `npm ci` failing with
   `ERESOLVE`. Stay on Vitest 4 until `@vitejs/plugin-react` allows Vite 8.
-- **Docs and playground:** 0 findings each.
+- **Docs site:** `postcss-selector-parser` 6.1.4 (transitive via `postcss-nested` →
+  `@expressive-code/core` → Starlight) has GHSA-rj75-hqrm-r3gf / CVE-2026-104844
+  (moderate, CVSS 5.9): quadratic complexity in flat selector parsing allows CPU
+  exhaustion. The fix is in 7.1.6; the 6.x line has no patched release. An `overrides`
+  entry in `docs/package.json` forces `postcss-selector-parser` to 7.1.6, which is a
+  6→7 major bump. The parser's public API is compatible for postcss-nested's usage and
+  the Astro site builds and produces identical output with the override in place. After
+  the override, `npm audit` reports 0 findings in both root and docs. If Starlight or
+  expressive-code eventually ships with postcss-selector-parser ≥7.1.6 natively, the
+  override can be removed.
+- **Root:** 0 findings.
 - **Astro example:** removed. It carried 27 of the 31 open advisories (1 critical,
   7 high, 19 moderate/low) through Astro 4.16.x and its tooling. Upgrading Astro 4 → 7
   is a three-major migration on a non-published demo; removing the example clears the

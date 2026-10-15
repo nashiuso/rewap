@@ -215,7 +215,9 @@ describe("prefers-reduced-motion", () => {
       render(<Reader />);
       expect(seen[seen.length - 1]).toBe(false);
 
-      media.set(true);
+      await act(async () => {
+        media.set(true);
+      });
       await waitFor(() => expect(seen[seen.length - 1]).toBe(true));
     } finally {
       media.restore();

@@ -26,4 +26,4 @@ package-lock.json  text eol=lf
 # Linguist: mark generated output so it doesn't skew language stats
 dist/**     linguist-generated=true
 site-dist/** linguist-generated=true
-docs/out/**  linguist-generated=true
+docs/dist/** linguist-generated=true

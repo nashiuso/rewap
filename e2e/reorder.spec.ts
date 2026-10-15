@@ -3,7 +3,7 @@ import { dragItem, itemOrder } from "./support";
 
 test.describe("pointer drag · reorder mode", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto("/");
+    await page.goto("playground/");
     await page.getByRole("button", { name: "Reorder" }).click();
     await expect(page.getByRole("button", { name: "Reorder" })).toHaveClass(
       /pg-pill--active/,

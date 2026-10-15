@@ -1,4 +1,4 @@
-# Rutas sensibles: requieren revisión del propietario
+# Sensitive paths: require owner review
 /.github/          @nashiuso
 /scripts/          @nashiuso
 /package.json      @nashiuso

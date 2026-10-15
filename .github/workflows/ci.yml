@@ -8,8 +8,7 @@
 #                    format, types, lint, unit/component tests, build, package
 #                    checks, and the GitHub-install check (runs `prepare`).
 #   browser          Playwright end-to-end tests in Chromium (Node 22).
-#   site             Docs + playground + assembled GitHub Pages artifact (Node 22,
-#                    the same version pages.yml uses for production).
+#   site             Docs site built and verified (Node 22).
 
 name: CI
 
@@ -45,7 +44,11 @@ jobs:
 
       # `npm ci` installs the exact tree in the committed lockfile. Its `prepare`
       # script also builds dist/, which the checks below consume.
+      # npm 10.9+ prompts for lifecycle-script approval; CI is non-interactive,
+      # so `npm_config_yes` auto-approves the package's own `prepare` script.
       - run: npm ci
+        env:
+          npm_config_yes: true
 
       - name: Format
         run: npm run format:check
@@ -83,16 +86,15 @@ jobs:
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: |
-            package-lock.json
-            examples/playground/package-lock.json
 
       - run: npm ci
+        env:
+          npm_config_yes: true
 
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
-      # Playwright's webServer builds the playground itself (npm run examples:build).
+      # Playwright's webServer builds and serves the assembled site at /rewap/.
       - name: Browser tests
         run: npm run test:e2e
 
@@ -105,7 +107,7 @@ jobs:
           retention-days: 7
 
   site:
-    name: docs and playground site
+    name: docs site
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -114,16 +116,16 @@ jobs:
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: |
-            package-lock.json
-            docs/package-lock.json
-            examples/playground/package-lock.json
 
-      # Installs the root tree (prepare builds dist/, which the playground imports).
+      # Installs the root tree (prepare builds dist/, which the docs site imports).
       - run: npm ci
+        env:
+          npm_config_yes: true
 
-      # site:build installs and builds docs and playground from their own lockfiles,
-      # writes site-dist/, and fails on missing required pages, missing assets or
-      # broken /rewap/ links. It is the same command pages.yml runs for production.
-      - name: Assemble and verify the static site
+      - name: Check library build output
+        run: test -f dist/index.js && test -f dist/types/index.d.ts
+
+      # site:build runs banner.mjs, installs docs deps, builds with Astro,
+      # assembles site-dist/, and verifies the output.
+      - name: Build and verify the site
         run: npm run site:build

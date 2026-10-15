@@ -7,8 +7,17 @@
  * the engine but proves nothing about a real pointer. These tests do the opposite:
  * a real Chromium, a real mouse, the real layout.
  *
- * The web server is the examples app, built once and served as static files, so a
- * failing test is a failing page rather than a failing dev server.
+ * The web server is the assembled site, served at /rewap/ to mirror production.
+ *
+ * NOTE on the touch project: the "mobile" tests use Playwright's phone device
+ * profile (Pixel 7, hasTouch: true). The drag test dispatches synthetic
+ * `PointerEvent` instances with `pointerType: "touch"` via `page.evaluate()`.
+ * Playwright's `Touchscreen` API offers tap and tap-hold but has no drag
+ * primitive, so multi-step touch drags must be synthesised at the event level.
+ * This exercises the library's pointer-event pipeline with touch coordinates on
+ * a touch-capable context — which is closer to a real gesture than a mouse test
+ * — but it is not a complete native touch gesture: the browser's own touch
+ * interception, hit-testing, and scroll-negotiation layer is bypassed.
  */
 
 import { defineConfig, devices } from "@playwright/test";
@@ -26,7 +35,7 @@ export default defineConfig({
   timeout: 30_000,
   expect: { timeout: 5_000 },
   use: {
-    baseURL: BASE_URL,
+    baseURL: `${BASE_URL}/rewap/`,
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
   },
@@ -45,8 +54,10 @@ export default defineConfig({
     },
   ],
   webServer: {
-    command: `npm run examples:build && npx vite preview --config examples/playground/vite.config.ts --port ${PORT} --strictPort --host 127.0.0.1`,
-    url: BASE_URL,
+    // Build the site first, then serve it. The preview server uses PORT from
+    // the environment to pick its listen port.
+    command: `node scripts/site/build.mjs && PORT=${PORT} node scripts/site/preview.mjs`,
+    url: `${BASE_URL}/rewap/`,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
     stdout: "pipe",

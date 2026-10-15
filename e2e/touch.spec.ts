@@ -1,13 +1,22 @@
 import { test, expect } from "@playwright/test";
-import { itemOrder } from "./support";
+import { itemOrder, waitForMeasurement } from "./support";
 
 // Runs on the "mobile" project only (see playwright.config.ts) — it needs a
 // touch-capable context (`hasTouch: true`) or `page.touchscreen` throws.
+//
+// NOTE: Playwright's Touchscreen API has no drag primitive, so this test
+// dispatches synthetic PointerEvent instances with pointerType: "touch" via
+// page.evaluate(). This exercises the library's pointer-event pipeline on a
+// touch-capable context (Pixel 7 profile) with touch coordinates, but it is
+// not a complete native touch gesture — the browser's own touch interception
+// and scroll-negotiation layer is bypassed. See playwright.config.ts for the
+// full rationale.
 test.describe("touch dragging", () => {
-  test("a touch drag swaps two tiles on a phone-sized viewport", async ({
+  test("dispatching pointer-type:touch events swaps two tiles on a phone-sized viewport", async ({
     page,
   }) => {
-    await page.goto("/");
+    await page.goto("playground/");
+    await waitForMeasurement(page);
 
     const before = await itemOrder(page);
     const from = page.locator(`[data-rewap-item="${before[0]}"]`);
@@ -67,7 +76,7 @@ test.describe("touch dragging", () => {
   });
 
   test("the board stays usable at a phone viewport width", async ({ page }) => {
-    await page.goto("/");
+    await page.goto("playground/");
     const board = page.locator("[data-rewap-layout]");
     await expect(board).toBeVisible();
     const box = await board.boundingBox();

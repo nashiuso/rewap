@@ -1,0 +1,7 @@
+/* Rewap documentation site — Starlight custom CSS overrides. */
+:root {
+  /* Rewap palette: #020204, #D9DBDF, #49A1A8 */
+  --sl-color-accent: #49a1a8;
+}
+
+/* Playground component scoped styles — imported from the React island. */

@@ -72,8 +72,7 @@ correctness in the corners:
   the mobile layout on an emulated phone.
 - The test suite covers touch, responsive, persistence, undo/redo, accessibility,
   utilities, providers, charts, widgets and server rendering.
-- The documentation is a small Fumadocs app with a static search index. The Pages
-  build exports it under `/rewap/` and the Vite playground under `/rewap/playground/`.
+- The documentation is a small Astro + Starlight site with a Pagefind search index. The Pages build assembles it into `site-dist/` under `/rewap/` and the playground is a React island on the same site.
 - GitHub installation is checked in a scratch consumer, including generated bundles,
   declarations and CSS exports.
 - Removed the scaffold CLI and its templates: the `npx` interface depended on a

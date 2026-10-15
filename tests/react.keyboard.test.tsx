@@ -14,7 +14,6 @@ import { Item } from "../src/react/Item";
 import { Layout } from "../src/react/Layout";
 import { useLayout } from "../src/react/useLayout";
 import {
-  advanceFrame,
   installGeometry,
   type GeometryOptions,
   type InstalledGeometry,
@@ -42,8 +41,24 @@ const press = async (
   key: string,
   init: Record<string, unknown> = {},
 ): Promise<void> => {
+  // Fire the keydown and flush any resulting effects/state updates in one
+  // batch so React does not warn about updates outside act(...).
   await act(async () => {
     fireEvent.keyDown(target, { key, ...init });
+    // Flush microtasks from effects scheduled by the keydown handler.
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  });
+};
+
+/** Press Escape and advance the settle animation in one act() batch. */
+const cancelAndSettle = async (target: Element, frames = 40): Promise<void> => {
+  await act(async () => {
+    fireEvent.keyDown(target, { key: "Escape" });
+    const { ticker } = await import("../src/motion/ticker");
+    for (let i = 0; i < frames; i += 1) {
+      ticker.tick(performance.now() + (i + 1) * 16);
+    }
+    await new Promise((resolve) => setTimeout(resolve, 0));
   });
 };
 
@@ -135,8 +150,7 @@ describe("keyboard dragging", () => {
     await press(item, "Home");
     expect(idsInDom(container)).toEqual(["a", "b", "c", "d"]);
 
-    await press(item, "Escape");
-    await advanceFrame(40);
+    await cancelAndSettle(item);
   });
 
   it("respects the configured step sizes", async () => {
@@ -149,8 +163,7 @@ describe("keyboard dragging", () => {
     await press(item, " ");
     await press(item, "ArrowDown");
     expect(idsInDom(container)).toEqual(["b", "c", "d", "a"]);
-    await press(item, "Escape");
-    await advanceFrame(40);
+    await cancelAndSettle(item);
   });
 
   it("cancels with Escape and restores the original order", async () => {
@@ -168,8 +181,17 @@ describe("keyboard dragging", () => {
     await press(item, "ArrowDown");
     expect(idsInDom(container)).toEqual(["b", "a", "c"]);
 
-    await press(item, "Escape");
-    await advanceFrame(60);
+    // Press Escape and advance through the settle animation in one batch so
+    // the cancel state update and the animation frame callbacks are all
+    // wrapped in act(...).
+    await act(async () => {
+      fireEvent.keyDown(item, { key: "Escape" });
+      const { ticker } = await import("../src/motion/ticker");
+      for (let i = 0; i < 60; i += 1) {
+        ticker.tick(performance.now() + (i + 1) * 16);
+      }
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
     expect(idsInDom(container)).toEqual(["a", "b", "c"]);
     expect(onDragEnd.mock.calls[0]?.[0]).toMatchObject({
       item: "a",
@@ -192,8 +214,7 @@ describe("keyboard dragging", () => {
     await press(item, "ArrowUp");
     expect(idsInDom(container)).toEqual(["a", "b"]);
     expect(onSwap).not.toHaveBeenCalled();
-    await press(item, "Escape");
-    await advanceFrame(40);
+    await cancelAndSettle(item);
   });
 
   it("moves focus with the arrows when nothing is grabbed", async () => {
@@ -213,7 +234,9 @@ describe("keyboard dragging", () => {
     const first = itemOf(container, "a");
     const second = itemOf(container, "b");
 
-    first.focus();
+    await act(async () => {
+      first.focus();
+    });
     await press(first, "ArrowDown");
     expect(document.activeElement).toBe(second);
 
@@ -240,13 +263,22 @@ describe("keyboard dragging", () => {
       </Layout>,
     );
     const item = itemOf(container, "a");
-    item.focus();
+    await act(async () => {
+      item.focus();
+    });
     await press(item, " ");
     await press(item, "ArrowDown");
     expect(idsInDom(container)).toEqual(["b", "a"]);
     expect(document.activeElement).toBe(itemOf(container, "a"));
-    await press(item, "Escape");
-    await advanceFrame(40);
+    // Combine Escape and settle animation in one act() batch.
+    await act(async () => {
+      fireEvent.keyDown(item, { key: "Escape" });
+      const { ticker } = await import("../src/motion/ticker");
+      for (let i = 0; i < 40; i += 1) {
+        ticker.tick(performance.now() + (i + 1) * 16);
+      }
+      await new Promise((resolve) => setTimeout(resolve, 0));
+    });
   });
 
   it("undoes and redoes with the platform shortcut", async () => {
@@ -362,7 +394,6 @@ describe("keyboard dragging", () => {
     expect(assertive?.textContent).toContain("grabbed");
     expect(polite?.textContent).toContain("moved to position 2");
 
-    await press(item, "Escape");
-    await advanceFrame(40);
+    await cancelAndSettle(item);
   });
 });
