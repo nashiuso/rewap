@@ -160,7 +160,6 @@
     "verify:github-install": "node scripts/verify-github-install.mjs",
     "size": "node scripts/size.mjs",
     "banner": "node scripts/banner.mjs",
-    "docs:build": "npm run banner && node scripts/site/build.mjs",
     "docs:install": "node scripts/docs-install.mjs",
     "docs:dev": "npm run banner && npm run docs:install && npm run dev --prefix docs",
     "test:e2e": "playwright test",

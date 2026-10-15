@@ -11,8 +11,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "check": "astro check",
-    "test": "vitest run"
+    "check": "astro check"
   },
   "dependencies": {
     "@astrojs/react": "^7.0.1",
@@ -27,8 +26,7 @@
     "@emnapi/runtime": "^1.11.3",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
-    "typescript": "^5.9.3",
-    "vitest": "^4.1.11"
+    "typescript": "^5.9.3"
   },
   "overrides": {
     "postcss-selector-parser": "7.1.6"
