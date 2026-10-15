@@ -4,8 +4,10 @@
 
 <h1 align="center">rewap</h1>
 
-Rewap is a React library for layouts whose items move: drag to swap, reorder or
-place items in a grid, with pointer, touch and keyboard input.
+<p align="center">
+  Drag to swap, reorder or place items in a grid.<br>
+  A React library for layouts that move, with pointer, touch and keyboard input.
+</p>
 
 <p align="center">
   <a href="https://nashiuso.github.io/rewap/"><img src="./assets/buttons/docs.svg" alt="Documentation" height="32"></a>
@@ -16,31 +18,26 @@ place items in a grid, with pointer, touch and keyboard input.
 
 <p align="center">
   <a href="https://github.com/nashiuso/rewap/actions/workflows/ci.yml"><img src="https://github.com/nashiuso/rewap/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI status"></a>
-  <img src="https://img.shields.io/badge/license-MIT-49A1A8?style=flat-square&labelColor=020204" alt="MIT license">
   <img src="https://img.shields.io/badge/version-0.0.8-49A1A8?style=flat-square&labelColor=020204" alt="Version 0.0.8">
+  <img src="https://img.shields.io/badge/license-MIT-49A1A8?style=flat-square&labelColor=020204" alt="MIT license">
 </p>
 
-> **Current version: 0.0.8.** Install directly from GitHub; the package is not
-> distributed through the npm registry.
+<br>
 
-## Installation
+## Install
 
 ```bash
 npm install github:nashiuso/rewap
 ```
 
-For a reproducible install, pin a full commit SHA:
-`npm install github:nashiuso/rewap#<commit-sha>`. npm records the resolved commit
-in your lockfile.
+> [!NOTE]
+> rewap is installed from GitHub and is not published to the npm registry. The
+> `prepare` script builds `dist/` (ESM, CommonJS, types and stylesheets) on install.
 
-The git install runs the package's `prepare` script, which builds `dist/`
-(ESM, CommonJS, declarations and stylesheets).
+Requires `react` 18 or newer and Node.js 20 or newer. For reproducible installs,
+pin a commit: `npm install github:nashiuso/rewap#<commit-sha>`.
 
-- Peer dependency: `react` 18 or newer. The test suite runs against React 18.3.
-- Node.js 20 or newer for installing and using the package. The documentation
-  site requires Node.js 22.12 or newer.
-
-## Quick example
+## Quick start
 
 ```tsx
 import { Item, Layout } from "@nashiuso/rewap";
@@ -56,79 +53,83 @@ export function App() {
 }
 ```
 
-Drag an item with a pointer or touch, or focus it and press `Space`, move with the
-arrow keys, and press `Space` again to drop. `Escape` cancels, and
-`Ctrl`/`Cmd`+`Z` undoes.
+## Modes
 
-## Layout modes
+| Mode               | A drop…                                                           |
+| ------------------ | ----------------------------------------------------------------- |
+| `swap` *(default)* | exchanges the dragged item with the item in the target slot       |
+| `reorder`          | inserts the item at the target and shifts the items in between    |
+| `grid`             | places the item in the target cell                                |
 
-Set the mode with `<Layout mode="…">`. The mode decides what a drop produces.
+Shape a grid with `columns`, `minColumnWidth`, and `columnSpan` / `rowSpan` on `Item`.
+Controlled order, persistence, motion presets and collision strategies are in the
+[documentation](https://nashiuso.github.io/rewap/).
 
-- **`swap`** (default) exchanges the dragged item with the item in the target slot.
-- **`reorder`** removes the item and inserts it at the target, shifting the items in between.
-- **`grid`** places the item in the target cell. Shape the grid with `columns`,
-  `minColumnWidth`, and `columnSpan` / `rowSpan` on `Item`.
+## Keyboard
 
-Controlled and uncontrolled order, persistence, motion presets and collision
-strategies are covered in the documentation.
+Focus an item, then:
 
-## Public API
+| Key                | Action      |
+| ------------------ | ----------- |
+| `Space`            | Grab / drop |
+| Arrow keys         | Move        |
+| `Esc`              | Cancel      |
+| `Ctrl` / `⌘` + `Z` | Undo        |
 
-| Export                | What it is                                    |
-| --------------------- | --------------------------------------------- |
-| `Layout`              | The container: order, drag session, history   |
-| `Item`, `Item.Handle` | A draggable unit, and an optional drag handle |
-| `useLayout()`         | Current state and programmatic moves          |
-| `createRewap`         | Framework-agnostic engine                     |
+Keyboard input drives the same drag controller as the pointer, and changes are
+announced through a live region. `prefers-reduced-motion: reduce` makes movement
+instant. `Layout` and `Item` render the same markup on server and client; see
+[Accessibility and SSR](https://nashiuso.github.io/rewap/accessibility-and-ssr/).
 
-Optional entry points are imported explicitly and only pulled in when used:
+## API
 
-- `@nashiuso/rewap/core`: The framework-agnostic engine
-- `@nashiuso/rewap/math`: Geometry, grids, interpolation, statistics
-- `@nashiuso/rewap/motion`: Springs, easings, the shared animation ticker
-- `@nashiuso/rewap/accessibility`: Live-region announcer and keyboard grammar
-- `@nashiuso/rewap/utilities`: Browser hooks that report what the platform exposes
-- `@nashiuso/rewap/providers`: Adapters for external data, only when you configure them
-- `@nashiuso/rewap/charts`: `Chart`, an SVG chart with an accessible data table
-- `@nashiuso/rewap/widgets`: Ready-made dashboard widgets
+| Export                | Description                                 |
+| --------------------- | ------------------------------------------- |
+| `Layout`              | Container: order, drag session, history     |
+| `Item`, `Item.Handle` | A draggable unit and an optional drag handle |
+| `useLayout()`         | Current state and programmatic moves        |
+| `createRewap`         | Framework-agnostic engine                   |
+
+<details>
+<summary>Optional entry points and stylesheets</summary>
+
+<br>
+
+Imported explicitly and only bundled when used.
+
+| Entry                           | Contents                                                  |
+| ------------------------------- | --------------------------------------------------------- |
+| `@nashiuso/rewap/core`          | Framework-agnostic engine                                 |
+| `@nashiuso/rewap/math`          | Geometry, grids, interpolation, statistics                |
+| `@nashiuso/rewap/motion`        | Springs, easings, shared animation ticker                 |
+| `@nashiuso/rewap/accessibility` | Live-region announcer and keyboard grammar                |
+| `@nashiuso/rewap/utilities`     | Browser hooks that report what the platform exposes       |
+| `@nashiuso/rewap/providers`     | Adapters for external data, only when you configure them  |
+| `@nashiuso/rewap/charts`        | `Chart`, an SVG chart with an accessible data table       |
+| `@nashiuso/rewap/widgets`       | Ready-made dashboard widgets                              |
 
 Stylesheets: `styles.css` (layout defaults), plus `tokens.css`, `charts.css` and
 `widgets.css` for the optional modules. Styles are scoped to `rw-*` classes and
 `--rw-*` custom properties.
 
-## Accessibility and server rendering
-
-- Every mode has a keyboard path that drives the same drag controller as a pointer
-  drag. Grab, move, drop and cancel changes are announced through a live region.
-- `prefers-reduced-motion: reduce` makes movement instant. Dragging still works.
-- `Layout` and `Item` render on the server with the same markup as the client.
-  Measurement and persistence happen after mount, so the first server-rendered
-  paint shows the authored order.
-
-Details are in [Accessibility and SSR](https://nashiuso.github.io/rewap/accessibility-and-ssr/).
-
-## Documentation and playground
-
-- [Documentation](https://nashiuso.github.io/rewap/): installation, API, motion,
-  accessibility, SSR and known limitations. Built with
-  [Astro](https://astro.build/) and [Starlight](https://starlight.astro.build/).
-- [Playground](https://nashiuso.github.io/rewap/playground/): six local items to try
-  the modes and motion presets, with an editable code example.
+</details>
 
 ## Development
 
 ```bash
-npm ci                    # installs the lockfile tree and builds dist/ via prepare
-npm run ci                # format, types, lint, tests, build and package checks
-npm run docs:install      # install docs dependencies (one-time, or after lockfile changes)
-npm run docs:dev          # start the docs dev server (requires Node 22.12+)
-npm run site:build        # builds docs and assembles site-dist/
+npm ci                  # install and build dist/
+npm run ci              # format, types, lint, tests, build, package checks
+npm run docs:install    # docs dependencies (Node 22.12+)
+npm run docs:dev        # docs dev server
+npm run site:build      # build docs and assemble site-dist/
 npm run verify:github-install
 ```
 
-The documentation site is an Astro + Starlight app in `docs/` and requires
-Node.js 22.12 or newer.
+The docs site lives in `docs/`, built with [Astro](https://astro.build/) and
+[Starlight](https://starlight.astro.build/).
 
-## License
+<br>
 
-[MIT](./LICENSE) © [nashiuso](https://github.com/nashiuso)
+<p align="center">
+  <a href="./LICENSE">MIT</a> © <a href="https://github.com/nashiuso">nashiuso</a>
+</p>
