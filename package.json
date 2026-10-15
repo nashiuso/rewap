@@ -1,6 +1,6 @@
 {
   "name": "@nashiuso/rewap",
-  "version": "1.1.1",
+  "version": "0.0.8",
   "private": true,
   "description": "A React interaction library for draggable, swappable, reorderable and animated layouts. Local-first, dependency-light, TypeScript-native.",
   "license": "MIT",
@@ -162,7 +162,6 @@
     "banner": "node scripts/banner.mjs",
     "docs:install": "node scripts/docs-install.mjs",
     "docs:dev": "npm run banner && npm run docs:install && npm run dev --prefix docs",
-    "test:e2e": "playwright test",
     "ci": "npm run format:check && npm run typecheck && npm run lint && npm test && npm run build && npm run lint:package && npm run verify:package && npm run test:types",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
@@ -182,7 +181,6 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",
-    "@playwright/test": "^1.49.0",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/react": "^16.0.1",
     "@types/node": "^22.10.1",

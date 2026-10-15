@@ -32,7 +32,7 @@ export default defineConfig([
     target: "es2020",
     external: ["react", "react-dom", "react/jsx-runtime"],
     banner: {
-      js: "/* @nashiuso/rewap v1.1.1 | MIT | github.com/nashiuso */",
+      js: "/* @nashiuso/rewap v0.0.8 | MIT | github.com/nashiuso */",
     },
   },
 ]);

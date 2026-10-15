@@ -113,7 +113,7 @@ export interface PhysicsOptions {
 // NOTE(nashiuso): there used to be an `inertiaThreshold` here. It was documented as
 // "speed above which inertia engages" and nothing ever read it — the drop settles
 // with a fixed curve rather than a fling, so there was no threshold to apply.
-// Removed in 1.1.1 rather than kept as a knob that does nothing.
+// Removed in 0.0.8 rather than kept as a knob that does nothing.
 
 export interface SnapOptions {
   /** Snaps the dragged element's origin to the slot, not just its center. */

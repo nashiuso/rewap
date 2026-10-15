@@ -17,10 +17,10 @@ place items in a grid, with pointer, touch and keyboard input.
 <p align="center">
   <a href="https://github.com/nashiuso/rewap/actions/workflows/ci.yml"><img src="https://github.com/nashiuso/rewap/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI status"></a>
   <img src="https://img.shields.io/badge/license-MIT-49A1A8?style=flat-square&labelColor=020204" alt="MIT license">
-  <img src="https://img.shields.io/badge/version-1.1.1-49A1A8?style=flat-square&labelColor=020204" alt="Version 1.1.1">
+  <img src="https://img.shields.io/badge/version-0.0.8-49A1A8?style=flat-square&labelColor=020204" alt="Version 0.0.8">
 </p>
 
-> **Current version: 1.1.1.** Install directly from GitHub; the package is not
+> **Current version: 0.0.8.** Install directly from GitHub; the package is not
 > distributed through the npm registry.
 
 ## Installation
@@ -120,7 +120,6 @@ Details are in [Accessibility and SSR](https://nashiuso.github.io/rewap/accessib
 ```bash
 npm ci                    # installs the lockfile tree and builds dist/ via prepare
 npm run ci                # format, types, lint, tests, build and package checks
-npm run test:e2e          # browser tests (run `npx playwright install chromium` once)
 npm run docs:install      # install docs dependencies (one-time, or after lockfile changes)
 npm run docs:dev          # start the docs dev server (requires Node 22.12+)
 npm run site:build        # builds docs and assembles site-dist/
@@ -128,7 +127,7 @@ npm run verify:github-install
 ```
 
 The documentation site is an Astro + Starlight app in `docs/` and requires
-Node.js 22.12 or newer. The browser tests require Node.js 20 or newer.
+Node.js 22.12 or newer.
 
 ## License
 

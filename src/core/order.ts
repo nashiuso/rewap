@@ -120,7 +120,7 @@ export const orderAfterDrop = (
  *
  * Walks the slot centers and counts how many sit before the pointer.
  *
- * NOTE(nashiuso): legacy. This was how `projection` collision worked before 1.1.1,
+ * NOTE(nashiuso): legacy. This was how `projection` collision worked before 0.0.8,
  * and it is the reason the placeholder used to jump to the neighbour as soon as a
  * drag started — the dragged slot is in that list, so every insertion came out one
  * short. The projection strategy counts boundaries instead now (see
