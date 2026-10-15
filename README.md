@@ -17,11 +17,11 @@ place items in a grid, with pointer, touch and keyboard input.
 <p align="center">
   <a href="https://github.com/nashiuso/rewap/actions/workflows/ci.yml"><img src="https://github.com/nashiuso/rewap/actions/workflows/ci.yml/badge.svg?branch=main" alt="CI status"></a>
   <img src="https://img.shields.io/badge/license-MIT-49A1A8?style=flat-square&labelColor=020204" alt="MIT license">
-  <img src="https://img.shields.io/badge/status-1.1.1%20alpha-49A1A8?style=flat-square&labelColor=020204" alt="Status: 1.1.1 alpha">
+  <img src="https://img.shields.io/badge/version-1.1.1-49A1A8?style=flat-square&labelColor=020204" alt="Version 1.1.1">
 </p>
 
-> **1.1.1 alpha, unreleased.** Install from GitHub. The package is not published
-> to the npm registry, and this repository has no release tags yet.
+> **Current version: 1.1.1.** Install directly from GitHub; the package is not
+> distributed through the npm registry.
 
 ## Installation
 
@@ -29,8 +29,9 @@ place items in a grid, with pointer, touch and keyboard input.
 npm install github:nashiuso/rewap
 ```
 
-For a reproducible install, pin a full commit SHA or an existing tag:
-`npm install github:nashiuso/rewap#<ref>`. npm records the resolved commit in your lockfile.
+For a reproducible install, pin a full commit SHA:
+`npm install github:nashiuso/rewap#<commit-sha>`. npm records the resolved commit
+in your lockfile.
 
 The git install runs the package's `prepare` script, which builds `dist/`
 (ESM, CommonJS, declarations and stylesheets).

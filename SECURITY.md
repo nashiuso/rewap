@@ -34,5 +34,6 @@ endpoint logging the coordinates you sent it. Both are outside the package.
 
 ## Supported versions
 
-The project is an unreleased alpha. There are no published versions to backport
-fixes to. The latest `main` branch gets fixes.
+Rewap maintains one current code line on `main` (version 1.1.1). Security fixes
+target that code line; older release branches are not maintained. The package
+is installed from GitHub rather than distributed through the npm registry.

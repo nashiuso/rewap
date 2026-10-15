@@ -12,15 +12,14 @@ npm install github:nashiuso/rewap
 The peer dependency is `react >=18.0.0`. The repository's test suite runs against
 React 18.3. The git install runs `prepare`, which builds the JavaScript bundles,
 TypeScript declarations and CSS used by the package exports. The library supports
-Node.js 18.18.0 and later for installation and use; the documentation site itself
-requires Node.js 20.9 or later.
+Node.js 20 or newer. The documentation site itself requires Node.js 22.12 or
+newer.
 
 ## Pinning an install
 
-Append `#` and a full commit SHA or a tag that exists in the repository to the
-specifier, for example `github:nashiuso/rewap#<ref>`. Replace `<ref>` with the
-commit or tag you want to pin. Save that specifier in `package.json`; npm records
-it in the lockfile and supports it with `npm ci`.
+Append `#` and a full commit SHA to pin an exact revision, for example
+`github:nashiuso/rewap#<commit-sha>`. Save that specifier in `package.json`; npm
+records the resolved commit in your lockfile and supports it with `npm ci`.
 
 ## Imports
 
