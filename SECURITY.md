@@ -34,6 +34,6 @@ endpoint logging the coordinates you sent it. Both are outside the package.
 
 ## Supported versions
 
-Rewap maintains one current code line on `main` (version 1.1.1). Security fixes
+Rewap maintains one current code line on `main` (version 0.0.8). Security fixes
 target that code line; older release branches are not maintained. The package
 is installed from GitHub rather than distributed through the npm registry.

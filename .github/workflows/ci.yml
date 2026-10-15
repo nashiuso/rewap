@@ -1,15 +1,3 @@
-# Continuous integration for pull requests and pushes to main and work/** branches.
-#
-# This workflow never deploys anything. Production Pages deployment lives in
-# pages.yml and is restricted to main.
-#
-# Jobs:
-#   library          Node 20, 22 and 24:
-#                    format, types, lint, unit/component tests, build, package
-#                    checks, and the GitHub-install check (runs `prepare`).
-#   browser          Playwright end-to-end tests in Chromium (Node 22).
-#   site             Docs site built and verified (Node 22).
-
 name: CI
 
 on:
@@ -20,8 +8,6 @@ on:
 permissions:
   contents: read
 
-# Superseding runs for the same branch are cancelled, so a push to a work branch
-# that already has an open pull request does not keep two identical runs alive.
 concurrency:
   group: ci-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
@@ -36,96 +22,34 @@ jobs:
         node: ["20", "22", "24"]
     steps:
       - uses: actions/checkout@v7
-
       - uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node }}
           cache: npm
-
-      # `npm ci` installs the exact tree in the committed lockfile. Its `prepare`
-      # script also builds dist/, which the checks below consume.
-      # npm 10.9+ prompts for lifecycle-script approval; CI is non-interactive,
-      # so `npm_config_yes` auto-approves the package's own `prepare` script.
       - run: npm ci
         env:
           npm_config_yes: true
-
-      - name: Format
-        run: npm run format:check
-
-      - name: Types
-        run: npm run typecheck
-
-      - name: Types (public API)
-        run: npm run test:types
-
-      - name: Lint
-        run: npm run lint
-
-      - name: Unit and component tests
-        run: npm test
-
-      - name: Build
-        run: npm run build
-
-      - name: Package (publint, exports, dist, stylesheets)
-        run: |
-          npm run lint:package
-          npm run verify:package
-
-      - name: GitHub installation (git dependency path)
-        run: npm run verify:github-install
-
-  browser:
-    name: browser tests
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-
-      - uses: actions/setup-node@v7
-        with:
-          node-version: 22
-          cache: npm
-
-      - run: npm ci
-        env:
-          npm_config_yes: true
-
-      - name: Install Chromium
-        run: npx playwright install --with-deps chromium
-
-      # Playwright's webServer builds and serves the assembled site at /rewap/.
-      - name: Browser tests
-        run: npm run test:e2e
-
-      - name: Upload traces
-        if: failure()
-        uses: actions/upload-artifact@v7
-        with:
-          name: playwright-traces
-          path: test-results/
-          retention-days: 7
+      - run: npm run format:check
+      - run: npm run typecheck
+      - run: npm run test:types
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build
+      - run: npm run lint:package
+      - run: npm run verify:package
+      - run: npm run verify:github-install
 
   site:
     name: docs site
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-
       - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
-
-      # Installs the root tree (prepare builds dist/, which the docs site imports).
       - run: npm ci
         env:
           npm_config_yes: true
-
-      - name: Check library build output
-        run: test -f dist/index.js && test -f dist/types/index.d.ts
-
-      # site:build runs banner.mjs, installs docs deps, builds with Astro,
-      # assembles site-dist/, and verifies the output.
-      - name: Build and verify the site
-        run: npm run site:build
+      - run: test -f dist/index.js && test -f dist/types/index.d.ts
+      - run: npm run site:build

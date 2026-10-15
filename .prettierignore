@@ -5,8 +5,6 @@
 **/dist/**
 node_modules/**
 coverage/**
-test-results/**
-playwright-report/**
 .astro/**
 docs/.astro/**
 # Lockfiles are kept as text (see .gitattributes) but not reformatted.

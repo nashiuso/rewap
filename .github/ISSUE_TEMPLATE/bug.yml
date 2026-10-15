@@ -11,8 +11,8 @@ body:
     id: version
     attributes:
       label: Version
-      description: The exact version from your lockfile, e.g. `1.1.1`.
-      placeholder: "1.1.1"
+      description: The exact version from your lockfile, e.g. `0.0.8`.
+      placeholder: "0.0.8"
     validations:
       required: true
 

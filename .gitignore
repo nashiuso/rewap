@@ -15,9 +15,6 @@ docs/src/assets/brand/
 
 # Test artifacts
 coverage/
-test-results/
-playwright-report/
-blob-report/
 
 # Framework build caches
 .astro/
@@ -33,6 +30,3 @@ npm-debug.log*
 # but a maintainer's shell might still drop one of these in by habit.
 .env
 .env.local
-
-# Setup script backups
-.setup-backups/
