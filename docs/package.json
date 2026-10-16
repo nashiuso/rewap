@@ -23,7 +23,7 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
-    "@emnapi/runtime": "^0.0.8",
+    "@emnapi/runtime": "^1.11.3",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "typescript": "^5.9.3"
