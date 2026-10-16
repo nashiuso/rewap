@@ -55,11 +55,11 @@ export function App() {
 
 ## Modes
 
-| Mode               | A drop…                                                        |
-| ------------------ | -------------------------------------------------------------- |
-| `swap` _(default)_ | exchanges the dragged item with the item in the target slot    |
-| `reorder`          | inserts the item at the target and shifts the items in between |
-| `grid`             | places the item in the target cell                             |
+| Mode               | A drop…                                                           |
+| ------------------ | ----------------------------------------------------------------- |
+| `swap` *(default)* | exchanges the dragged item with the item in the target slot       |
+| `reorder`          | inserts the item at the target and shifts the items in between    |
+| `grid`             | places the item in the target cell                                |
 
 Shape a grid with `columns`, `minColumnWidth`, and `columnSpan` / `rowSpan` on `Item`.
 Controlled order, persistence, motion presets and collision strategies are in the
@@ -83,12 +83,12 @@ instant. `Layout` and `Item` render the same markup on server and client; see
 
 ## API
 
-| Export                | Description                                  |
-| --------------------- | -------------------------------------------- |
-| `Layout`              | Container: order, drag session, history      |
+| Export                | Description                                 |
+| --------------------- | ------------------------------------------- |
+| `Layout`              | Container: order, drag session, history     |
 | `Item`, `Item.Handle` | A draggable unit and an optional drag handle |
-| `useLayout()`         | Current state and programmatic moves         |
-| `createRewap`         | Framework-agnostic engine                    |
+| `useLayout()`         | Current state and programmatic moves        |
+| `createRewap`         | Framework-agnostic engine                   |
 
 <details>
 <summary>Optional entry points and stylesheets</summary>
@@ -97,16 +97,16 @@ instant. `Layout` and `Item` render the same markup on server and client; see
 
 Imported explicitly and only bundled when used.
 
-| Entry                           | Contents                                                 |
-| ------------------------------- | -------------------------------------------------------- |
-| `@nashiuso/rewap/core`          | Framework-agnostic engine                                |
-| `@nashiuso/rewap/math`          | Geometry, grids, interpolation, statistics               |
-| `@nashiuso/rewap/motion`        | Springs, easings, shared animation ticker                |
-| `@nashiuso/rewap/accessibility` | Live-region announcer and keyboard grammar               |
-| `@nashiuso/rewap/utilities`     | Browser hooks that report what the platform exposes      |
-| `@nashiuso/rewap/providers`     | Adapters for external data, only when you configure them |
-| `@nashiuso/rewap/charts`        | `Chart`, an SVG chart with an accessible data table      |
-| `@nashiuso/rewap/widgets`       | Ready-made dashboard widgets                             |
+| Entry                           | Contents                                                  |
+| ------------------------------- | --------------------------------------------------------- |
+| `@nashiuso/rewap/core`          | Framework-agnostic engine                                 |
+| `@nashiuso/rewap/math`          | Geometry, grids, interpolation, statistics                |
+| `@nashiuso/rewap/motion`        | Springs, easings, shared animation ticker                 |
+| `@nashiuso/rewap/accessibility` | Live-region announcer and keyboard grammar                |
+| `@nashiuso/rewap/utilities`     | Browser hooks that report what the platform exposes       |
+| `@nashiuso/rewap/providers`     | Adapters for external data, only when you configure them  |
+| `@nashiuso/rewap/charts`        | `Chart`, an SVG chart with an accessible data table       |
+| `@nashiuso/rewap/widgets`       | Ready-made dashboard widgets                              |
 
 Stylesheets: `styles.css` (layout defaults), plus `tokens.css`, `charts.css` and
 `widgets.css` for the optional modules. Styles are scoped to `rw-*` classes and
