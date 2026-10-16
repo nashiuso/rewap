@@ -234,7 +234,7 @@ export const useLayoutEngine = <T>(options: EngineOptions<T>): Engine<T> => {
   // Created on the first render that knows the order. The very first render
   // happens before the children have been reconciled, so `ids` is still empty
   // there — and a history seeded with that empty list makes the first undo of a
-  // session (and `reset()`) blank the layout. Reported on 1.0.2, fun one.
+  // session (and `reset()`) blank the layout. Reported on 0.0.8, fun one.
   const historyRef = useRef<History<ItemId[]> | null>(null);
   if (historyRef.current === null && ids.length > 0) {
     historyRef.current = createHistory<ItemId[]>(ids, {
